@@ -1,0 +1,6 @@
+.DS_Store
+~*
+*.csv
+node_modules
+!LFB data 2012-only post-Refine.csv
+!stations.csv
