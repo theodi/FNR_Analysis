@@ -16,13 +16,19 @@ function writeOutput () {
     // calculate the performance indeces
     _.each(stationGrounds, function (sg) {
 
+        /* TODO: this function still produces results that are slightly
+        misaligned with davetaz's: the 'ok' values calculated by the 
+        _.countBy function are always 1 unit higher than his. The total
+        of 'ok' and 'late' is right. Re-factoring the same calculation 
+        using an old style JavaScript 'for' produces the same result. */
+
         // own station
         sg.firstAppliancesOwnStation = 
             sg.attendanceTimesOwnStation.length;
         sg.percentageIn6MinutesOwnStation = _.countBy(
             sg.attendanceTimesOwnStation, 
             function (num) {
-              return num <= 360 ? 'ok' : 'late';
+              return num <= 360. ? 'ok' : 'late';
             }
         ).ok / sg.firstAppliancesOwnStation;
         sg.percentageLateOwnStation = 1.0 - 
@@ -34,7 +40,7 @@ function writeOutput () {
         sg.percentageIn6MinutesOtherStations = _.countBy(
             sg.attendanceTimesOtherStations, 
             function (num) {
-              return num <= 360 ? 'ok' : 'late';
+              return num <= 360. ? 'ok' : 'late';
             }
         ).ok / sg.firstAppliancesOtherStations;
         sg.percentageLateOtherStations = 1.0 - 

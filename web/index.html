@@ -1,0 +1,23 @@
+<html>
+	<head>
+		<script src="underscore-1.5.2-min.js"></script>
+		<script src="./d3-1309260940-min.js"></script>
+		<script src="./index.js"></script>
+		<script>
+			tabulate(sort('Station', true));
+		</script>
+	</head>
+	<body>
+
+		<h1>My data is on fire (stations)</h1>
+		<p>
+			Click on the columns' headings to sort. Stations highlighted by '*' face closure.
+		</p>
+		<p>
+			<a href="javascript:test()">Just a test: remove stations whose name starts by 'a'</a><br>
+			<a href="javascript:removeAllFilters()">Remove all filters</a><br>
+		</p>
+		<div id="container"></div>
+
+	</body>
+</html>
