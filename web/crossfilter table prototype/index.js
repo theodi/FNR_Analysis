@@ -61,6 +61,7 @@ function tabulate (sortFunction) {
 
 	// formatting
 	// makes into %s all values of all columns <=1
+	/*
 	data = _.map(data, function (row) {
 		_.each([
 				"First appliances, % <= 6 mins",
@@ -74,6 +75,7 @@ function tabulate (sortFunction) {
 			});
 			return row;
 	});
+	*/
 
     var table = d3.select("#container")
     		.html("")
@@ -110,11 +112,20 @@ function tabulate (sortFunction) {
         })
         .enter()
         .append("td")
-            .text(function(d) { 
+            .text(function(d) {
+            	var value = d.value;
+            	if (_.contains([
+						"First appliances, % <= 6 mins",
+						"First appliances, % late",
+						"First appliances from other stations, % <= 6 mins",
+						"First appliances from other stations, % late",
+						"% late difference",
+					], d.column))
+            		value = d3.format(".2%")(value);
             	return ((d.column == "Station") &&
             			_.contains(MAYOR_PLANNED_CLOSURES, 
-            				d.value) ? "* " : "")  
-            		+ d.value; 
+            				value) ? "* " : "")  
+            		+ value; 
             });
 
 	console.log("Table sorted and rendered in " + ((new Date()) - calculationTime) + " milliseconds.");
