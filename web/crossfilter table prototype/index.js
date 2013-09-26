@@ -14,8 +14,6 @@ var MAYOR_PLANNED_CLOSURES = [
 
 var FULL_DATA = [ ];
 
-var lastFilterFunction = function (data) { return data; };
-
 var lastSorted = { 
 	columnName: undefined,
 	asc: true,
@@ -45,29 +43,16 @@ function sort (columnName, asc) {
 	};
 }
 
-function test () {
-	tabulate(undefined, function (data) {
-		return _.filter(data, function (row) {
-			return row["Station"].substring(0, 1).toLowerCase() != 'a';
-		});
-	})
-}
+function tabulate (sortFunction) {
 
-function removeAllFilters() {
-	tabulate(undefined, function (data) { return data; });
-}
+	sortFunction = sortFunction || sort();
 
-function tabulate (sortFunction, filterFunction) {
-
-	filterFunction = filterFunction || 
-		lastFilterFunction;
-	lastFilterFunction = filterFunction;
-
-	sortFunction = sortFunction || 
-		sort();
+	if (FULL_DATA.length == 0) {
+		d3.select("#container").html("No data to display!")
+		return;
+	}
 
 	var data = FULL_DATA;
-	data = filterFunction(data);
 	data = sortFunction(data);
 
     var columns = _.keys(data[0]);
@@ -75,11 +60,17 @@ function tabulate (sortFunction, filterFunction) {
 	// formatting
 	// makes into %s all values of all columns <=1
 	data = _.map(data, function (row) {
-		_.each(_.keys(row), function (columnName) {
-			if (row[columnName] <= 1)
-				row[columnName] = d3.format(".2%")(row[columnName]);
-		})
-		return row;
+		_.each([
+				"First appliances, % <= 6 mins",
+				"First appliances, % late",
+				"First appliances from other stations, % <= 6 mins",
+				"First appliances from other stations, % late",
+				"% late difference",
+			], function (columnName) {
+				if (row[columnName] <= 1)
+					row[columnName] = d3.format(".2%")(row[columnName]);
+			});
+			return row;
 	});
 
     var table = d3.select("#container")
@@ -126,11 +117,24 @@ function tabulate (sortFunction, filterFunction) {
 
 }
 
-function rank (callback) {
+function rank (parameters, callback) {
+
+	var fromDate = (parameters || { fromDate: undefined }).fromDate;
+	var toDate = (parameters || { toDate: undefined }).toDate;
 
 	d3.csv("./data.csv", function (inputData) {
 
 		var stationGrounds = { };
+
+		// filter out the dates that are not interesting
+		if (fromDate)
+			inputData = _.filter(inputData, function (row) {
+				return new Date(row.DateOfCall) >= fromDate;
+			})
+		if (toDate)
+			inputData = _.filter(inputData, function (row) {
+				return new Date(row.DateOfCall) <= toDate;
+			})
 		
 		// first pass
 		_.each(inputData, function (row) {
@@ -163,24 +167,30 @@ function rank (callback) {
 	        // own station
 	        sg["No. of first appliances"] = 
 	            sg.attendanceTimesOwnStation.length;
-	        sg["First appliances, % <= 6 mins"] = _.countBy(
-	            sg.attendanceTimesOwnStation, 
-	            function (num) {
-	              return num <= 360. ? 'ok' : 'late';
-	            }
-	        ).ok / sg["No. of first appliances"];
+	        // if there are no appliances, compliance is 100%
+	        sg["First appliances, % <= 6 mins"] = 1.0;
+	        if (sg["No. of first appliances"] > 0)
+		        sg["First appliances, % <= 6 mins"] = (_.countBy(
+		            sg.attendanceTimesOwnStation, 
+		            function (num) {
+		              return num <= 360. ? 'ok' : 'late';
+		            }
+		        ).ok || 0) / sg["No. of first appliances"];
 	        sg["First appliances, % late"] = 1.0 - 
 	            sg["First appliances, % <= 6 mins"];
 
 	        // other stations
 	        sg["No. of first appliances from other stations"] = 
 	            sg.attendanceTimesOtherStations.length;
-	        sg["First appliances from other stations, % <= 6 mins"] = _.countBy(
-	            sg.attendanceTimesOtherStations, 
-	            function (num) {
-	              return num <= 360. ? 'ok' : 'late';
-	            }
-	        ).ok / sg["No. of first appliances from other stations"];
+	        // if there are no appliances, compliance is 100%
+	        sg["First appliances from other stations, % <= 6 mins"] = 1.0;
+	        if (sg["No. of first appliances from other stations"] > 0)
+		        sg["First appliances from other stations, % <= 6 mins"] = (_.countBy(
+		            sg.attendanceTimesOtherStations, 
+		            function (num) {
+		              return num <= 360. ? 'ok' : 'late';
+		            }
+		        ).ok || 0) / sg["No. of first appliances from other stations"];
 	        sg["First appliances from other stations, % late"] = 1.0 - 
 	            sg["First appliances from other stations, % <= 6 mins"];
 

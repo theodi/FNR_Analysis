@@ -4,9 +4,22 @@
 		<script src="./d3-1309260940-min.js"></script>
 		<script src="./index.js"></script>
 		<script>
-			rank(function (err) {
+
+			function reset () {
+				document.getElementById('fromDate').value = '2012-01-01 00:00:00';
+				document.getElementById('toDate').value = '2012-12-31 23:59:59';
+				refilter();
+			}
+
+			function refilter() {
+				rank({ fromDate: new Date(document.getElementById('fromDate').value), toDate: new Date(document.getElementById('toDate').value) },
+					tabulate);
+			}
+
+			rank(undefined, function (err) {
 				tabulate(sort('Station', true));
 			});
+
 		</script>
 	</head>
 	<body>
@@ -17,8 +30,10 @@
 			Click on the columns' headings to sort. Stations highlighted by '*' face closure.
 		</p>
 		<p>
-			<a href="javascript:test()">Just a test: remove stations whose name starts by 'a'</a><br>
-			<a href="javascript:removeAllFilters()">Remove all filters</a><br>
+		From date: <input id="fromDate" type="text" value="2012-01-01 00:00:00"><br>
+		To date: <input id="toDate" type="text" value="2012-12-31 23:59:59"> (careful what you write here, I don't check for the dates' validity)<br>
+		<input value="Update" type="button" onClick="refilter()">
+		<input value="Reset" type="button" onClick="reset()">
 		</p>
 		<div id="container"></div>
 
