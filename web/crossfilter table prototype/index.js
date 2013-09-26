@@ -47,6 +47,8 @@ function tabulate (sortFunction) {
 
 	sortFunction = sortFunction || sort();
 
+	var calculationTime = new Date();
+
 	if (FULL_DATA.length == 0) {
 		d3.select("#container").html("No data to display!")
 		return;
@@ -115,6 +117,8 @@ function tabulate (sortFunction) {
             		+ d.value; 
             });
 
+	console.log("Table sorted and rendered in " + ((new Date()) - calculationTime) + " milliseconds.");
+
 }
 
 function rank (parameters, callback) {
@@ -124,6 +128,7 @@ function rank (parameters, callback) {
 
 	d3.csv("./data.csv", function (inputData) {
 
+		var calculationTime = new Date();
 		var stationGrounds = { };
 
 		// filter out the dates that are not interesting
@@ -203,6 +208,8 @@ function rank (parameters, callback) {
 	        delete sg.attendanceTimesOtherStations;
 
 	    });
+
+		console.log("Ranking calculated in " + ((new Date()) - calculationTime) + " milliseconds.");
 
 		// make the object into an array, the way d3js can use it
 		FULL_DATA = [ ];
