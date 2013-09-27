@@ -5,7 +5,7 @@ classes <- structure(c("integer", "character", "character", "factor", "factor", 
 
 # I read the original data (no need for Google Refine, as for the Javascript 
 # version)
-data <- read.csv("../../reference data/LFB data 1 Jan 2009 to 31 Mar 2013.csv", header = TRUE, sep = ',', colClasses = classes, na.strings = 'NULL')
+data <- read.csv("../../reference data/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz", header = TRUE, sep = ',', colClasses = classes, na.strings = 'NULL')
 
 # I drop the columns I don't need
 data <- data[ c('DateOfCall', 'IncidentGroup', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation', 'SecondPumpArriving_AttendanceTime', 'SecondPumpArriving_DeployedFromStation') ]
