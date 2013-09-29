@@ -1,3 +1,5 @@
+source("./OSGridToGeodesic.r")
+
 # this was prepared following the general instructions by Bloomberg School 
 # of Public Health's prof. Roger Peng, in Coursera's course "Computing for Data 
 # Analysis" (23/9/2013), "Reading and Writing Data" unit, slide 7
@@ -7,14 +9,19 @@ classes <- structure(c("integer", "character", "character", "factor", "factor", 
 # version)
 data <- read.csv("../../reference data/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz", header = TRUE, sep = ',', colClasses = classes, na.strings = 'NULL')
 
-# I drop the columns I don't need
-data <- data[ c('DateOfCall', 'IncidentGroup', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation', 'SecondPumpArriving_AttendanceTime', 'SecondPumpArriving_DeployedFromStation') ]
+# I drop a) the rows that have NULL values in columns I need (not all rows with 
+# NULL values!), and b) the columns I don't need
+data <- subset(data, FirstPumpArriving_AttendanceTime != 'NULL' & Easting_rounded != 'NULL' & Northing_rounded != 'NULL', c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation', 'SecondPumpArriving_AttendanceTime', 'SecondPumpArriving_DeployedFromStation'))
 
-# I drop the rows that have NULL values in columns I need
-data <- subset(data, FirstPumpArriving_AttendanceTime != 'NULL' & Easting_rounded != 'NULL' & Northing_rounded != 'NULL')
+# converting dates to R's format, thanks to instructions at 
+# http://www.ats.ucla.edu/stat/r/faq/string_dates.htm
+data$DateOfCall <- as.Date(data$DateOfCall, "%d-%b-%y")
 
-# more goes here, e.g. date conversion and consolidation of date and time 
-# columns
+# filtering out everything is not from 2012
+data <- subset(data, DateOfCall >= '2012-01-01' & DateOfCall <= '2012-12-31')
+
+# converting OS Grid coordinates to geodesic
+data[, c("latitude", "longitude")] <- OSGridToGeodesic(data.frame(easting = data$Easting_rounded, northing = data$Northing_rounded))
 
 # and save it, for the d3js in the website to use it
-write.table(data_not_NULL, file = "LFB 2012 preprocessed.csv")
+write.table(data, file = "LFB 2012.csv", row.names = FALSE, sep = ',', na = 'NULL')
