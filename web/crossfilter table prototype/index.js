@@ -59,24 +59,6 @@ function tabulate (sortFunction) {
 
     var columns = _.keys(data[0]);
 
-	// formatting
-	// makes into %s all values of all columns <=1
-	/*
-	data = _.map(data, function (row) {
-		_.each([
-				"First appliances, % <= 6 mins",
-				"First appliances, % late",
-				"First appliances from other stations, % <= 6 mins",
-				"First appliances from other stations, % late",
-				"% late difference",
-			], function (columnName) {
-				if (row[columnName] <= 1)
-					row[columnName] = d3.format(".2%")(row[columnName]);
-			});
-			return row;
-	});
-	*/
-
     var table = d3.select("#container")
     		.html("")
     		.append("table"),
@@ -145,11 +127,11 @@ function rank (parameters, callback) {
 		// filter out the dates that are not interesting
 		if (fromDate)
 			inputData = _.filter(inputData, function (row) {
-				return new Date(row.DateOfCall) >= fromDate;
+				return row.DateOfCall >= fromDate;
 			})
 		if (toDate)
 			inputData = _.filter(inputData, function (row) {
-				return new Date(row.DateOfCall) <= toDate;
+				return row.DateOfCall <= toDate;
 			})
 		
 		// first pass
