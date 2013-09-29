@@ -11,7 +11,7 @@ data <- read.csv("../../reference data/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz
 
 # I drop a) the rows that have NULL values in columns I need (not all rows with 
 # NULL values!), and b) the columns I don't need
-data <- subset(data, FirstPumpArriving_AttendanceTime != 'NULL' & Easting_rounded != 'NULL' & Northing_rounded != 'NULL', c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation', 'SecondPumpArriving_AttendanceTime', 'SecondPumpArriving_DeployedFromStation'))
+data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation', 'SecondPumpArriving_AttendanceTime', 'SecondPumpArriving_DeployedFromStation'))
 
 # converting dates to R's format, thanks to instructions at 
 # http://www.ats.ucla.edu/stat/r/faq/string_dates.htm
