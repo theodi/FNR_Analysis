@@ -1,4 +1,6 @@
 .DS_Store
 ~*
 *.csv
+.RData
+.Rhistory
 node_modules
