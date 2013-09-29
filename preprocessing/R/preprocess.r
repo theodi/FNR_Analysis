@@ -13,15 +13,17 @@ data <- read.csv("../../reference data/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz
 # NULL values!), and b) the columns I don't need
 data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation', 'SecondPumpArriving_AttendanceTime', 'SecondPumpArriving_DeployedFromStation'))
 
-# converting dates to R's format, thanks to instructions at 
+# I convert dates to R's format, thanks to instructions at 
 # http://www.ats.ucla.edu/stat/r/faq/string_dates.htm
 data$DateOfCall <- as.Date(data$DateOfCall, "%d-%b-%y")
 
-# filtering out everything is not from 2012
+# I filter out everything is not from 2012
 data <- subset(data, DateOfCall >= '2012-01-01' & DateOfCall <= '2012-12-31')
 
-# converting OS Grid coordinates to geodesic
+# I convert the incidents' OS Grid coordinates to geodesic and drop the orignal
+# ones
 data[, c("latitude", "longitude")] <- OSGridToGeodesic(data.frame(easting = data$Easting_rounded, northing = data$Northing_rounded))
+data <- data[, !(names(data) %in% c('Northing_rounded', 'Easting_rounded'))]
 
 # and save it, for the d3js in the website to use it
 write.table(data, file = "LFB 2012.csv", row.names = FALSE, sep = ',', na = 'NULL')
