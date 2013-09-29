@@ -20,7 +20,7 @@ var EXCLUDED_VALUES = [
 ];
 
 var COLUMNS_FOR_DESTINATION_FILE = [ 
-  'DateOfCall', 'IncidentGroup', 'latitude', 'longitude', 
+  'DateOfCall', 'TimeOfCall', 'IncidentGroup', 'latitude', 'longitude', 
   'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 
   'FirstPumpArriving_DeployedFromStation', 'SecondPumpArriving_AttendanceTime', 
   'SecondPumpArriving_DeployedFromStation', 
@@ -81,8 +81,8 @@ csv()
             newCount++;
             // TODO: is this the ideal data format D3 will require?
             row.DateOfCall = DATE_TRANSFORMATION_FUNCTION(row);
-            var coordinates = geo.eastNorthToLatLong(row.Northing_rounded,
-                row.Easting_rounded);
+            var coordinates = geo.eastNorthToLatLong(row.Easting_rounded, 
+                row.Northing_rounded);
             row.latitude = coordinates.lat;
             row.longitude = coordinates.long;        
             return row;
