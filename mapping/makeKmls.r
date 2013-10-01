@@ -14,13 +14,20 @@ incidents <- read.csv("incidents.csv", header = TRUE, sep = ',', colClasses = in
 # the polygon represented by the remaining set of incidents is a good 
 # approximation of the geographical area that can be served by the station in 
 # six minutes. I also drop the columns that are not required in the following.
-incidents <- subset(incidents, (FirstPumpArriving_DeployedFromStation == IncidentStationGround) & (FirstPumpArriving_AttendanceTime <= 360), c('DateOfCall', 'TimeOfCall', 'IncidentStationGround', 'latitude', 'longitude'))
+incidents_own <- subset(incidents, (FirstPumpArriving_DeployedFromStation == IncidentStationGround) & (FirstPumpArriving_AttendanceTime <= 360), c('DateOfCall', 'TimeOfCall', 'IncidentStationGround', 'latitude', 'longitude'))
+incidents_other <- subset(incidents, ((FirstPumpArriving_DeployedFromStation != IncidentStationGround) & (FirstPumpArriving_AttendanceTime <= 360)) | ((SecondPumpArriving_DeployedFromStation != IncidentStationGround) & (SecondPumpArriving_AttendanceTime <= 360)), c('DateOfCall', 'TimeOfCall', 'IncidentStationGround', 'latitude', 'longitude'))
 
 for (station in levels(incidents$IncidentStationGround)) {
-	incidents_station <- subset(incidents, IncidentStationGround == station, c('longitude', 'latitude'))
+
+	incidents_station <- subset(incidents_own, IncidentStationGround == station, c('longitude', 'latitude'))
 	attendance_area_vertices <- chull(incidents_station)
 	attendance_area <- Polygons(list(Polygon(incidents_station[c(attendance_area_vertices, attendance_area_vertices[1]), ])), "1")
-	kmlPolygon(attendance_area, kmlfile = paste(station, ".kml"), name = station, col = "#df0000aa", lwd = 5, border = 4, kmlname = station, kmldescription = "This is <b>only</b> a <a href=’http://www.r-project.org’>R</a> test.")
+	kmlPolygon(attendance_area, kmlfile = paste("maps/", station, "_own.kml", sep = ""), name = paste(station, "(own)"), col = "#df0000aa", lwd = 5, border = 4, kmlname = station, kmldescription = "")
+
+	incidents_station <- subset(incidents_other, IncidentStationGround == station, c('longitude', 'latitude'))
+	attendance_area_vertices <- chull(incidents_station)
+	attendance_area <- Polygons(list(Polygon(incidents_station[c(attendance_area_vertices, attendance_area_vertices[1]), ])), "1")
+	kmlPolygon(attendance_area, kmlfile = paste("maps/", station, "_other.kml", sep = ""), name = paste(station, "(other)"), col = "#df0000aa", lwd = 5, border = 4, kmlname = station, kmldescription = "")
 }
 
 # for later
