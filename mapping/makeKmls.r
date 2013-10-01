@@ -14,7 +14,7 @@ incidents <- read.csv("incidents.csv", header = TRUE, sep = ',', colClasses = in
 # the polygon represented by the remaining set of incidents is a good 
 # approximation of the geographical area that can be served by the station in 
 # six minutes. I also drop the columns that are not required in the following.
-incidents_own <- subset(incidents, (FirstPumpArriving_DeployedFromStation == IncidentStationGround) & (FirstPumpArriving_AttendanceTime <= 360), c('DateOfCall', 'TimeOfCall', 'IncidentStationGround', 'latitude', 'longitude'))
+incidents_own <- subset(incidents, (((FirstPumpArriving_DeployedFromStation == IncidentStationGround) & (FirstPumpArriving_AttendanceTime <= 360)) | ((SecondPumpArriving_DeployedFromStation == IncidentStationGround) & (SecondPumpArriving_AttendanceTime <= 360))), c('DateOfCall', 'TimeOfCall', 'IncidentStationGround', 'latitude', 'longitude'))
 incidents_other <- subset(incidents, ((FirstPumpArriving_DeployedFromStation != IncidentStationGround) & (FirstPumpArriving_AttendanceTime <= 360)) | ((SecondPumpArriving_DeployedFromStation != IncidentStationGround) & (SecondPumpArriving_AttendanceTime <= 360)), c('DateOfCall', 'TimeOfCall', 'IncidentStationGround', 'latitude', 'longitude'))
 
 for (station in levels(incidents$IncidentStationGround)) {
