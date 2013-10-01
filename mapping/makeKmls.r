@@ -14,20 +14,19 @@ incidents <- read.csv("incidents.csv", header = TRUE, sep = ',', colClasses = in
 # the polygon represented by the remaining set of incidents is a good 
 # approximation of the geographical area that can be served by the station in 
 # six minutes. I also drop the columns that are not required in the following.
-incidents_own <- subset(incidents, (((FirstPumpArriving_DeployedFromStation == IncidentStationGround) & (FirstPumpArriving_AttendanceTime <= 360)) | ((SecondPumpArriving_DeployedFromStation == IncidentStationGround) & (SecondPumpArriving_AttendanceTime <= 360))), c('DateOfCall', 'TimeOfCall', 'IncidentStationGround', 'latitude', 'longitude'))
-incidents_other <- subset(incidents, ((FirstPumpArriving_DeployedFromStation != IncidentStationGround) & (FirstPumpArriving_AttendanceTime <= 360)) | ((SecondPumpArriving_DeployedFromStation != IncidentStationGround) & (SecondPumpArriving_AttendanceTime <= 360)), c('DateOfCall', 'TimeOfCall', 'IncidentStationGround', 'latitude', 'longitude'))
+reach_as_first_pump_arriving <- subset(incidents, FirstPumpArriving_AttendanceTime <= 360, c('FirstPumpArriving_DeployedFromStation', 'FirstPumpArriving_AttendanceTime', 'longitude', 'latitude'))
+colnames(reach_as_first_pump_arriving) <- c("station", "attendanceTime", "longitude", "latitude")
 
-for (station in levels(incidents$IncidentStationGround)) {
+reach_as_second_pump_arriving <- subset(incidents, SecondPumpArriving_AttendanceTime <= 360, c('SecondPumpArriving_DeployedFromStation', 'FirstPumpArriving_AttendanceTime', 'longitude', 'latitude'))
+colnames(reach_as_second_pump_arriving) <- c("station", "attendanceTime", "longitude", "latitude")
 
-	incidents_station <- subset(incidents_own, IncidentStationGround == station, c('longitude', 'latitude'))
-	attendance_area_vertices <- chull(incidents_station)
-	attendance_area <- Polygons(list(Polygon(incidents_station[c(attendance_area_vertices, attendance_area_vertices[1]), ])), "1")
-	kmlPolygon(attendance_area, kmlfile = paste("maps/", station, "_own.kml", sep = ""), name = paste(station, "(own)"), col = "#df0000aa", lwd = 5, border = 4, kmlname = station, kmldescription = "")
+reach <- rbind(reach_as_first_pump_arriving, reach_as_second_pump_arriving)
 
-	incidents_station <- subset(incidents_other, IncidentStationGround == station, c('longitude', 'latitude'))
-	attendance_area_vertices <- chull(incidents_station)
-	attendance_area <- Polygons(list(Polygon(incidents_station[c(attendance_area_vertices, attendance_area_vertices[1]), ])), "1")
-	kmlPolygon(attendance_area, kmlfile = paste("maps/", station, "_other.kml", sep = ""), name = paste(station, "(other)"), col = "#df0000aa", lwd = 5, border = 4, kmlname = station, kmldescription = "")
+for (s in levels(reach$station)) {
+	reach_station <- subset(reach, station == s, c('longitude', 'latitude'))
+	reach_vertices <- chull(reach_station)
+	reach_polygons <- Polygons(list(Polygon(reach_station[c(reach_vertices, reach_vertices[1]), ])), "1")
+	kmlPolygon(reach_polygons, kmlfile = paste("maps/", s, ".kml", sep = ""), name = s, col = "#df0000aa", lwd = 5, border = 4, kmlname = s, kmldescription = "")
 }
 
 # for later
