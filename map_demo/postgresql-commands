@@ -1,0 +1,11 @@
+create table lfb_2012 ( IncidentNumber INTEGER not null,DateOfCall VARCHAR, TimeOfCall VARCHAR, IncidentGroup VARCHAR,StopCodeDescription VARCHAR,SpecialServiceType VARCHAR, Postcode_full VARCHAR,Postcode_district VARCHAR,Latitude FLOAT, Longitude FLOAT,IncidentStationGround VARCHAR,FirstPumpArriving_AttendanceTime INTEGER, FirstPumpArriving_DeployedFromStation VARCHAR,SecondPumpArriving_AttendanceTime INTEGER,SecondPumpArriving_DeployedFromStation VARCHAR, NumStationsWithPumpsAttending INTEGER,NumPumpsAttending INTEGER );
+SELECT AddGeometryColumn('lfb_2012', 'point', 4326, 'POINT', 2 );
+COPY lfb_2012 FROM '/Users/Davetaz/Downloads/LFB-data-1-Apr-2007-to-31-Mar-2013/lfb_2012_less_columns_lat_long.csv' DELIMITER ',' CSV;
+UPDATE lfb_2012 SET point = ST_SetSRID(ST_MakePoint(longitude,latitude),4326);
+SELECT ST_AsKML(point) from lfb_2012 where firstpumparriving_deployedfromstation='Acton';
+SELECT ST_AsEWKT(ST_Simplify(ST_ConvexHull(ST_Collect(point)), 0.0001)) from lfb_2012 where firstpumparriving_attendancetime<600 and firstpumparriving_deployedfromstation='Acton';
+SELECT ST_AsKML(ST_Simplify(ST_ConvexHull(ST_Collect(point)), 0.0001)) from lfb_2012 where firstpumparriving_attendancetime<600 and firstpumparriving_deployedfromstation='Acton';
+SELECT AddGeometryColumn('lfb_2012', 'point_os', 27700, 'POINT', 2 );
+UPDATE lfb_2012 SET point_os = ST_Transform(point,27700);
+SELECT ST_AsKML(ST_Simplify(ST_Buffer(ST_Collect(point_os), 1000),100)) from lfb_2012 where firstpumparriving_attendancetime<600 and firstpumparriving_deployedfromstation='Acton';
+Try ST_Subtract convex hull from ST_Buffer maybe?
