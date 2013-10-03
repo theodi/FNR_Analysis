@@ -27,19 +27,12 @@ for (s in levels(reach$station)) {
 	sourceStation <- subset(stations, name == s, c('longitude', 'latitude'))[1,]
 	reachStation <- subset(reach, station == s, c('longitude', 'latitude'))
 	temp <- reachStation[rep(1:nrow(reachStation), 1, each = 2), ]
-	reachStation[seq(1, nrow(temp) + 1, 2), 1:2] <- sourceStation
-	# TODO: the line below fails unless I heavily constrain the number of 
-	# incidents I create the LINESTRING from. I believe that the problem is a
-	# string too long to be manageable by either geos or R itself. But how
-	# can I create the line otherwise?
-	line = readWKT(paste("LINESTRING(", paste(apply(reachStation[1:21, ], 1, paste, collapse = " "), collapse = ","), ")"))
-	# I have tested experimentally that a 0.0006 buffer width corresponds to
-	# about 100 meters diameter
-	area = gBuffer(line, width = 0.0006, capStyle = "ROUND")
+	temp[seq(1, nrow(temp) + 1, 2), 1:2] <- sourceStation
+	reachStation <- temp
+	line <- Line(reachStation)
+	# I have tested experimentally that a 0.0012 buffer width corresponds to
+	# about 100 meters ray around the original line connecting the station to
+	# the incident, including the thick borders I am currently using
+	area <- gBuffer(SpatialLines(list(Lines(line, ID = s))), width = 0.0012, capStyle = "ROUND")
 	kmlPolygon(area@polygons[[1]], kmlfile = paste("maps/", s, ".kml", sep = ""), name = s, col = "#df0000aa", lwd = 5, border = 4, kmlname = s, kmldescription = "")
 }
-
-#	reachStation <- subset(reach, station == s, c('longitude', 'latitude'))
-#	reachVertices <- chull(reachStation)
-#	reachPolygons <- Polygons(list(Polygon(reachStation[c(reachVertices, reachVertices[1]), ])), "1")
-#	kmlPolygon(reachPolygons, kmlfile = paste("maps/", s, ".kml", sep = ""), name = s, col = "#df0000aa", lwd = 5, border = 4, kmlname = s, kmldescription = "")
