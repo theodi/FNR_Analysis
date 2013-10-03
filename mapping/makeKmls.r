@@ -30,13 +30,3 @@ for (s in levels(reach$station)) {
 	area <- gBuffer(SpatialLines(list(Lines(lines, ID = s))), width = 0.0012, capStyle = "ROUND")
 	kmlPolygon(area@polygons[[1]], kmlfile = paste("maps/", s, ".kml", sep = ""), name = s, col = "#df0000aa", lwd = 5, border = 4, kmlname = s, kmldescription = "")
 }
-
-#	temp <- reachStation[rep(1:nrow(reachStation), 1, each = 2), ]
-#	temp[seq(1, nrow(temp) + 1, 2), 1:2] <- sourceStation
-#	reachStation <- temp
-#	line <- Line(reachStation)
-#	# I have tested experimentally that a 0.0012 buffer width corresponds to
-#	# about 100 meters ray around the original line connecting the station to
-#	# the incident, including the thick borders I am currently using
-#	area <- gBuffer(SpatialLines(list(Lines(line, ID = s))), width = 0.0012, capStyle = "ROUND")
-#	kmlPolygon(area@polygons[[1]], kmlfile = paste("maps/", s, ".kml", sep = ""), name = s, col = "#df0000aa", lwd = 5, border = 4, kmlname = s, kmldescription = "")
