@@ -45,7 +45,7 @@
 
 	<script src="js/leaflet.js"></script>
 
-	<script type="text/javascript" src="js/london-squares.js"></script>
+	<script type="text/javascript" src="js/silvertown-area.js"></script>
 	<script type="text/javascript">
 
 		var map = L.map('map').setView([51.5, 0.04], 14);
@@ -77,22 +77,25 @@
 
 		// get color depending on population density value
 		function getColor(d) {
-			return d > 480 ? '#800026' :
-			       d > 420  ? '#BD0026' :
-			       d > 360  ? '#E31A1C' :
-			       d > 240  ? '#FC4E2A' :
-			       d > 120   ? '#FD8D3C' :
-			       d > 60   ? '#FEB24C' :
-			       d > 10   ? '#FED976' :
-			                  '#FFEDA0';
+			return d > 1140 ? '#8d4e4a' :
+			       d > 1020 ? '#ae504c' :
+			       d > 900 ? '#e14f4e' :
+			       d > 780 ? '#ed5c5c' :
+			       d > 660 ? '#f07d78' :
+			       d > 540 ? '#f49f99' :
+			       d > 420 ? '#f9c0b9' :
+			       d > 300 ? '#d7d465' :
+			       d > 180 ? '#9dd07e' :
+			       d > 60  ? '#73be52' :
+			       d < 60  ? '#5f904a' :
+			                 '#FFEDA0';
 		}
 
 		function style(feature) {
 			return {
 				weight: 1,
 				opacity: 1,
-				color: 'white',
-				dashArray: '3',
+				color: getColor(feature.properties.response),
 				fillOpacity: 0.7,
 				fillColor: getColor(feature.properties.response)
 			};
@@ -147,7 +150,7 @@
 		legend.onAdd = function (map) {
 
 			var div = L.DomUtil.create('div', 'info legend'),
-				grades = [0, 10, 60, 120, 240, 360, 420, 480],
+				grades = [0, 60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140],
 				labels = [],
 				from, to;
 
