@@ -1,0 +1,6 @@
+The December 2013 data was released by Telefonica in the context of the 
+"Datathon for Social Good" event at September 2013's Campus Party UK. The May 
+2013 data was specifically shared by Telefonica with the Open Data Institute
+for this research project. In both cases, data is released under the Open Data 
+Commons Public Domain Dedication and License (PDDL). See more at: 
+http://opendatacommons.org/licenses/pddl/#sthash.mlM4ot86.dpuf
