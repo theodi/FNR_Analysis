@@ -1,4 +1,4 @@
-source("./OSGridToGeodesic.r")
+source("./OSGridToGeodesic.R")
 
 # this was prepared following the general instructions by Bloomberg School 
 # of Public Health's prof. Roger Peng, in Coursera's course "Computing for Data 
