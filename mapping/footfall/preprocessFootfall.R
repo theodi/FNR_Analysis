@@ -8,6 +8,8 @@ preprocessFootfall <- function () {
 	dec09 <- read.csv("../../reference data/Telefonica/footfall-London-09-dec-2012-15-dec-2012.csv.gz")
 	dec09 <- dec09[, c('Date', 'Time', 'Grid_ID', 'Total')]
 	colnames(dec09) <- c("date", "time", "telefonicaGridId", "footfall")
+	# remove any duplicates
+	dec09 <- dec09[!duplicated(paste(dec09$telefonicaGridId, dec09$date, dec09$time, dec09$footfall)),]
 	# I force the class of the columns and fix the formats if necessary
 	dec09$telefonicaGridId <- as.factor(dec09$telefonicaGridId)
 	# December's dates need being converted to R's format
@@ -23,6 +25,8 @@ preprocessFootfall <- function () {
 	# I remove from the May data the rows referring to grid ids that are not listed
 	# in the December data
 	may13 <- subset(may13, telefonicaGridId %in% dec09$telefonicaGridId)
+	# remove any duplicates
+	may13 <- may13[!duplicated(paste(may13$telefonicaGridId, may13$date, may13$time, may13$footfall)),]
 	# I force the class of the columns and fix the formats if necessary
 	may13$telefonicaGridId <- as.factor(may13$telefonicaGridId)
 	may13$date <- as.Date(may13$date)
@@ -34,9 +38,11 @@ preprocessFootfall <- function () {
 
 	# I merge Dec '12 and May '13 data
 	data <- rbind(may13, dec09)
-	# ... and calculate the footfall mean for every grid id, day of week and hour 
-	# TODO: there must be an incredible better way for doing what the next section
-	# does
+
+	# ... and calculate the footfall mean for every grid id, day of week and 
+	# hour 
+	# TODO: there must be an incredible better way for doing what the next 
+	# section does
 	footfall <- lapply(split(data$footfall, list(data$telefonicaGridId, data$day, data$time)), mean)
 	footfall <- do.call(rbind.data.frame, footfall)
 	colnames(footfall) <- c('mean')
@@ -49,25 +55,7 @@ preprocessFootfall <- function () {
 }
 
 
-checkFootfallCompleteness <- function (footfall) {
-
-	missing = data.frame()
-	for (s in unique(footfall$telefonicaGridId)) {
-		print (paste("Testing square", s, "..."))
-		for (d in c('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday')) {
-			for (t in 0:23) {
-				if (nrow(subset(footfall, (telefonicaGridId == s) & (day == d) & (time == paste(t, ":00:00", sep = "", collapse = NULL)))) == 0) {
-					print (paste("Found missing footfall: square ", s, "day", d, "time", paste(t, ":00:00", sep = "", collapse = NULL)))
-					missing <- rbind(missing, data.frame(telefonicaGridId = s, day = d, time = t))
-				}
-			}
-		}
-	}
-	missing
-
-}
-
-
+# this checks sets that look too small for missing grid areas
 checkFootfallCompleteness2 <- function (filename) {
 
 	data <- read.csv(filename)
@@ -76,6 +64,24 @@ checkFootfallCompleteness2 <- function (filename) {
 	for (d in unique(data$Date)) {
 		print (paste("Checking", d))
 		areas <- unique(subset(data, Date == d)$Grid_ID)
+		if (length(areas) < length(allAreas)) {
+			missingAreas <- allAreas[!(allAreas %in% areas)]
+			print ("The missing areas are") 
+			print (paste(missingAreas, sep = ", "), sep = " ", collapse = NULL)
+		}
+	}
+
+}
+
+
+# same as checkFootfallCompleteness2, but for the May 13 data
+checkFootfallCompleteness3 <- function (data) {
+
+	allAreas <- unique(data$Grid.ID)
+	print (paste("The total number of grid id areas referenced in the file is ", length(allAreas)))
+	for (d in unique(data$Date)) {
+		print (paste("Checking", d))
+		areas <- unique(subset(data, Date == d)$Grid.ID)
 		if (length(areas) < length(allAreas)) {
 			missingAreas <- allAreas[!(allAreas %in% areas)]
 			print ("The missing areas are") 
