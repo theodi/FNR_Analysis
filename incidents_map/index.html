@@ -1,174 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Leaflet Layers Control Example</title>
+	<title>FNR Analtsis</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="css/leaflet.css" />
+	<link rel="stylesheet" href="css/style.css" />
 	<!--[if lte IE 8]><link rel="stylesheet" href="../dist/leaflet.ie.css" /><![endif]-->
-
-	<style>
-		#map {
-			width: 1200px;
-			height: 800px;
-		}
-
-		.info {
-			padding: 6px 8px;
-			font: 14px/16px Arial, Helvetica, sans-serif;
-			background: white;
-			background: rgba(255,255,255,0.8);
-			box-shadow: 0 0 15px rgba(0,0,0,0.2);
-			border-radius: 5px;
-		}
-		.info h4 {
-			margin: 0 0 5px;
-			color: #777;
-		}
-
-		.legend {
-			text-align: left;
-			line-height: 18px;
-			color: #555;
-		}
-		.legend i {
-			width: 18px;
-			height: 18px;
-			float: left;
-			margin-right: 8px;
-			opacity: 0.7;
-		}
-	</style>
 </head>
 <body>
 	<div id="map"></div>
-
+	<section style="float: right;" id="boroughs">
+	</section>
 	<script src="js/leaflet.js"></script>
-
-	<script type="text/javascript" src="js/silvertown-area.js"></script>
-	<script type="text/javascript">
-
-		var map = L.map('map').setView([51.5, 0.04], 14);
-
-		var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
-			attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
-			key: 'BC9A493B41014CAABB98F0471D759707',
-			styleId: 22677
-		}).addTo(map);
-
-
-		// control that shows state info on hover
-		var info = L.control();
-
-		info.onAdd = function (map) {
-			this._div = L.DomUtil.create('div', 'info');
-			this.update();
-			return this._div;
-		};
-
-		info.update = function (props) {
-			this._div.innerHTML = (props ?
-				'Number of Incidents: <b>' + props.incidents + '</b><br />Average Response Time: <b>' + props.response + '</b><br/>Stations responding: <b>' + props.attending + '</b>'
-				: ' Hover over an area' );
-		};
-
-		info.addTo(map);
-
-
-		// get color depending on population density value
-		function getColor(d) {
-			return d > 1140 ? '#8d4e4a' :
-			       d > 1020 ? '#ae504c' :
-			       d > 900 ? '#e14f4e' :
-			       d > 780 ? '#ed5c5c' :
-			       d > 660 ? '#f07d78' :
-			       d > 540 ? '#f49f99' :
-			       d > 420 ? '#f9c0b9' :
-			       d > 300 ? '#d7d465' :
-			       d > 180 ? '#9dd07e' :
-			       d > 60  ? '#73be52' :
-			       d < 60  ? '#5f904a' :
-			                 '#FFEDA0';
-		}
-
-		function style(feature) {
-			return {
-				weight: 1,
-				opacity: 1,
-				color: getColor(feature.properties.response),
-				fillOpacity: 0.7,
-				fillColor: getColor(feature.properties.response)
-			};
-		}
-
-		function highlightFeature(e) {
-			var layer = e.target;
-
-			layer.setStyle({
-				weight: 5,
-				color: '#666',
-				dashArray: '',
-				fillOpacity: 0.7
-			});
-
-			if (!L.Browser.ie && !L.Browser.opera) {
-				layer.bringToFront();
-			}
-
-			info.update(layer.feature.properties);
-		}
-
-		var geojson;
-
-		function resetHighlight(e) {
-			geojson.resetStyle(e.target);
-			info.update();
-		}
-
-		function zoomToFeature(e) {
-			map.fitBounds(e.target.getBounds());
-		}
-
-		function onEachFeature(feature, layer) {
-			layer.on({
-				mouseover: highlightFeature,
-				mouseout: resetHighlight,
-				click: zoomToFeature
-			});
-		}
-
-		geojson = L.geoJson(londonData, {
-			style: style,
-			onEachFeature: onEachFeature
-		}).addTo(map);
-
-		map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
-
-
-		var legend = L.control({position: 'bottomright'});
-
-		legend.onAdd = function (map) {
-
-			var div = L.DomUtil.create('div', 'info legend'),
-				grades = [0, 60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140],
-				labels = [],
-				from, to;
-
-			for (var i = 0; i < grades.length; i++) {
-				from = grades[i];
-				to = grades[i + 1];
-
-				labels.push(
-					'<i style="background:' + getColor(from + 1) + '"></i> ' +
-					from + (to ? '&ndash;' + to : '+'));
-			}
-
-			div.innerHTML = labels.join('<br>');
-			return div;
-		};
-
-		legend.addTo(map);
-
+	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
+	<script src="js/functions.js"></script>
 	</script>
 </body>
 </html>

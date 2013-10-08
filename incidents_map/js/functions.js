@@ -169,7 +169,7 @@ function onEachBoroughFeature(feature, layer) {
 
 function loadBoroughBoundary(borough) {
 	if (!containsObject(borough,defaultIncidentLayers)) {
-		$.getJSON( "kml/"+borough+".json", function( data ) {
+		$.getJSON( "borough_boundaries/"+borough+".json", function( data ) {
         	        geojson = L.geoJson(data, {
 	                        style: boroughStyle,
         	                onEachFeature: onEachBoroughFeature,
@@ -180,7 +180,7 @@ function loadBoroughBoundary(borough) {
 }
 
 function loadIncidentData(borough) {
-	$.getJSON( "boroughs/"+borough+".js", function( data ) {
+	$.getJSON( "incidents/"+borough+".js", function( data ) {
 		geojson = L.geoJson(data, {
 			style: style,
 			onEachFeature: onEachFeature,
