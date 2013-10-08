@@ -1,3 +1,26 @@
+fixMissingFootfall <- function (data) {
+
+	# if any area data is missing, even party (e.g. one time slot) for any of 
+	# the days, I replace the data for that day in entirety (not just the 
+	# missing time slot) with the average footfall of the same kind of day 
+	# (weekday / weekend) for the same area, from the days where it is available
+	data_fixed <- data
+	for (d in unique(data$day)) {
+		copyFrom <- if (!(d %in% c('Saturday', 'Sunday'))) c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') else c('Saturday', 'Sunday')
+		dataForDay <- subset(data, day == d)
+		noOfRecordsPerArea <- sapply(split(dataForDay$time, dataForDay$telefonicaGridId), length)
+		missingAreas <- names(noOfRecordsPerArea[noOfRecordsPerArea < 24])
+		for (a in missingAreas) {
+			otherDaysData <- subset(data, (telefonicaGridId == a) & (day %in% copyFrom))
+			averages <- sapply(split(otherDaysData$footfall, otherDaysData$time), mean)
+			data_fixed <- rbind(data_fixed, cbind(telefonicaGridId = a, day = d, time = names(averages), footfall = averages))
+		}
+	}
+	data_fixed
+
+}
+
+
 preprocessFootfall <- function () {
 
 	# We won't use the whole of Telefonica's footfall data. We would like to 
@@ -18,6 +41,9 @@ preprocessFootfall <- function () {
 	dec09$day <- weekdays(as.Date(dec09$date))
 	dec09$day <- as.factor(dec09$day)
 	dec09 <- dec09[, c("telefonicaGridId", "day", "time", "footfall")]
+	# I fill in for any missing data
+	dec09 <- fixMissingFootfall(dec09)
+
 
 	may13 <- read.csv("../../reference data/Telefonica/footfall-UK-13-may-2013-19-may-2013.csv.gz")
 	may13 <- may13[, c('Date', 'Time', 'Grid.ID', 'Total')]
@@ -35,6 +61,8 @@ preprocessFootfall <- function () {
 	may13$day <- weekdays(as.Date(may13$date))
 	may13$day <- as.factor(may13$day)
 	may13 <- may13[, c("telefonicaGridId", "day", "time", "footfall")]
+	# I fill in for any missing data
+	may13 <- fixMissingFootfall(may13)
 
 	# I merge Dec '12 and May '13 data
 	data <- rbind(may13, dec09)
@@ -90,3 +118,4 @@ checkFootfallCompleteness3 <- function (data) {
 	}
 
 }
+
