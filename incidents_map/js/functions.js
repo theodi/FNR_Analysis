@@ -33,7 +33,7 @@ function removeArrayItem(item,array) {
 	return array;
 }
 
-function checkThis(name) {
+function boroughControl(name) {
 	borough = name.substring(4,name.length);
 	console.log(borough);
 	if (document.getElementById(name).checked) {
@@ -67,7 +67,7 @@ function updateBoroughsSelected() {
 		var items = [];
 		$.each( data, function( key, val ) {
 			if (containsObject(val,incidentLayers)) {
-				items.push(val + "<input id='sel_" + val + "' type='checkbox' checked onClick='checkThis(\"sel_"+val+"\")'/><br/>" );
+				items.push(val + "<input id='sel_" + val + "' type='checkbox' checked onClick='boroughControl(\"sel_"+val+"\")'/><br/>" );
 			}
 		});
 		$('boroughs').append(items);
@@ -121,45 +121,13 @@ function openStation(name) {
 		});
 		closeStationsSelection = removeArrayItem(name,closeStationsSelection);	
 		updateBoroughsSelected();
-	});
+	})
+	.error(function() {
+		console.log("error");
+	}); 
+	
 }
 
-
-var map = L.map('map').setView([51.5, 0.04], 14);
-
-var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
-	attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
-	key: 'BC9A493B41014CAABB98F0471D759707',
-	styleId: 22677
-}).addTo(map);
-
-
-// control that shows state info on hover
-var info = L.control();
-
-info.onAdd = function (map) {
-	this._div = L.DomUtil.create('div', 'info');
-	this.update();
-	return this._div;
-};
-
-info.update = function (props) {
-	if (props) {
-		if (props.borough) {
-			this._div.innerHTML = ('Borough: <b>' + props.borough + '</b>');
-		} else {
-			this._div.innerHTML = (
-			'Number of Incidents: <b>' + props.incidents + '</b><br />Average Response Time: <b>' + props.response + '</b><br/>Managing Station: <b>' + props.managing + '</b><br/>Stations responding: <b>' + props.attending + '</b>');
-		}
-	} else {
-		this._div.innerHTML = ( ' Hover over an area ');
-	}
-}	
-
-info.addTo(map);
-
-
-// get color depending on population density value
 function getColor(d) {
 	return d > 1140 ? '#8d4e4a' :
 		d > 1020 ? '#ae504c' :
@@ -209,9 +177,6 @@ function highlightFeature(e) {
 	}
 	info.update(layer.feature.properties);
 }
-
-var geojson;
-var mapLayerGroups = [];
 
 function resetHighlight(e) {
 	geojson.resetStyle(e.target);
@@ -326,7 +291,6 @@ function loadIncidentData(borough) {
 }
 
 function loadIncidentClosureData(borough,closedStations) {
-   console.log("In Here");
    closedStations = closeStationsSelection;
 	
    if (closedStations.length < 1) {
@@ -334,14 +298,18 @@ function loadIncidentClosureData(borough,closedStations) {
    } else {
 
 	plain_borough = borough;
+	query_string = "?borough=" + borough + "&close=";
 	//FIXME: Alphabetical!
 	borough = borough + "-minus-";
 	for (i=0;i<closedStations.length;i++) {
 		borough = borough + closedStations[i] + "_";
+		query_string = query_string + closedStations[i] + ",";
 	}
 	borough = borough.substring(0,borough.length - 1);
-	filename = "closures/" + borough + ".js";
-	
+	query_string = query_string.substring(0,query_string.length - 1);
+	url = "get_data.php" + query_string;
+	console.log(url);
+		
 	if (!containsObject(borough,incidentLayers)) {
 		incidentLayers.push(borough);
 	}
@@ -350,7 +318,7 @@ function loadIncidentClosureData(borough,closedStations) {
 		hideLayer(plain_borough);
 		showLayer(borough);
 	} else {
-		$.getJSON( filename, function( data ) {
+		$.getJSON( url, function( data ) {
 			geojson = L.geoJson(data, {
 				style: style,
 				onEachFeature: onEachFeature,
@@ -361,6 +329,56 @@ function loadIncidentClosureData(borough,closedStations) {
 	}
     }
 }
+
+function showLayer(id) {
+	if (mapLayerGroups[id]) {
+		var lg = mapLayerGroups[id];
+		map.addLayer(lg);   
+	}
+}
+
+function hideLayer(id) {
+	if (mapLayerGroups[id]) {
+		lg = mapLayerGroups[id];
+		map.removeLayer(lg);   
+	}
+}
+
+var map = L.map('map').setView([51.5, 0.04], 14);
+
+var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
+	attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+	key: 'BC9A493B41014CAABB98F0471D759707',
+	styleId: 22677
+}).addTo(map);
+
+
+// control that shows state info on hover
+var info = L.control();
+
+info.onAdd = function (map) {
+	this._div = L.DomUtil.create('div', 'info');
+	this.update();
+	return this._div;
+};
+
+info.update = function (props) {
+	if (props) {
+		if (props.borough) {
+			this._div.innerHTML = ('Borough: <b>' + props.borough + '</b>');
+		} else {
+			this._div.innerHTML = (
+			'Number of Incidents: <b>' + props.incidents + '</b><br />Average Response Time: <b>' + props.response + '</b><br/>Managing Station: <b>' + props.managing + '</b><br/>Stations responding: <b>' + props.attending + '</b>');
+		}
+	} else {
+		this._div.innerHTML = ( ' Hover over an area ');
+	}
+}	
+
+info.addTo(map);
+
+var geojson;
+var mapLayerGroups = [];
 
 map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
@@ -387,20 +405,6 @@ legend.onAdd = function (map) {
 };
 
 legend.addTo(map);
-
-function showLayer(id) {
-	if (mapLayerGroups[id]) {
-		var lg = mapLayerGroups[id];
-		map.addLayer(lg);   
-	}
-}
-
-function hideLayer(id) {
-	if (mapLayerGroups[id]) {
-		lg = mapLayerGroups[id];
-		map.removeLayer(lg);   
-	}
-}
 
 //loadBoroughs();
 $.getJSON( "js/boroughs.json", function( data ) {
