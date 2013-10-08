@@ -1,4 +1,18 @@
-var defaultIncidentLayers = ["Newham","Lambeth"];
+// Setup
+
+var incidentLayers = ["Newham","Lambeth"];
+var closeStationsSelection = [];
+
+// TODO: Resize icons based upon zoom level
+var stationIconClosing = L.icon({
+	iconUrl: 'images/icon_firetruck_closing.png',
+	iconSize: [20, 20]
+});
+
+var stationIcon = L.icon({
+	iconUrl: 'images/icon_firetruck_ok.png',
+	iconSize: [20, 20]
+});
 
 function containsObject(obj, list) {
     var i;
@@ -7,38 +21,109 @@ function containsObject(obj, list) {
             return true;
         }
     }
-
     return false;
 }
 
+function removeArrayItem(item,array) {
+	for(var i = array.length - 1; i >= 0; i--) {
+ 	   if (array[i] === item) {
+	       array.splice(i, 1);
+	   }
+	}
+	return array;
+}
+
 function checkThis(name) {
+	borough = name.substring(4,name.length);
+	console.log(borough);
 	if (document.getElementById(name).checked) {
-		if (mapLayerGroups[name]) {
-			showLayer(name);
+		if (mapLayerGroups[borough]) {
+			showLayer(borough);
+			hideLayer("B:"+borough);
 		} else {
-			loadIncidentData(name);
+			loadIncidentClosureData(borough,closeStationsSelection);
 		}
 	} else {
-		if (mapLayerGroups[name]) {
-			hideLayer(name);
+		// Hide any Incident layers that start with the borough we want to hide
+		for (key in mapLayerGroups) {
+			if (key.substring(0,borough.length) == borough) {
+				hideLayer(key);
+				incidentLayers = removeArrayItem(key,incidentLayers);
+			}
 		}
+		// Hide the borough incident detail
+		if (mapLayerGroups[borough]) {
+			hideLayer(borough);
+			showLayer("B:"+borough);
+			incidentLayers = removeArrayItem(borough,incidentLayers);
+		}
+		updateBoroughsSelected();
 	}
 }
 
-function showBoroughs() {
+function updateBoroughsSelected() {
+	$('boroughs').html("");
 	$.getJSON( "js/boroughs.json", function( data ) {
 		var items = [];
 		$.each( data, function( key, val ) {
-			if (containsObject(val,defaultIncidentLayers)) {
-				items.push(val + "<input id='" + val + "' type='checkbox' checked onClick='checkThis(\""+val+"\")'/><br/>" );
-			} else {
-				items.push(val + "<input id='" + val + "' type='checkbox' onClick='checkThis(\""+val+"\")'/><br/>" );
+			if (containsObject(val,incidentLayers)) {
+				items.push(val + "<input id='sel_" + val + "' type='checkbox' checked onClick='checkThis(\"sel_"+val+"\")'/><br/>" );
 			}
 		});
-		$('body').append(items);
-//.appendTo( "boroughs" );
+		$('boroughs').append(items);
 	});
 }
+
+function closeStation(name) {
+	// Stage one: Add this station to the array of closed stations
+	if (!containsObject(name,closeStationsSelection)) {
+		closeStationsSelection.push(name);
+	}
+	stations = closeStationsSelection.join(",");
+	$.getJSON( "boroughs_reload.php?stations=" + stations, function( data ) {
+		$.each( data.boroughs, function( key, val ) {
+			borough = val;
+			if (containsObject(borough,incidentLayers)) {
+				loadIncidentClosureData(borough,closeStationsSelection);
+			}
+		});
+	});
+	updateBoroughsSelected();
+}
+
+function openStation(name) {
+	console.log(incidentLayers);
+	closeCache = closeStationsSelection;
+	$.getJSON( "boroughs_reload.php?stations=" + name, function( data ) {
+		$.each( data.boroughs, function( key, val ) {
+			if (!containsObject(name,closeCache)) {
+				closeCache.push(name);
+			}
+			borough = val;
+			old_borough = borough + "-minus-";
+			for (i=0;i<closeCache.length;i++) {
+				old_borough = old_borough + closeCache[i] + "_";
+			}
+			old_borough = old_borough.substring(0,old_borough.length - 1);
+			console.log("Hiding " + old_borough);
+			if (containsObject(old_borough,incidentLayers)) {
+				hideLayer(old_borough);
+			}
+
+			temparrayclosures = removeArrayItem(name,closeStationsSelection);
+			if (containsObject(borough,incidentLayers) || containsObject(old_borough,incidentLayers)) {
+				if (temparrayclosures.length > 0) {
+					loadIncidentClosureData(borough,temparrayclosures);
+				} else {
+					loadIncidentData(borough);
+				}
+			}
+		});
+		closeStationsSelection = removeArrayItem(name,closeStationsSelection);	
+		updateBoroughsSelected();
+	});
+}
+
 
 var map = L.map('map').setView([51.5, 0.04], 14);
 
@@ -59,10 +144,17 @@ info.onAdd = function (map) {
 };
 
 info.update = function (props) {
-	this._div.innerHTML = (props ?
-			'Number of Incidents: <b>' + props.incidents + '</b><br />Average Response Time: <b>' + props.response + '</b><br/>Managing Station: <b>' + props.managing + '</b><br/>Stations responding: <b>' + props.attending + '</b>'
-			: ' Hover over an area' );
-};
+	if (props) {
+		if (props.borough) {
+			this._div.innerHTML = ('Borough: <b>' + props.borough + '</b>');
+		} else {
+			this._div.innerHTML = (
+			'Number of Incidents: <b>' + props.incidents + '</b><br />Average Response Time: <b>' + props.response + '</b><br/>Managing Station: <b>' + props.managing + '</b><br/>Stations responding: <b>' + props.attending + '</b>');
+		}
+	} else {
+		this._div.innerHTML = ( ' Hover over an area ');
+	}
+}	
 
 info.addTo(map);
 
@@ -135,6 +227,7 @@ function onEachFeature(feature, layer) {
 	if (lg === undefined) {
 		lg = new L.layerGroup();
 		mapLayerGroups[feature.properties.ward] = lg;
+		console.log("Layername = " + feature.properties.ward);
 		lg.addLayer(layer);
 	} else {
 		lg.addLayer(layer);	
@@ -144,8 +237,16 @@ function onEachFeature(feature, layer) {
 		mouseover: highlightFeature,
 		mouseout: resetHighlight,
 		click: zoomToFeature
-	});
-		
+	});	
+}
+
+function showBoroughDetail(e) {
+	props = e.target.feature.properties;
+	borough = props.borough;
+	hideLayer("B:" + props.borough);
+	loadIncidentClosureData(props.borough,closeStationsSelection);
+	updateBoroughsSelected();
+	map.fitBounds(e.target.getBounds());
 }
 
 function onEachBoroughFeature(feature, layer) {
@@ -161,14 +262,41 @@ function onEachBoroughFeature(feature, layer) {
 	layer.on({
 		mouseover: highlightFeature,
 		mouseout: resetHighlight,
-		click: zoomToFeature
+		click: showBoroughDetail
 	});
 		
 }
 
+function showMarkerDetails(station_name) {
+	$('station').html(station_name);
+}
+
+function loadStations() {
+	var lg = mapLayerGroups["Stations"];
+	if (lg === undefined) {
+                lg = new L.layerGroup();
+                mapLayerGroups["Stations"] = lg;
+	}
+	$.getJSON( "js/stations.json", function( data ) {
+		for (i=0;i<data.length;i++) {
+			station = data[i];
+			var markerLocation = new L.LatLng(station.latitude, station.longitude);
+			if (station.closing == "true") {
+				var marker = new L.Marker(markerLocation, {icon: stationIconClosing, name: station.name});
+			} else {
+				var marker = new L.Marker(markerLocation, {icon: stationIcon, name: station.name});
+			}
+			marker.on('mouseover', function(evt) {
+				showMarkerDetails(evt.target.options.name);
+			});
+			lg.addLayer(marker);
+		}
+		showLayer("Stations");
+	});
+}
 
 function loadBoroughBoundary(borough) {
-	if (!containsObject(borough,defaultIncidentLayers)) {
+	if (!containsObject(borough,incidentLayers)) {
 		$.getJSON( "borough_boundaries/"+borough+".json", function( data ) {
         	        geojson = L.geoJson(data, {
 	                        style: boroughStyle,
@@ -180,13 +308,58 @@ function loadBoroughBoundary(borough) {
 }
 
 function loadIncidentData(borough) {
-	$.getJSON( "incidents/"+borough+".js", function( data ) {
-		geojson = L.geoJson(data, {
-			style: style,
-			onEachFeature: onEachFeature,
-		})
+	if (!containsObject(borough,incidentLayers)) {
+		incidentLayers.push(borough);
+	}
+	
+	if(mapLayerGroups[borough]) {
 		showLayer(borough);
-	});
+	} else {
+		$.getJSON( "incidents/"+borough+".js", function( data ) {
+			geojson = L.geoJson(data, {
+				style: style,
+				onEachFeature: onEachFeature,
+			});
+			showLayer(borough);
+		});
+	}
+}
+
+function loadIncidentClosureData(borough,closedStations) {
+   console.log("In Here");
+   closedStations = closeStationsSelection;
+	
+   if (closedStations.length < 1) {
+	loadIncidentData(borough);
+   } else {
+
+	plain_borough = borough;
+	//FIXME: Alphabetical!
+	borough = borough + "-minus-";
+	for (i=0;i<closedStations.length;i++) {
+		borough = borough + closedStations[i] + "_";
+	}
+	borough = borough.substring(0,borough.length - 1);
+	filename = "closures/" + borough + ".js";
+	
+	if (!containsObject(borough,incidentLayers)) {
+		incidentLayers.push(borough);
+	}
+	
+	if(mapLayerGroups[borough]) {
+		hideLayer(plain_borough);
+		showLayer(borough);
+	} else {
+		$.getJSON( filename, function( data ) {
+			geojson = L.geoJson(data, {
+				style: style,
+				onEachFeature: onEachFeature,
+			});
+			hideLayer(plain_borough);
+			showLayer(borough);
+		});
+	}
+    }
 }
 
 map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
@@ -216,13 +389,17 @@ legend.onAdd = function (map) {
 legend.addTo(map);
 
 function showLayer(id) {
-	var lg = mapLayerGroups[id];
-	map.addLayer(lg);   
+	if (mapLayerGroups[id]) {
+		var lg = mapLayerGroups[id];
+		map.addLayer(lg);   
+	}
 }
 
 function hideLayer(id) {
-	var lg = mapLayerGroups[id];
-	map.removeLayer(lg);   
+	if (mapLayerGroups[id]) {
+		lg = mapLayerGroups[id];
+		map.removeLayer(lg);   
+	}
 }
 
 //loadBoroughs();
@@ -232,11 +409,16 @@ $.getJSON( "js/boroughs.json", function( data ) {
 		loadBoroughBoundary(val);
 	});
 });
+
+loadStations();
    
-for (i = 0; i < defaultIncidentLayers.length; i++) {
-	loadIncidentData(defaultIncidentLayers[i]);
+for (i = 0; i < incidentLayers.length; i++) {
+	loadIncidentData(incidentLayers[i]);
 }
 
 $( document ).ready(function() {
-	showBoroughs();
+	for (i = 0; i < incidentLayers.length; i++) {
+		loadIncidentData(incidentLayers[i]);
+	}
+	updateBoroughsSelected();
 });

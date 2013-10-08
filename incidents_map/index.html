@@ -10,7 +10,16 @@
 </head>
 <body>
 	<div id="map"></div>
-	<section style="float: right;" id="boroughs">
+	<section style="float: right; width: 300px; height: 200px; border: 1px solid black; border-radius: 10px; overflow: auto; padding: 1em;" id="boroughs">
+		<h2 style="padding: 0; margin: 0;">London Boroughs Selected</h2>
+		<boroughs>
+		</boroughs>
+	</section>
+	<section style="float: right; width: 300px; height: 200px; border: 1px solid black; border-radius: 10px; overflow: auto; padding: 1em;" id="station">
+		<h2 style="padding: 0; margin: 0;">Station Info</h2>
+		<station>
+			Hover Over a Station to see info
+		</station>
 	</section>
 	<script src="js/leaflet.js"></script>
 	<script src="http://code.jquery.com/jquery-1.10.2.min.js"></script>
