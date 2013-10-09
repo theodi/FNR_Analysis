@@ -265,6 +265,7 @@ function loadStations() {
 		for (i=0;i<data.length;i++) {
 			station = data[i];
 			var markerLocation = new L.LatLng(station.latitude, station.longitude);
+			// GIACECCO: where does this .closing property comes from? Can't find it anywhere else in DaveTaz's code
 			if (station.closing == "true") {
 				markers[station.name] = new L.Marker(markerLocation, {icon: stationIconClosing, name: station.name});
 			} else {
