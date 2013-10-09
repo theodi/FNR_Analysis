@@ -57,21 +57,20 @@ var getStationResponseTime = function (station, closedStations) {
 };
 
 
+var getStationsInBorough = function (borough) {
+	return _.map(_.where(stationsData, { borough: borough }), function (r) {
+		return r.name;
+	});
+};
+
+
 /* This function replaces the calls to GetAreaResponseTime.php when a borough is
    specified. It returns the average first pump attendance time to incidents 
    located in the 'borough', by all the borough's stations, excluding the ones 
    listed in closedStations */ 
 var getBoroughResponseTime = function (borough, closedStations) {
-
-	var getStationsInBorough = function (borough) {
-		return _.map(_.filter(stationsData, function (r) {
-			return r.borough == borough;
-		}), function (r) { return r.borough; });
-	};
-
 	closedStations = [ ].concat(closedStations);
 	return mean(_.map(getStationsInBorough(borough), function (station) {
 		return getStationResponseTime(station, closedStations);
 	}));	
-
 };
