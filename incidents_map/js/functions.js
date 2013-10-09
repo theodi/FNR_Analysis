@@ -83,6 +83,7 @@ function updateBoroughStyle(borough,stations) {
 		layerhook = mapLayerGroups["B:" + borough]._layers;
 		for (key in layerhook) {
 			mapLayerGroups["B:" + borough]._layers[key].setStyle({fillColor:color});
+			mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
 		}
 	});
 }
@@ -135,10 +136,10 @@ function openStation(name) {
 					loadIncidentData(borough);
 				}
 			}
+			updateBoroughStyle(borough,closeStationsSelection)
 		});
 		closeStationsSelection = removeArrayItem(name,closeStationsSelection);	
 		updateBoroughsSelected();
-		updateBoroughStyle(borough,closeStationsSelection)
 	})
 	.error(function() {
 		console.log("error");
