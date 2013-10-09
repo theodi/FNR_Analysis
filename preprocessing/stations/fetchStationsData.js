@@ -12,7 +12,7 @@ var GOOGLE_THROTTLE_SECONDS = 3;
 var _ = require('underscore');
 _.mixin(require('underscore.string').exports());
 var argv = require('optimist') // https://github.com/substack/node-optimist
-    .usage('Usage: $0 -in [filename] -out [filename]')
+    .usage('Usage: $0 -out [filename]')
     .demand([ 'out' ])
     .alias('out', 'o')
     .argv; 
