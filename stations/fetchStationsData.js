@@ -51,6 +51,9 @@ request("http://www.london-fire.gov.uk/a-zfirestations.asp",
   		var stationNames = _.map($("dl dd h2"), function (x) {
   			return _.clean($(x).html());
   		});
+		var boroughs = _.map($("dl dd p a"), function (x) {
+			return _.clean($(x).html());
+		});
   		var stationAddresses = _.map($("dl dd p"), function (x) {
   			return _.filter(_.map($(x).html().split("<br>"), _.clean),
   							function (y) {
@@ -66,7 +69,8 @@ request("http://www.london-fire.gov.uk/a-zfirestations.asp",
                            geocoder.geocode(stationAddresses[i], function (err, data) {        
                              stations.push({ 
                                  name: stationNames[i], 
-                                 address: data.results[0].formatted_address, 
+                                 address: data.results[0].formatted_address,
+				 borough: boroughs[i], 
                                  latitude: data.results[0].geometry.location.lat,
                                  longitude: data.results[0].geometry.location.lng,
                              });
