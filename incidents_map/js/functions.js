@@ -47,7 +47,7 @@ function boroughControl(name) {
 	console.log(borough);
 	if (document.getElementById(name).checked) {
 		if (mapLayerGroups[borough]) {
-			showLayer(borough);
+			showLayer("I:"+borough);
 			hideLayer("B:"+borough);
 		} else {
 			loadIncidentData(borough,closeStationsSelection);
@@ -56,13 +56,13 @@ function boroughControl(name) {
 		// Hide any Incident layers that start with the borough we want to hide
 		for (key in mapLayerGroups) {
 			if (key.substring(0,borough.length) == borough) {
-				hideLayer(key);
+				hideLayer("I:"+key);
 				incidentLayers = removeArrayItem(key,incidentLayers);
 			}
 		}
 		// Hide the borough incident detail
 		if (mapLayerGroups[borough]) {
-			hideLayer(borough);
+			hideLayer("I:"+borough);
 			showLayer("B:"+borough);
 			incidentLayers = removeArrayItem(borough,incidentLayers);
 		}
@@ -217,11 +217,11 @@ function zoomToFeature(e) {
 }
 
 function onEachFeature(feature, layer) {
-	var lg = mapLayerGroups[feature.properties.ward];
+	var lg = mapLayerGroups["I:" + feature.properties.ward];
 	if (lg === undefined) {
 		lg = new L.layerGroup();
-		mapLayerGroups[feature.properties.ward] = lg;
-		console.log("Layername = " + feature.properties.ward);
+		mapLayerGroups["I:" + feature.properties.ward] = lg;
+		console.log("Layername = I:" + feature.properties.ward);
 		lg.addLayer(layer);
 	} else {
 		lg.addLayer(layer);	
@@ -315,8 +315,8 @@ function loadIncidentData(borough) {
 		borough = borough.substring(0,borough.length - 1);
 		query_string = query_string.substring(0,query_string.length - 1);
 		url = "library/GetBoroughIncidentData.php" + query_string;
-		if(mapLayerGroups[borough]) {
-			hideLayer(plain_borough);
+		if(mapLayerGroups["I:"+borough]) {
+			hideLayer("I:"+plain_borough);
 		}
 	} else {
 		url = "library/GetBoroughIncidentData.php?borough="+borough
@@ -327,18 +327,18 @@ function loadIncidentData(borough) {
 		incidentLayers.push(borough);
 	}
 	
-	if(mapLayerGroups[borough]) {
-		showLayer(borough);
+	if(mapLayerGroups["I:"+borough]) {
+		showLayer("I:"+borough);
 	} else {
 		$.getJSON( url , function( data ) {
 			geojson = L.geoJson(data, {
 				style: style,
 				onEachFeature: onEachFeature,
 			});
-			showLayer(borough);
+			showLayer("I:"+borough);
 		})
 		.error( function() {
-			console.log("Failed to load borough boundary for " + borough);
+			console.log("Failed to load incident data for borough " + borough);
 		});
 	}
 }
