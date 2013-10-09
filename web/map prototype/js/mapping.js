@@ -44,25 +44,25 @@ function removeArrayItem(item,array) {
 
 function boroughControl(name) {
 	borough = name.substring(4,name.length);
-	log(borough);
+	console.log(borough);
 	if (document.getElementById(name).checked) {
 		if (mapLayerGroups[borough]) {
-			showLayer(borough);
+			showLayer("I:"+borough);
 			hideLayer("B:"+borough);
 		} else {
-			loadIncidentClosureData(borough,closeStationsSelection);
+			loadIncidentData(borough,closeStationsSelection);
 		}
 	} else {
 		// Hide any Incident layers that start with the borough we want to hide
 		for (key in mapLayerGroups) {
 			if (key.substring(0,borough.length) == borough) {
-				hideLayer(key);
+				hideLayer("I:"+key);
 				incidentLayers = removeArrayItem(key,incidentLayers);
 			}
 		}
 		// Hide the borough incident detail
 		if (mapLayerGroups[borough]) {
-			hideLayer(borough);
+			hideLayer("I:"+borough);
 			showLayer("B:"+borough);
 			incidentLayers = removeArrayItem(borough,incidentLayers);
 		}
@@ -83,11 +83,10 @@ function updateBoroughsSelected() {
 	});
 }
 
-function updateBoroughStyle(borough, stations) {
-	stations = stations.join(",");
+function updateBoroughStyle(borough,stations) {
 	$.getJSON( "library/GetAreaResponseTime.php?borough="+borough+"&closed=" + stations, function( data ) {
 		color = getColor(data);
-		log("New response time for " + borough + " is " + data + " color " + color);
+		console.log("New response time for " + borough + " is " + data + " color " + color);
 		layerhook = mapLayerGroups["B:" + borough]._layers;
 		for (key in layerhook) {
 			mapLayerGroups["B:" + borough]._layers[key].setStyle({fillColor:color});
@@ -103,54 +102,47 @@ function closeStation(name) {
 		closeStationsSelection.sort();
 	}
 	markers[name].setIcon(stationIconClosing);
-	$.each(boroughsReload(closeStationsSelection).boroughs, function(key, val) {
-		borough = val;
-		if (containsObject(borough, incidentLayers)) {
-			loadIncidentClosureData(borough, closeStationsSelection);
+	stations = closeStationsSelection.join(",");
+	_.each(boroughsReload(closeStationsSelection).boroughs, function(borough) {
+		if (containsObject(borough,incidentLayers)) {
+			loadIncidentData(borough,closeStationsSelection);
 		}
 		//Change the colors of the borough shading to reflect closures
-		updateBoroughStyle(borough, closeStationsSelection.join(","));
+		updateBoroughStyle(borough,stations);
 	});
 	updateBoroughsSelected();
 }
 
 function openStation(name) {
-	log(incidentLayers);
+	console.log(incidentLayers);
 	closeCache = closeStationsSelection;
 	markers[name].setIcon(stationIcon);
-	$.getJSON( "library/BoroughsReload.php?stations=" + name, function( data ) {
-		$.each( data.boroughs, function( key, val ) {
-			if (!containsObject(name,closeCache)) {
-				closeCache.push(name);
-			}
-			borough = val;
-			old_borough = borough + "-minus-";
-			for (i=0;i<closeCache.length;i++) {
-				old_borough = old_borough + closeCache[i] + "_";
-			}
-			old_borough = old_borough.substring(0,old_borough.length - 1);
-			log("Hiding " + old_borough);
-			if (containsObject(old_borough,incidentLayers)) {
-				hideLayer(old_borough);
-			}
+	_.each(boroughsReload(name).boroughs, function(borough) {
+		if (!containsObject(name,closeCache)) {
+			closeCache.push(name);
+		}
+		old_borough = borough + "-minus-";
+		for (i=0;i<closeCache.length;i++) {
+			old_borough = old_borough + closeCache[i] + "_";
+		}
+		old_borough = old_borough.substring(0,old_borough.length - 1);
+		console.log("Hiding " + old_borough);
+		if (containsObject(old_borough,incidentLayers)) {
+			hideLayer("I:"+old_borough);
+		}
 
-			temparrayclosures = removeArrayItem(name,closeStationsSelection);
-			if (containsObject(borough,incidentLayers) || containsObject(old_borough,incidentLayers)) {
-				if (temparrayclosures.length > 0) {
-					loadIncidentClosureData(borough,temparrayclosures);
-				} else {
-					loadIncidentData(borough);
-				}
+		temparrayclosures = removeArrayItem(name,closeStationsSelection);
+		if (containsObject(borough,incidentLayers) || containsObject(old_borough,incidentLayers)) {
+			if (temparrayclosures.length > 0) {
+				loadIncidentData(borough,temparrayclosures);
+			} else {
+				loadIncidentData(borough);
 			}
-			updateBoroughStyle(borough,closeStationsSelection)
-		});
-		closeStationsSelection = removeArrayItem(name,closeStationsSelection);	
-		updateBoroughsSelected();
-	})
-	.error(function() {
-		log("error");
-	}); 
-	
+		}
+		updateBoroughStyle(borough,closeStationsSelection)
+	});
+	closeStationsSelection = removeArrayItem(name,closeStationsSelection);	
+	updateBoroughsSelected();
 }
 
 function getColor(d) {
@@ -215,11 +207,11 @@ function zoomToFeature(e) {
 }
 
 function onEachFeature(feature, layer) {
-	var lg = mapLayerGroups[feature.properties.ward];
+	var lg = mapLayerGroups["I:" + feature.properties.ward];
 	if (lg === undefined) {
 		lg = new L.layerGroup();
-		mapLayerGroups[feature.properties.ward] = lg;
-		log("Layername = " + feature.properties.ward);
+		mapLayerGroups["I:" + feature.properties.ward] = lg;
+		console.log("Layername = I:" + feature.properties.ward);
 		lg.addLayer(layer);
 	} else {
 		lg.addLayer(layer);	
@@ -236,7 +228,7 @@ function showBoroughDetail(e) {
 	props = e.target.feature.properties;
 	borough = props.borough;
 	hideLayer("B:" + props.borough);
-	loadIncidentClosureData(props.borough,closeStationsSelection);
+	loadIncidentData(props.borough,closeStationsSelection);
 	updateBoroughsSelected();
 	map.fitBounds(e.target.getBounds());
 }
@@ -288,75 +280,57 @@ function loadStations() {
 }
 
 function loadBoroughBoundary(borough) {
-	if (!containsObject(borough,incidentLayers)) {
-		$.getJSON( "data/boroughBoundaries/"+borough+".json", function( data ) {
-        	        geojson = L.geoJson(data, {
-	                        style: boroughStyle,
-        	                onEachFeature: onEachBoroughFeature,
-	                })
-        	        showLayer("B:" + borough);
-        	});
-	}
+	$.getJSON( "data/BoroughBoundaries/"+borough+".json", function( data ) {
+                geojson = L.geoJson(data, { 
+			style: boroughStyle,
+        	        onEachFeature: onEachBoroughFeature,
+	        })
+		if (!containsObject(borough,incidentLayers)) {
+        	  	showLayer("B:" + borough);
+		}
+        });
 }
 
 function loadIncidentData(borough) {
+   	closedStations = closeStationsSelection;
+
+   	if (closedStations.length > 0) {
+		plain_borough = borough;
+		query_string = "?borough=" + borough + "&close=";
+		borough = borough + "-minus-";
+		for (i=0;i<closedStations.length;i++) {
+			borough = borough + closedStations[i] + "_";
+			query_string = query_string + closedStations[i] + ",";
+		}
+		borough = borough.substring(0,borough.length - 1);
+		query_string = query_string.substring(0,query_string.length - 1);
+		url = "library/GetBoroughIncidentData.php" + query_string;
+		if(mapLayerGroups["B:"+borough]) {
+			hideLayer("B:"+plain_borough);
+		}
+	} else {
+		url = "library/GetBoroughIncidentData.php?borough="+borough
+	}
+	console.log(url);
+
 	if (!containsObject(borough,incidentLayers)) {
 		incidentLayers.push(borough);
 	}
 	
-	if(mapLayerGroups[borough]) {
-		showLayer(borough);
+	if(mapLayerGroups["I:"+borough]) {
+		showLayer("I:"+borough);
 	} else {
-		$.getJSON("data/incidentsByBorough/"+borough+".json", function( data ) {
+		$.getJSON( url , function( data ) {
 			geojson = L.geoJson(data, {
 				style: style,
 				onEachFeature: onEachFeature,
 			});
-			showLayer(borough);
+			showLayer("I:"+borough);
 		})
 		.error( function() {
-			log("Failed to load borough boundary for " + borough);
+			console.log("Failed to load incident data for borough " + borough);
 		});
 	}
-}
-
-function loadIncidentClosureData(borough,closedStations) {
-   closedStations = closeStationsSelection;
-	
-   if (closedStations.length < 1) {
-	loadIncidentData(borough);
-   } else {
-
-	plain_borough = borough;
-	query_string = "?borough=" + borough + "&close=";
-	borough = borough + "-minus-";
-	for (i=0;i<closedStations.length;i++) {
-		borough = borough + closedStations[i] + "_";
-		query_string = query_string + closedStations[i] + ",";
-	}
-	borough = borough.substring(0,borough.length - 1);
-	query_string = query_string.substring(0,query_string.length - 1);
-	url = "library/GetBoroughIncidentData.php" + query_string;
-	log(url);
-		
-	if (!containsObject(borough,incidentLayers)) {
-		incidentLayers.push(borough);
-	}
-	
-	if(mapLayerGroups[borough]) {
-		hideLayer(plain_borough);
-		showLayer(borough);
-	} else {
-		$.getJSON( url, function( data ) {
-			geojson = L.geoJson(data, {
-				style: style,
-				onEachFeature: onEachFeature,
-			});
-			hideLayer(plain_borough);
-			showLayer(borough);
-		});
-	}
-    }
 }
 
 function showLayer(id) {
@@ -435,3 +409,19 @@ legend.onAdd = function (map) {
 
 legend.addTo(map);
 
+//loadBoroughs();
+$.getJSON( "data/boroughs.json", function( data ) {
+	var items = [];
+	$.each( data, function( key, val ) {
+		loadBoroughBoundary(val);
+	});
+});
+
+loadStations();
+   
+$( document ).ready(function() {
+	for (i = 0; i < incidentLayers.length; i++) {
+		loadIncidentData(incidentLayers[i]);
+	}
+	updateBoroughsSelected();
+});
