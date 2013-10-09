@@ -84,15 +84,14 @@ function updateBoroughsSelected() {
 }
 
 function updateBoroughStyle(borough,stations) {
-	$.getJSON( "library/GetAreaResponseTime.php?borough="+borough+"&closed=" + stations, function( data ) {
-		color = getColor(data);
-		console.log("New response time for " + borough + " is " + data + " color " + color);
-		layerhook = mapLayerGroups["B:" + borough]._layers;
-		for (key in layerhook) {
-			mapLayerGroups["B:" + borough]._layers[key].setStyle({fillColor:color});
-			mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
-		}
-	});
+	data = getBoroughResponseTime(borough, stations.split(","));
+	color = getColor(data);
+	console.log("New response time for " + borough + " is " + data + " color " + color);
+	layerhook = mapLayerGroups["B:" + borough]._layers;
+	for (key in layerhook) {
+		mapLayerGroups["B:" + borough]._layers[key].setStyle({fillColor:color});
+		mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
+	}
 }
 
 function closeStation(name) {
