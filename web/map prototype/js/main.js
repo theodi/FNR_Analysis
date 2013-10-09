@@ -1,3 +1,8 @@
+var log = function (s) {
+	var entryDate = new Date();
+	console.log(entryDate.getFullYear() + "/" + (entryDate.getMonth() < 9 ? '0' : '') + (entryDate.getMonth() + 1) + "/" + (entryDate.getDate() < 10 ? '0' : '') + entryDate.getDate() + " " + (entryDate.getHours() < 10 ? '0' : '') + entryDate.getHours() + ":" + (entryDate.getMinutes() < 10 ? '0' : '') + entryDate.getMinutes() + ":" + (entryDate.getSeconds() < 10 ? '0' : '') + entryDate.getSeconds() + " - " + s);
+}
+
 //loadBoroughs();
 $.getJSON("data/boroughs.json", function( data ) {
 	var items = [];
@@ -13,8 +18,11 @@ for (i = 0; i < incidentLayers.length; i++) {
 }
 
 $(document).ready(function() {
-	for (i = 0; i < incidentLayers.length; i++) {
-		loadIncidentData(incidentLayers[i]);
-	}
-	updateBoroughsSelected();
+	loadData(function (err) {
+		log("incidents.csv loaded");
+		for (var i = 0; i < incidentLayers.length; i++) {
+			loadIncidentData(incidentLayers[i]);
+		}
+		updateBoroughsSelected();
+	});
 });
