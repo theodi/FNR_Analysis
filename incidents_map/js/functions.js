@@ -92,6 +92,7 @@ function closeStation(name) {
 	// Stage one: Add this station to the array of closed stations
 	if (!containsObject(name,closeStationsSelection)) {
 		closeStationsSelection.push(name);
+		closeStationsSelection.sort();
 	}
 	markers[name].setIcon(stationIconClosing);
 	stations = closeStationsSelection.join(",");
@@ -323,7 +324,6 @@ function loadIncidentClosureData(borough,closedStations) {
 
 	plain_borough = borough;
 	query_string = "?borough=" + borough + "&close=";
-	//FIXME: Alphabetical!
 	borough = borough + "-minus-";
 	for (i=0;i<closedStations.length;i++) {
 		borough = borough + closedStations[i] + "_";
