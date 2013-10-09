@@ -44,7 +44,7 @@ function removeArrayItem(item,array) {
 
 function boroughControl(name) {
 	borough = name.substring(4,name.length);
-	console.log(borough);
+	log(borough);
 	if (document.getElementById(name).checked) {
 		if (mapLayerGroups[borough]) {
 			showLayer(borough);
@@ -86,7 +86,7 @@ function updateBoroughsSelected() {
 function updateBoroughStyle(borough,stations) {
 	$.getJSON( "library/GetAreaResponseTime.php?borough="+borough+"&closed=" + stations, function( data ) {
 		color = getColor(data);
-		console.log("New response time for " + borough + " is " + data + " color " + color);
+		log("New response time for " + borough + " is " + data + " color " + color);
 		layerhook = mapLayerGroups["B:" + borough]._layers;
 		for (key in layerhook) {
 			mapLayerGroups["B:" + borough]._layers[key].setStyle({fillColor:color});
@@ -117,7 +117,7 @@ function closeStation(name) {
 }
 
 function openStation(name) {
-	console.log(incidentLayers);
+	log(incidentLayers);
 	closeCache = closeStationsSelection;
 	markers[name].setIcon(stationIcon);
 	$.getJSON( "library/BoroughsReload.php?stations=" + name, function( data ) {
@@ -131,7 +131,7 @@ function openStation(name) {
 				old_borough = old_borough + closeCache[i] + "_";
 			}
 			old_borough = old_borough.substring(0,old_borough.length - 1);
-			console.log("Hiding " + old_borough);
+			log("Hiding " + old_borough);
 			if (containsObject(old_borough,incidentLayers)) {
 				hideLayer(old_borough);
 			}
@@ -150,7 +150,7 @@ function openStation(name) {
 		updateBoroughsSelected();
 	})
 	.error(function() {
-		console.log("error");
+		log("error");
 	}); 
 	
 }
@@ -221,7 +221,7 @@ function onEachFeature(feature, layer) {
 	if (lg === undefined) {
 		lg = new L.layerGroup();
 		mapLayerGroups[feature.properties.ward] = lg;
-		console.log("Layername = " + feature.properties.ward);
+		log("Layername = " + feature.properties.ward);
 		lg.addLayer(layer);
 	} else {
 		lg.addLayer(layer);	
@@ -317,7 +317,7 @@ function loadIncidentData(borough) {
 			showLayer(borough);
 		})
 		.error( function() {
-			console.log("Failed to load borough boundary for " + borough);
+			log("Failed to load borough boundary for " + borough);
 		});
 	}
 }
@@ -339,7 +339,7 @@ function loadIncidentClosureData(borough,closedStations) {
 	borough = borough.substring(0,borough.length - 1);
 	query_string = query_string.substring(0,query_string.length - 1);
 	url = "library/GetBoroughIncidentData.php" + query_string;
-	console.log(url);
+	log(url);
 		
 	if (!containsObject(borough,incidentLayers)) {
 		incidentLayers.push(borough);
