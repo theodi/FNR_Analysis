@@ -1,6 +1,8 @@
 <?php
 
-	$handle = fopen('LondonBoroughs.kml','r');
+	require_once('GetAreaResponseTime.php');
+
+	$handle = fopen('../data/LondonBoroughs.kml','r');
 	while ($line = fgets($handle)) {
 		$line = trim($line);
 		if (strpos($line,"name") != false) {
@@ -31,7 +33,8 @@
 		$json_string .= "\t\t" . '"type":"Feature",' . "\n";
 		$json_string .= "\t\t" . '"id":"'.$count.'",' . "\n";
 		$json_string .= "\t\t" . '"properties":{' . "\n";
-		$json_string .= "\t\t\t" . '"borough":"'.$name.'"' . "\n";
+		$json_string .= "\t\t\t" . '"borough":"'.$name.'",' . "\n";
+		$json_string .= "\t\t\t" . '"response":"'.round(getBoroughResponseTime($name,"")).'"' . "\n";
 		$json_string .= "\t\t" . '},' . "\n";
 		$json_string .= "\t\t" . '"geometry":{' . "\n";
 		$json_string .= "\t\t\t" . '"type":"Polygon",' . "\n";
@@ -44,7 +47,7 @@
 		$json_string .= "\t\t" . '}' . "\n";
 		$json_string .= "\t" . '}' . "\n";
 		$json_string .= ']}';
-		$handle = fopen($name . ".json","w");
+		$handle = fopen("../data/BoroughBoundaries/" . $name . ".json","w");
 		if ($handle) {
 			fwrite($handle,$json_string);
 			fclose($handle);

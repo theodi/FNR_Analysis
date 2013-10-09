@@ -1,5 +1,5 @@
 <?php
-#error_reporting(E_ALL ^ E_NOTICE);
+error_reporting(E_ALL ^ E_NOTICE);
 $lat_length = 0.001;
 $long_length = 0.0015;
 
@@ -16,7 +16,7 @@ if ($_GET["close"] == "") {
 
 $borough = $_GET["borough"];
 
-$required_filename = "closures/" . $borough . "-minus-";
+$required_filename = "../data/IncidentsByBoroughWithClosures/" . $borough . "-minus-";
 for ($i=0;$i<count($stations_excluded);$i++) {
 	$required_filename .= $stations_excluded[$i] . "_";
 }
@@ -26,18 +26,6 @@ if (file_exists($required_filename)) {
 	echo file_get_contents($required_filename);
 	exit();
 }
-
-/*
-	$stations_reporting[] = "Silvertown";
-	$stations_reporting[] = "Poplar";
-	$stations_reporting[] = "East Ham";
-	$stations_reporting[] = "Plaistow";
-	$stations_reporting[] = "Barking";
-	$stations_reporting[] = "Millwall";
-	$stations_reporting[] = "East Greenwich";
-	$stations_reporting[] = "Plumstead";
-	$stations_reporting[] = "Woolwich";
-*/	
 
 $mysqli = new mysqli("localhost", "root", "", "lfb_all");
 
@@ -57,7 +45,7 @@ while ($row = $res->fetch_array(MYSQLI_ASSOC)) {
 	if ($ward != "Not geo-coded") {
 		$filename = 'incidents/' . $ward . '.js';
 		if (count($stations_excluded) > 0) {
-			$filename = 'closures/' . $ward . '-minus-';
+			$filename = '../data/IncidentsByBoroughWithClosures/' . $ward . '-minus-';
 			for ($i=0;$i<count($stations_excluded);$i++) {
 				$filename .= $stations_excluded[$i] . "_";
 			}

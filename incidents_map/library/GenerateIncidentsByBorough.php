@@ -4,21 +4,6 @@ error_reporting(E_ALL ^ E_NOTICE);
 $lat_length = 0.001;
 $long_length = 0.0015;
 
-//	$stations_excluded[] = "Silvertown";
-/*
-	$stations_reporting[] = "Silvertown";
-	$stations_reporting[] = "Poplar";
-	$stations_reporting[] = "East Ham";
-	$stations_reporting[] = "Plaistow";
-	$stations_reporting[] = "Barking";
-	$stations_reporting[] = "Millwall";
-	$stations_reporting[] = "East Greenwich";
-	$stations_reporting[] = "Plumstead";
-	$stations_reporting[] = "Woolwich";
-*/	
-
-	
-
 $mysqli = new mysqli("localhost", "root", "", "lfb_all");
 	
 $query = "Select distinct(WardName) from lfb_all";
@@ -35,7 +20,7 @@ asort($wards);
 foreach($wards as $num => $ward) {
 	$out[] = $ward;
 }
-$handle = fopen('js/boroughs.json','w');
+$handle = fopen('../data/boroughs.json','w');
 fwrite($handle,json_encode($out));
 fclose($handle);
 	
@@ -121,7 +106,7 @@ function getDataForWard($ward) {
 		$count++;
 	}
 	
-	$handle = fopen('boroughs/' . $ward . '.js','w');
+	$handle = fopen('../data/IncidentsByBorough/' . $ward . '.json','w');
 
 	fwrite($handle,' {"type":"FeatureCollection","features":[' . "\n");
 	$output = "";
