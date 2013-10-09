@@ -133,7 +133,7 @@ function openStation(name) {
 			old_borough = old_borough.substring(0,old_borough.length - 1);
 			console.log("Hiding " + old_borough);
 			if (containsObject(old_borough,incidentLayers)) {
-				hideLayer(old_borough);
+				hideLayer("I:"+old_borough);
 			}
 
 			temparrayclosures = removeArrayItem(name,closeStationsSelection);
@@ -315,8 +315,8 @@ function loadIncidentData(borough) {
 		borough = borough.substring(0,borough.length - 1);
 		query_string = query_string.substring(0,query_string.length - 1);
 		url = "library/GetBoroughIncidentData.php" + query_string;
-		if(mapLayerGroups["I:"+borough]) {
-			hideLayer("I:"+plain_borough);
+		if(mapLayerGroups["B:"+borough]) {
+			hideLayer("B:"+plain_borough);
 		}
 	} else {
 		url = "library/GetBoroughIncidentData.php?borough="+borough
