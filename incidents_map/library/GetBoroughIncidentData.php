@@ -5,22 +5,20 @@ $long_length = 0.0015;
 
 $to_excludes = $_GET["close"];
 $to_exclude = explode(",",$to_excludes);
-$stations_excluded = [];
+$stations_excluded = "";
+$borough = $_GET["borough"];
 for ($i=0;$i<count($to_exclude);$i++) {
 	$stations_excluded[] = $to_exclude[$i];
 }
 if ($_GET["close"] == "") {
-	echo "Exit stage left";
-	exit();
+	$required_filename = "../data/IncidentsByBorough/" . $borough . ".json";
+} else {
+	$required_filename = "../data/IncidentsByBoroughWithClosures/" . $borough . "-minus-";
+	for ($i=0;$i<count($stations_excluded);$i++) {
+		$required_filename .= $stations_excluded[$i] . "_";
+	}
+	$required_filename = substr($required_filename,0,-1) . ".json";
 }
-
-$borough = $_GET["borough"];
-
-$required_filename = "../data/IncidentsByBoroughWithClosures/" . $borough . "-minus-";
-for ($i=0;$i<count($stations_excluded);$i++) {
-	$required_filename .= $stations_excluded[$i] . "_";
-}
-$required_filename = substr($required_filename,0,-1) . ".js";
 if (file_exists($required_filename)) {
 	header('Content-type: application/json');
 	echo file_get_contents($required_filename);
@@ -43,13 +41,13 @@ $res = $mysqli->query($query) or die($mysqli->error);
 while ($row = $res->fetch_array(MYSQLI_ASSOC)) {
 	$ward = trim($row["WardName"]);
 	if ($ward != "Not geo-coded") {
-		$filename = 'incidents/' . $ward . '.js';
+		$filename = '../data/IncidentsByBorough/' . $ward . '.json';
 		if (count($stations_excluded) > 0) {
 			$filename = '../data/IncidentsByBoroughWithClosures/' . $ward . '-minus-';
 			for ($i=0;$i<count($stations_excluded);$i++) {
 				$filename .= $stations_excluded[$i] . "_";
 			}
-			$filename = substr($filename,0,-1) . ".js";
+			$filename = substr($filename,0,-1) . ".json";
 		}
 		if (!file_exists($filename)) {
 			getDataForWard($ward,$stations_excluded,$filename);

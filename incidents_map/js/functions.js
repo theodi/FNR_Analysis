@@ -50,7 +50,7 @@ function boroughControl(name) {
 			showLayer(borough);
 			hideLayer("B:"+borough);
 		} else {
-			loadIncidentClosureData(borough,closeStationsSelection);
+			loadIncidentData(borough,closeStationsSelection);
 		}
 	} else {
 		// Hide any Incident layers that start with the borough we want to hide
@@ -107,7 +107,7 @@ function closeStation(name) {
 		$.each( data.boroughs, function( key, val ) {
 			borough = val;
 			if (containsObject(borough,incidentLayers)) {
-				loadIncidentClosureData(borough,closeStationsSelection);
+				loadIncidentData(borough,closeStationsSelection);
 			}
 			//Change the colors of the borough shading to reflect closures
 			updateBoroughStyle(borough,stations);
@@ -139,7 +139,7 @@ function openStation(name) {
 			temparrayclosures = removeArrayItem(name,closeStationsSelection);
 			if (containsObject(borough,incidentLayers) || containsObject(old_borough,incidentLayers)) {
 				if (temparrayclosures.length > 0) {
-					loadIncidentClosureData(borough,temparrayclosures);
+					loadIncidentData(borough,temparrayclosures);
 				} else {
 					loadIncidentData(borough);
 				}
@@ -238,7 +238,7 @@ function showBoroughDetail(e) {
 	props = e.target.feature.properties;
 	borough = props.borough;
 	hideLayer("B:" + props.borough);
-	loadIncidentClosureData(props.borough,closeStationsSelection);
+	loadIncidentData(props.borough,closeStationsSelection);
 	updateBoroughsSelected();
 	map.fitBounds(e.target.getBounds());
 }
@@ -290,18 +290,39 @@ function loadStations() {
 }
 
 function loadBoroughBoundary(borough) {
-	if (!containsObject(borough,incidentLayers)) {
-		$.getJSON( "data/BoroughBoundaries/"+borough+".json", function( data ) {
-        	        geojson = L.geoJson(data, {
-	                        style: boroughStyle,
-        	                onEachFeature: onEachBoroughFeature,
-	                })
-        	        showLayer("B:" + borough);
-        	});
-	}
+	$.getJSON( "data/BoroughBoundaries/"+borough+".json", function( data ) {
+                geojson = L.geoJson(data, { 
+			style: boroughStyle,
+        	        onEachFeature: onEachBoroughFeature,
+	        })
+		if (!containsObject(borough,incidentLayers)) {
+        	  	showLayer("B:" + borough);
+		}
+        });
 }
 
 function loadIncidentData(borough) {
+   	closedStations = closeStationsSelection;
+
+   	if (closedStations.length > 0) {
+		plain_borough = borough;
+		query_string = "?borough=" + borough + "&close=";
+		borough = borough + "-minus-";
+		for (i=0;i<closedStations.length;i++) {
+			borough = borough + closedStations[i] + "_";
+			query_string = query_string + closedStations[i] + ",";
+		}
+		borough = borough.substring(0,borough.length - 1);
+		query_string = query_string.substring(0,query_string.length - 1);
+		url = "library/GetBoroughIncidentData.php" + query_string;
+		if(mapLayerGroups[borough]) {
+			hideLayer(plain_borough);
+		}
+	} else {
+		url = "library/GetBoroughIncidentData.php?borough="+borough
+	}
+	console.log(url);
+
 	if (!containsObject(borough,incidentLayers)) {
 		incidentLayers.push(borough);
 	}
@@ -309,7 +330,7 @@ function loadIncidentData(borough) {
 	if(mapLayerGroups[borough]) {
 		showLayer(borough);
 	} else {
-		$.getJSON( "data/IncidentsByBorough/"+borough+".json", function( data ) {
+		$.getJSON( url , function( data ) {
 			geojson = L.geoJson(data, {
 				style: style,
 				onEachFeature: onEachFeature,
@@ -320,45 +341,6 @@ function loadIncidentData(borough) {
 			console.log("Failed to load borough boundary for " + borough);
 		});
 	}
-}
-
-function loadIncidentClosureData(borough,closedStations) {
-   closedStations = closeStationsSelection;
-	
-   if (closedStations.length < 1) {
-	loadIncidentData(borough);
-   } else {
-
-	plain_borough = borough;
-	query_string = "?borough=" + borough + "&close=";
-	borough = borough + "-minus-";
-	for (i=0;i<closedStations.length;i++) {
-		borough = borough + closedStations[i] + "_";
-		query_string = query_string + closedStations[i] + ",";
-	}
-	borough = borough.substring(0,borough.length - 1);
-	query_string = query_string.substring(0,query_string.length - 1);
-	url = "library/GetBoroughIncidentData.php" + query_string;
-	console.log(url);
-		
-	if (!containsObject(borough,incidentLayers)) {
-		incidentLayers.push(borough);
-	}
-	
-	if(mapLayerGroups[borough]) {
-		hideLayer(plain_borough);
-		showLayer(borough);
-	} else {
-		$.getJSON( url, function( data ) {
-			geojson = L.geoJson(data, {
-				style: style,
-				onEachFeature: onEachFeature,
-			});
-			hideLayer(plain_borough);
-			showLayer(borough);
-		});
-	}
-    }
 }
 
 function showLayer(id) {
@@ -447,10 +429,6 @@ $.getJSON( "data/boroughs.json", function( data ) {
 
 loadStations();
    
-for (i = 0; i < incidentLayers.length; i++) {
-	loadIncidentData(incidentLayers[i]);
-}
-
 $( document ).ready(function() {
 	for (i = 0; i < incidentLayers.length; i++) {
 		loadIncidentData(incidentLayers[i]);
