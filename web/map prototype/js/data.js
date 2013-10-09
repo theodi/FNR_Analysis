@@ -30,21 +30,29 @@ var boroughsReload = function (stations) {
 	}), function (r) { return r.borough; })) };
 }
 
+// returns the mean of an array of numerical values
+var mean = function (a) {
+	a = [ ].concat(a);
+	return _.reduce(a, function (memo, num) { return memo + num; }, 0) / a.length;
+}
+
 
 /* This function replaces the 'getStationResponseTime' function in the 
    'GetAreaResponseTime.php' file. It returns the average first pump 
    attendance time to incidents located in the 'station' area, by all 
    stations excluding the ones listed in closedStations */ 
 var getStationResponseTime = function (station, closedStations) {
-	var temp = _.map(_.filter(incidentsData, function (incident) {
+	closedStations = [ ].concat(closedStations);
+	return mean(_.map(_.filter(incidentsData, function (incident) {
 		return (incident.station == station) && !_.contains(closedStations, incident.firstPumpStation);
-	}), function (incident) { return incident.firstPumpTime; });
-	return _.reduce(temp, function (memo, num) { return memo + num; }, 0) / temp.length;
+	}), function (incident) { return incident.firstPumpTime; }));
 };
 
 
 /* This function replaces the calls to GetAreaResponseTime.php when a borough is
-   specified. */
+   specified. It returns the average first pump attendance time to incidents 
+   located in the 'borough', by all the borough's stations, excluding the ones 
+   listed in closedStations */ 
 var getBoroughResponseTime = function (borough, closedStations) {
 
 	var getStationsInBorough = function (borough) {
@@ -54,7 +62,8 @@ var getBoroughResponseTime = function (borough, closedStations) {
 	};
 
 	closedStations = [ ].concat(closedStations);
-	_.each(getStationsInBorough(borough, function (station) {
+	return mean(_.map(getStationsInBorough(borough), function (station) {
+		return getStationResponseTime(station, closedStations);
+	}));	
 
-	}));
-}
+};
