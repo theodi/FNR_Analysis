@@ -83,7 +83,8 @@ function updateBoroughsSelected() {
 	});
 }
 
-function updateBoroughStyle(borough,stations) {
+function updateBoroughStyle(borough, stations) {
+	stations = stations.join(",");
 	$.getJSON( "library/GetAreaResponseTime.php?borough="+borough+"&closed=" + stations, function( data ) {
 		color = getColor(data);
 		log("New response time for " + borough + " is " + data + " color " + color);
@@ -102,16 +103,13 @@ function closeStation(name) {
 		closeStationsSelection.sort();
 	}
 	markers[name].setIcon(stationIconClosing);
-	stations = closeStationsSelection.join(",");
-	$.getJSON( "library/BoroughsReload.php?stations=" + stations, function( data ) {
-		$.each( data.boroughs, function( key, val ) {
-			borough = val;
-			if (containsObject(borough,incidentLayers)) {
-				loadIncidentClosureData(borough,closeStationsSelection);
-			}
-			//Change the colors of the borough shading to reflect closures
-			updateBoroughStyle(borough,stations);
-		});
+	$.each(boroughsReload(closeStationsSelection).boroughs, function(key, val) {
+		borough = val;
+		if (containsObject(borough, incidentLayers)) {
+			loadIncidentClosureData(borough, closeStationsSelection);
+		}
+		//Change the colors of the borough shading to reflect closures
+		updateBoroughStyle(borough, closeStationsSelection.join(","));
 	});
 	updateBoroughsSelected();
 }
