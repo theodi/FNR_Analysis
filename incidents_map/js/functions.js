@@ -1,7 +1,9 @@
 // Setup
 
-var incidentLayers = ["Newham","Lambeth"];
+//var incidentLayers = ["Newham","Lambeth"];
+var incidentLayers = [];
 var closeStationsSelection = [];
+var markers = {};
 
 // TODO: Resize icons based upon zoom level
 var stationIconClosing = L.icon({
@@ -63,7 +65,7 @@ function boroughControl(name) {
 
 function updateBoroughsSelected() {
 	$('boroughs').html("");
-	$.getJSON( "js/boroughs.json", function( data ) {
+	$.getJSON( "data/boroughs.json", function( data ) {
 		var items = [];
 		$.each( data, function( key, val ) {
 			if (containsObject(val,incidentLayers)) {
@@ -74,18 +76,32 @@ function updateBoroughsSelected() {
 	});
 }
 
+function updateBoroughStyle(borough,stations) {
+	$.getJSON( "library/GetAreaResponseTime.php?borough="+borough+"&closed=" + stations, function( data ) {
+		color = getColor(data);
+		console.log("New response time for " + borough + " is " + data + " color " + color);
+		layerhook = mapLayerGroups["B:" + borough]._layers;
+		for (key in layerhook) {
+			mapLayerGroups["B:" + borough]._layers[key].setStyle({fillColor:color});
+		}
+	});
+}
+
 function closeStation(name) {
 	// Stage one: Add this station to the array of closed stations
 	if (!containsObject(name,closeStationsSelection)) {
 		closeStationsSelection.push(name);
 	}
+	markers[name].setIcon(stationIconClosing);
 	stations = closeStationsSelection.join(",");
-	$.getJSON( "boroughs_reload.php?stations=" + stations, function( data ) {
+	$.getJSON( "library/BoroughsReload.php?stations=" + stations, function( data ) {
 		$.each( data.boroughs, function( key, val ) {
 			borough = val;
 			if (containsObject(borough,incidentLayers)) {
 				loadIncidentClosureData(borough,closeStationsSelection);
 			}
+			//Change the colors of the borough shading to reflect closures
+			updateBoroughStyle(borough,stations);
 		});
 	});
 	updateBoroughsSelected();
@@ -94,7 +110,8 @@ function closeStation(name) {
 function openStation(name) {
 	console.log(incidentLayers);
 	closeCache = closeStationsSelection;
-	$.getJSON( "boroughs_reload.php?stations=" + name, function( data ) {
+	markers[name].setIcon(stationIcon);
+	$.getJSON( "library/BoroughsReload.php?stations=" + name, function( data ) {
 		$.each( data.boroughs, function( key, val ) {
 			if (!containsObject(name,closeCache)) {
 				closeCache.push(name);
@@ -121,6 +138,7 @@ function openStation(name) {
 		});
 		closeStationsSelection = removeArrayItem(name,closeStationsSelection);	
 		updateBoroughsSelected();
+		updateBoroughStyle(borough,closeStationsSelection)
 	})
 	.error(function() {
 		console.log("error");
@@ -158,6 +176,8 @@ function boroughStyle(feature) {
 		weight: 1,
 		color: 'grey',
 		dashArray: '3',
+		fillOpacity: 0.7,
+		fillColor: getColor(feature.properties.response),
 		opacity: 0.7
 	};
 }
@@ -242,19 +262,19 @@ function loadStations() {
                 lg = new L.layerGroup();
                 mapLayerGroups["Stations"] = lg;
 	}
-	$.getJSON( "js/stations.json", function( data ) {
+	$.getJSON( "data/stations.json", function( data ) {
 		for (i=0;i<data.length;i++) {
 			station = data[i];
 			var markerLocation = new L.LatLng(station.latitude, station.longitude);
 			if (station.closing == "true") {
-				var marker = new L.Marker(markerLocation, {icon: stationIconClosing, name: station.name});
+				markers[station.name] = new L.Marker(markerLocation, {icon: stationIconClosing, name: station.name});
 			} else {
-				var marker = new L.Marker(markerLocation, {icon: stationIcon, name: station.name});
+				markers[station.name] = new L.Marker(markerLocation, {icon: stationIcon, name: station.name});
 			}
-			marker.on('mouseover', function(evt) {
+			markers[station.name].on('mouseover', function(evt) {
 				showMarkerDetails(evt.target.options.name);
 			});
-			lg.addLayer(marker);
+			lg.addLayer(markers[station.name]);
 		}
 		showLayer("Stations");
 	});
@@ -262,7 +282,7 @@ function loadStations() {
 
 function loadBoroughBoundary(borough) {
 	if (!containsObject(borough,incidentLayers)) {
-		$.getJSON( "borough_boundaries/"+borough+".json", function( data ) {
+		$.getJSON( "data/BoroughBoundaries/"+borough+".json", function( data ) {
         	        geojson = L.geoJson(data, {
 	                        style: boroughStyle,
         	                onEachFeature: onEachBoroughFeature,
@@ -280,12 +300,15 @@ function loadIncidentData(borough) {
 	if(mapLayerGroups[borough]) {
 		showLayer(borough);
 	} else {
-		$.getJSON( "incidents/"+borough+".js", function( data ) {
+		$.getJSON( "data/IncidentsByBorough/"+borough+".json", function( data ) {
 			geojson = L.geoJson(data, {
 				style: style,
 				onEachFeature: onEachFeature,
 			});
 			showLayer(borough);
+		})
+		.error( function() {
+			console.log("Failed to load borough boundary for " + borough);
 		});
 	}
 }
@@ -307,7 +330,7 @@ function loadIncidentClosureData(borough,closedStations) {
 	}
 	borough = borough.substring(0,borough.length - 1);
 	query_string = query_string.substring(0,query_string.length - 1);
-	url = "get_data.php" + query_string;
+	url = "library/GetBoroughIncidentData.php" + query_string;
 	console.log(url);
 		
 	if (!containsObject(borough,incidentLayers)) {
@@ -407,7 +430,7 @@ legend.onAdd = function (map) {
 legend.addTo(map);
 
 //loadBoroughs();
-$.getJSON( "js/boroughs.json", function( data ) {
+$.getJSON( "data/boroughs.json", function( data ) {
 	var items = [];
 	$.each( data, function( key, val ) {
 		loadBoroughBoundary(val);
