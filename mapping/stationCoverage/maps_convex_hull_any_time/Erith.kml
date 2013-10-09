@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Erith</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Erith</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.213025759344902,51.481819813268
+0.214247227193103,51.477299727141
+0.192894044934192,51.4525178477743
+0.160870121541388,51.4450180602408
+0.126022537256845,51.4384602376606
+0.0806966463739061,51.4860419766675
+0.0885919730688528,51.5011911392108
+0.110480558798332,51.5070948967246
+0.130766729513133,51.5094261722397
+0.160795629630906,51.5043796697589
+0.169306978998746,51.5015243188931
+0.213025759344902,51.481819813268
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

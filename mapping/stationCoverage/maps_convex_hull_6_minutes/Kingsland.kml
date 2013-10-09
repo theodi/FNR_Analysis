@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Kingsland</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Kingsland</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0601354312175558,51.5280288520267
+-0.0789802017596513,51.5256409498267
+-0.101659261721678,51.5350038015847
+-0.0969234993055848,51.5448199796954
+-0.0774653025539775,51.5615904582882
+-0.0589500469985807,51.5558894223902
+-0.0479165291411025,51.5440146448363
+-0.0601354312175558,51.5280288520267
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

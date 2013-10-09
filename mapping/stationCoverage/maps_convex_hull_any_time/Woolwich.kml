@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Woolwich</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Woolwich</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.0812766337011084,51.4671445562908
+0.0367525637456666,51.4697254111722
+0.0138481406827644,51.4728192766295
+0.00992609659377054,51.4818803670657
+0.0101632628027572,51.4872725622734
+0.0334750738540288,51.4931661982662
+0.0378341683802592,51.4939898927158
+0.125048154345158,51.5104293388514
+0.129326632521222,51.5094523328644
+0.120185282353328,51.4988253213213
+0.0812766337011084,51.4671445562908
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

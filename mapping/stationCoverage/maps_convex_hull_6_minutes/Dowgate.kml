@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Dowgate</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Dowgate</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0699967775720289,51.4994119208961
+-0.088866825514831,51.4961235457585
+-0.0975435184477002,51.4953652851196
+-0.111570625397296,51.5045856408324
+-0.115705688288419,51.50914895429
+-0.116997738423842,51.5127671408114
+-0.11105014614952,51.5171682810915
+-0.103698058031051,51.5206470639205
+-0.0993386691442368,51.5214758530197
+-0.0778800831355121,51.5175286739016
+-0.0594588987344359,51.5100303843358
+-0.0699967775720289,51.4994119208961
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Harold Hill</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Harold Hill</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.288087727562217,51.5712189267296
+0.297184217884391,51.5512542344636
+0.296731541533397,51.542269031686
+0.25571676602196,51.5295740321611
+0.188289344387139,51.5668272823119
+0.177269773823389,51.5778249683522
+0.176600649516443,51.5940263142421
+0.186336167168787,51.6163299075511
+0.226055516111159,51.6308727849554
+0.249977981722432,51.6178251571892
+0.260989153740693,51.6068208083304
+0.270597187157431,51.5967419285114
+0.288087727562217,51.5712189267296
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

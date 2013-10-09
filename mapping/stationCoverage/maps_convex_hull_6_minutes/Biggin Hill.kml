@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Biggin Hill</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Biggin Hill</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.0659110037990929,51.3181166093686
+0.0550283413097156,51.2994206067432
+0.0238448418685699,51.3080585071065
+0.0216092201784237,51.3224875519956
+0.021648746586073,51.3233862696254
+0.0263084065144971,51.3314003214346
+0.0323648191051541,51.3384905553532
+0.056635817315649,51.3353685813284
+0.0659110037990929,51.3181166093686
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

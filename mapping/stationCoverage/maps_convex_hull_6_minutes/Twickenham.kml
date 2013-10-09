@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Twickenham</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Twickenham</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.311037024454984,51.4104989563434
+-0.347101133580207,51.407415813831
+-0.37562416160539,51.4141100861622
+-0.4078752626563,51.437935503391
+-0.369904224411349,51.4536016926686
+-0.332464482325587,51.4539744238735
+-0.328148280407575,51.453912945158
+-0.318077202186419,51.4537688771648
+-0.312388641891731,51.4518884293619
+-0.311037024454984,51.4104989563434
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

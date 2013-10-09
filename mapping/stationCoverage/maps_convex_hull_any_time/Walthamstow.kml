@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Walthamstow</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Walthamstow</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.077874888061572,51.5823255542932
+-0.0208803451484949,51.5687437607498
+-0.0567803075007429,51.5729413017733
+-0.071088945881647,51.575875481195
+-0.0765168932016994,51.5840587728019
+-0.0643549397936522,51.6324237322234
+0.0159969383556854,51.6193795481164
+0.050239523738206,51.6097927241221
+0.076965303426079,51.5940334885854
+0.077874888061572,51.5823255542932
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>West Norwood</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>West Norwood</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0530154544245551,51.4244832760341
+-0.0665608208549886,51.4103175183956
+-0.0898178146600494,51.4044033452234
+-0.151211334628136,51.4152812046318
+-0.160153965740816,51.4433022518654
+-0.129289457352798,51.4590022561462
+-0.0900314548090585,51.4682622016092
+-0.071627860740373,51.4607659482065
+-0.0530154544245551,51.4244832760341
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Willesden</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Willesden</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.176922750863874,51.5281036253569
+-0.209399969593716,51.5088183136643
+-0.225139340350195,51.5117556181755
+-0.250861573823182,51.5175381380464
+-0.26369098798951,51.5213261372376
+-0.280777652356862,51.5269738742339
+-0.424713035815237,51.5757598710132
+-0.315022981493986,51.6147056371467
+-0.270539372820024,51.6068640137124
+-0.184638682288483,51.5516063112442
+-0.176922750863874,51.5281036253569
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

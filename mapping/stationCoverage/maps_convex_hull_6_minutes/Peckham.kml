@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Peckham</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Peckham</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0421454782502732,51.4431890947273
+-0.0692814333189451,51.448136123577
+-0.103206164129207,51.4630799201688
+-0.116891530815728,51.4803884720222
+-0.100535335522708,51.492715702867
+-0.0691266385650917,51.4859071018994
+-0.0522354072499911,51.4766340031409
+-0.0494336516022644,51.4747886781061
+-0.048109597247384,51.472068526077
+-0.0421454782502732,51.4431890947273
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

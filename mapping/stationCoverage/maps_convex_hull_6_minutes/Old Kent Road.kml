@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Old Kent Road</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Old Kent Road</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0421993570643775,51.4755674575069
+-0.051179290238436,51.4676227399281
+-0.0642059422593591,51.4660398393108
+-0.0981795008578974,51.4800864231902
+-0.0990955624633376,51.4926923696037
+-0.0960287495533847,51.4971394229624
+-0.0756051698110468,51.5031015568606
+-0.0311185978714968,51.4987655411676
+-0.0344624484460381,51.4880291991787
+-0.0421993570643775,51.4755674575069
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

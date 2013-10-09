@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Enfield</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Enfield</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.0135870797312924,51.6302132184878
+-4.17233165943816e-05,51.6160565130335
+-0.0724521176821571,51.6118719656719
+-0.188894140866615,51.6622904944617
+-0.193158271684924,51.6641548449956
+-0.146029583913305,51.6850041507709
+-0.105244814156647,51.6915478911472
+-0.0980521312044059,51.6905322936074
+-0.0333329915161807,51.6813722377408
+-0.0103597833487759,51.6773878527475
+0.0135870797312924,51.6302132184878
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Bethnal Green</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Bethnal Green</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0225570729951563,51.5300993763528
+-0.0226739145512439,51.5274032455372
+-0.0319388891455986,51.513169214465
+-0.0622250452074795,51.5127742202305
+-0.0718522016389267,51.523725255934
+-0.0640385337901743,51.5379863194232
+-0.058044283367988,51.543283394473
+-0.0551232932705778,51.5441343594866
+-0.0479165291411025,51.5440146448363
+-0.0322557087623902,51.53925614794
+-0.0225570729951563,51.5300993763528
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

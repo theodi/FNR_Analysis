@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Kingston</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Kingston</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.273226029971993,51.421639474596
+-0.282425002195306,51.4064856518634
+-0.293121443592438,51.3895542175736
+-0.305852452958993,51.3951351229065
+-0.320670315121406,51.4223289445626
+-0.321778718772246,51.4313382970197
+-0.320175831513646,51.435812067562
+-0.312488084930803,51.4491918257131
+-0.292214078061267,51.4524955879692
+-0.273226029971993,51.421639474596
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

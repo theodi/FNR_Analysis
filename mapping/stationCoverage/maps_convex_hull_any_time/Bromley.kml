@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Bromley</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Bromley</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.110378934797598,51.348802831543
+0.0338422174551699,51.3069858475266
+-0.0486050523016329,51.3929316114853
+-0.0499269768557751,51.3956517686705
+-0.0482607286726654,51.4010203111804
+-0.0372020976727601,51.4242194712354
+0.00251536827643832,51.4442332725648
+0.107040523818678,51.4325073004913
+0.140578474462793,51.4112132147629
+0.110378934797598,51.348802831543
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

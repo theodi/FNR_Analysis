@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Southall</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Southall</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.313078029380987,51.51125483686
+-0.333606372270429,51.5016556338945
+-0.367085746198546,51.4922339310352
+-0.380141099791653,51.4897170076817
+-0.398639377267208,51.4962664017228
+-0.40571450047829,51.499960120344
+-0.412728294887994,51.5054512288907
+-0.43509744507698,51.5255369708691
+-0.391390995529202,51.5384355975634
+-0.338976508873899,51.5520943921027
+-0.313078029380987,51.51125483686
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

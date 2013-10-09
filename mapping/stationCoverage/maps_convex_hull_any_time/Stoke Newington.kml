@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Stoke Newington</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Stoke Newington</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0433611278391739,51.5493349163434
+-0.0609651659773139,51.5424323554608
+-0.118104726998951,51.5208791249986
+-0.116658055392283,51.5559307233444
+-0.116620922761637,51.5568294791348
+-0.116286642393402,51.5649182741793
+-0.115952205911054,51.5730070564998
+-0.0802764618945083,51.5976106148784
+-0.0438140324481864,51.6060020058846
+-0.0138972856941216,51.5965059349273
+-0.0433611278391739,51.5493349163434
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

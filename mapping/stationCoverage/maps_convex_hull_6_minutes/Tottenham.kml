@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Tottenham</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Tottenham</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.017526862881747,51.5794794785157
+-0.0629315192448882,51.5640494540782
+-0.0715835190344694,51.5641919908944
+-0.0954968773929809,51.5789722645709
+-0.098306819227773,51.5808165423409
+-0.106439004455094,51.5935389459364
+-0.107732534549963,51.5971572021087
+-0.0838110349439867,51.6165547095012
+-0.0355109304820884,51.6310451999887
+-0.0213075399994587,51.5921343289245
+-0.017526862881747,51.5794794785157
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

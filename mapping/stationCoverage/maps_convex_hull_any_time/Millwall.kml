@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Millwall</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Millwall</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.00874631467419145,51.4830983811548
+-0.020066845355423,51.4877869770695
+-0.0242689297272887,51.4905559809454
+-0.0479366815523468,51.509839144365
+-0.0318226540527156,51.5158653668672
+-0.0230632552006719,51.5184161324812
+-0.0201822227632002,51.5183675292569
+0.0129094356154806,51.5169048168367
+0.0211541390384954,51.5077692609232
+-0.00874631467419145,51.4830983811548
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

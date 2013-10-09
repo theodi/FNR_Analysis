@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Sutton</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Sutton</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.188585953256852,51.3430160942798
+-0.200208073976896,51.33959779071
+-0.20164312750395,51.3396198363434
+-0.207243059814546,51.3433031810858
+-0.219706805084322,51.3551851065521
+-0.243217211138045,51.3789235636257
+-0.218381218525425,51.3893408556667
+-0.186740428434812,51.3897547836179
+-0.179557399419932,51.3896433897877
+-0.162534384359184,51.3839814178596
+-0.167238643257961,51.3741620321509
+-0.188585953256852,51.3430160942798
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

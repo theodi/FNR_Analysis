@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Edmonton</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Edmonton</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0156860576171315,51.6217181898917
+-0.0135442790545105,51.6045941847414
+-0.0132779456254317,51.5776088868757
+-0.0306204990612329,51.5437255246411
+-0.104808957868649,51.5980093713379
+-0.162126415245447,51.6447872339507
+-0.169925410898963,51.6664930359876
+-0.0752970286708442,51.6811681834149
+-0.0477900143658033,51.6816134653572
+-0.0335277081631161,51.6768787724663
+-0.0156860576171315,51.6217181898917
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Stratford</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Stratford</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.056098361376619,51.5476336886398
+0.0496461809085814,51.5324572475168
+0.0348763636024259,51.5246200714727
+0.007147663081498,51.5170035758769
+-0.0126274951705236,51.5263340651867
+-0.0451108869797303,51.5421691947411
+-0.0431682672103123,51.5538285058623
+-0.00462370091997252,51.5774620247871
+-0.0031419345305286,51.5783361778998
+0.0273479055745884,51.582310124561
+0.056341544862751,51.5530256688781
+0.056098361376619,51.5476336886398
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

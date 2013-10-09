@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Hendon</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Hendon</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.167262294457349,51.5891085827083
+-0.168813607127751,51.5864347763762
+-0.195923389788626,51.5580757979736
+-0.197400848060592,51.557199166083
+-0.235412406186681,51.5442869704824
+-0.280574449801084,51.5323669196255
+-0.310090516554103,51.6308225083187
+-0.307001079669232,51.6361739143065
+-0.24003505216234,51.648678974356
+-0.179169757391256,51.6162741009434
+-0.167262294457349,51.5891085827083
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

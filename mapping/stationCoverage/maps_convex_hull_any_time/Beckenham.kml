@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Beckenham</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Beckenham</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.0407000274867379,51.396806360207
+0.0429325941004198,51.3823771494931
+0.00073357063577786,51.3705140365522
+-0.0310484616665214,51.366555661047
+-0.0794891675662291,51.3763537512439
+-0.0762436233804877,51.4194706543062
+-0.0687911533115217,51.4256436995492
+-0.0424914012754371,51.4351004828186
+-0.000792766230585968,51.4343965514234
+0.0310416830166346,51.4059681085564
+0.0407000274867379,51.396806360207
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Fulham</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Fulham</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.179145482199994,51.4723782987448
+-0.183677300286148,51.4670524607926
+-0.189540195192178,51.4644450837761
+-0.199789818583132,51.4601061532261
+-0.22740651056883,51.4533321826869
+-0.222077586616841,51.479332698184
+-0.22046318281651,51.4838049581539
+-0.208417990764025,51.4971117804442
+-0.171230458916417,51.4902422175132
+-0.172849906484388,51.4857706904065
+-0.179145482199994,51.4723782987448
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Forest Hill</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Forest Hill</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0197571443907809,51.428422875113
+-0.0344812400963755,51.4205763457481
+-0.0402695077829339,51.419773913661
+-0.0474949909526879,51.4189951534118
+-0.0546820751941792,51.4191146893253
+-0.0959571726142474,51.4296857306945
+-0.0852537686731814,51.4448006606969
+-0.076133104093799,51.4563431274016
+-0.0731801822809807,51.4580933644422
+-0.0358142383178863,51.4565737995242
+-0.0157912277507399,51.4535384204191
+-0.0118272983962695,51.4453768380125
+-0.0197571443907809,51.428422875113
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

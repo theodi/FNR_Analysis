@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Purley</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Purley</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0629820649170976,51.3248169302213
+-0.0603785818544764,51.3184780980295
+-0.105841813429201,51.2949389499654
+-0.108708984636149,51.2949853069997
+-0.122934958810173,51.2979124365561
+-0.154115981263638,51.3074020610622
+-0.191314694231863,51.346655759221
+-0.147750057503453,51.3585661291279
+-0.0985683796548403,51.3667718294565
+-0.0942609300508859,51.3667018257608
+-0.0778592803820872,51.3466473754929
+-0.0629820649170976,51.3248169302213
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Northolt</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Northolt</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.288074601349042,51.5630539795639
+-0.290191061523539,51.5450981839244
+-0.308023615403315,51.5309674094012
+-0.353510655646295,51.5091314489501
+-0.459626095072919,51.5249623336783
+-0.48407880378961,51.6134134167022
+-0.356991283140018,51.6126026387411
+-0.348426617692243,51.609784484158
+-0.308639321216085,51.5921307234869
+-0.288074601349042,51.5630539795639
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

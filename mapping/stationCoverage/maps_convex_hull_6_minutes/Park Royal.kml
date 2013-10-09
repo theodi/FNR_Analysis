@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Park Royal</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Park Royal</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.241594287009406,51.5335877162935
+-0.241628927649446,51.5326888945501
+-0.258099277962376,51.5167465169335
+-0.261014834996827,51.5158904425417
+-0.289962513780327,51.5127187401672
+-0.298605816718835,51.5515158588548
+-0.289887705861451,51.5531877647266
+-0.258133475310518,51.5536199227258
+-0.252400654080686,51.552635326461
+-0.250993348035544,51.5517150164511
+-0.241594287009406,51.5335877162935
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

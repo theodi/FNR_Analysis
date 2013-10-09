@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Kensington</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Kensington</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.148012491286041,51.4943745711889
+-0.170006670769201,51.4848269919916
+-0.197678060367231,51.4771614452869
+-0.222077586616841,51.479332698184
+-0.240271539148843,51.4930974016387
+-0.243934800831681,51.5102398788564
+-0.200120030618594,51.5248645129917
+-0.164279647751691,51.5198122654815
+-0.142962160153193,51.5122818176134
+-0.143181462712766,51.5068891584679
+-0.148012491286041,51.4943745711889
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

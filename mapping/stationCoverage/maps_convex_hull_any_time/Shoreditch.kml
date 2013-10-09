@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Shoreditch</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Shoreditch</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0577127552214009,51.5171963934892
+-0.0868999837093601,51.5086825505014
+-0.124421383206975,51.5074899623847
+-0.113559821597444,51.5262022481645
+-0.108976593342497,51.5324239353707
+-0.101659261721678,51.5350038015847
+-0.0753404267738221,51.5435684706858
+-0.0709783490036857,51.5443961743858
+-0.0609651659773139,51.5424323554608
+-0.0527777760919687,51.5315043771833
+-0.0577127552214009,51.5171963934892
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

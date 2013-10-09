@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Tooting</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Tooting</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.117268651877328,51.4012501714867
+-0.171872758144448,51.4021148772618
+-0.178914875127232,51.4058220046074
+-0.202817255205658,51.4196814863805
+-0.230214255811846,51.4551733146495
+-0.206490576131935,51.4727998233323
+-0.156299754771817,51.4675244407103
+-0.139397218299162,51.4582637672921
+-0.124161005008971,51.4436310857122
+-0.122833339031463,51.4409117285641
+-0.117268651877328,51.4012501714867
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Shadwell</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Shadwell</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0277342886745425,51.51040046842
+-0.0335727940525373,51.5086997844598
+-0.0554059716072662,51.5036676835403
+-0.0597644049738058,51.5028405158163
+-0.0640845899069432,51.502911920883
+-0.0696929191650406,51.5066018370603
+-0.0724594849098645,51.5093454372766
+-0.0793584359101706,51.5166535332446
+-0.0704114750107095,51.5237015605126
+-0.0458424592123258,51.5250934796996
+-0.0247759946671979,51.512149413536
+-0.0277342886745425,51.51040046842
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

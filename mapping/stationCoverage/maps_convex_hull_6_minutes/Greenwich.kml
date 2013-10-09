@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Greenwich</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Greenwich</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.0311964387433429,51.4743187240174
+-0.00260966857957841,51.4587108058153
+-0.00848154561472744,51.4561125841553
+-0.0157912277507399,51.4535384204191
+-0.0507961813597004,51.4766100822869
+-0.043061417548977,51.4890724121927
+-0.0313122637696385,51.4942719418122
+0.00592363308809566,51.4891439287665
+0.0158816307901371,51.4862749998915
+0.0187208685357795,51.4853267679366
+0.0311964387433429,51.4743187240174
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

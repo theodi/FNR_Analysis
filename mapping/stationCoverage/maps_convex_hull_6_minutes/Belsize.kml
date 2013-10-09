@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Belsize</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Belsize</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.134474470296532,51.5436244858014
+-0.140753044137744,51.5311332463005
+-0.172671884595229,51.5262387753795
+-0.178399583072703,51.5272272225765
+-0.188236308033887,51.5336750162414
+-0.192096675822342,51.5454260743393
+-0.192025409249216,51.5472236653311
+-0.190262795288026,51.5552905838877
+-0.177070825316648,51.5604824061909
+-0.159839824300727,51.5584147075689
+-0.146935908698746,51.5564128968519
+-0.134474470296532,51.5436244858014
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

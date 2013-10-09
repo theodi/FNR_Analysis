@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Plaistow</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Plaistow</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.106616510470098,51.5170576227377
+0.0669122635249153,51.499776554204
+-0.0080019796041742,51.5001738373493
+-0.0130187982318602,51.5173470050769
+-0.00510940370021463,51.5334013758514
+0.0110977775613311,51.5412189179731
+0.0257492657408617,51.5463630113941
+0.0533775031153609,51.5512788458951
+0.106503516868573,51.5458399043263
+0.117449421605641,51.5330514440332
+0.106616510470098,51.5170576227377
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

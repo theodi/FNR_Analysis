@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Wallington</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Wallington</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0834022334603602,51.3170584658451
+-0.116979497840785,51.3032131171347
+-0.219072961080743,51.3344899681269
+-0.200445836245235,51.370180033848
+-0.170579253903946,51.3984972189421
+-0.142024321590678,51.3935510189324
+-0.12073197786709,51.3869157936019
+-0.101179719914343,51.3731098459379
+-0.0998181389411501,51.371289008261
+-0.0834022334603602,51.3170584658451
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

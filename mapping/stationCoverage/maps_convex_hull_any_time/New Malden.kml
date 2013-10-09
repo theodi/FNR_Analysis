@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>New Malden</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>New Malden</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.203704828496481,51.3603370017296
+-0.319323569739983,51.3413677742615
+-0.316834317427602,51.370111480984
+-0.313136030509852,51.3925421528546
+-0.30385026672858,51.410395151281
+-0.285492263920296,51.4398065855947
+-0.240561685513389,51.4481342625527
+-0.237684721349664,51.4480910426239
+-0.186719565605928,51.4266284006326
+-0.203704828496481,51.3603370017296
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

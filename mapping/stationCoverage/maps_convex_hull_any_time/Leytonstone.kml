@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Leytonstone</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Leytonstone</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.0709609760055971,51.5572653470387
+0.0369589155617795,51.5389739004315
+0.0080175233203834,51.536774845253
+0.00657645182102751,51.5367995081739
+-0.0406325871854382,51.5456919228789
+-0.0403235962768953,51.5528816569593
+-0.00680047366346927,51.5936875261241
+0.0049404435863949,51.5979843131086
+0.0499156002109793,51.6026034580393
+0.0570499087837961,51.600679881253
+0.10367256140348,51.5782683361323
+0.0709609760055971,51.5572653470387
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

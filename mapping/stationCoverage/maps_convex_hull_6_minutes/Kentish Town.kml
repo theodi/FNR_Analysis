@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Kentish Town</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Kentish Town</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.111039906495281,51.5522429825932
+-0.12057896785204,51.5308117137146
+-0.126564363349415,51.5255113429727
+-0.166294320951088,51.5414281769708
+-0.170438152284556,51.5459896198889
+-0.175808703517548,51.5559660639336
+-0.177070825316648,51.5604824061909
+-0.150641454907471,51.5717602680099
+-0.105145672822169,51.5899206754822
+-0.107783548891039,51.5611840309248
+-0.111039906495281,51.5522429825932
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

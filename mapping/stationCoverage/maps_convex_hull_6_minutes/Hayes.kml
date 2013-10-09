@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Hayes</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Hayes</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.404713701301974,51.4873558938177
+-0.423741751488342,51.4786199301536
+-0.449989621880818,51.4690772442421
+-0.490260804344029,51.4705020567392
+-0.488078329546704,51.4929570206021
+-0.474577522257963,51.5089699727767
+-0.459626095072919,51.5249623336783
+-0.450766154924447,51.531140889868
+-0.292805030922668,51.5523309210979
+-0.404713701301974,51.4873558938177
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

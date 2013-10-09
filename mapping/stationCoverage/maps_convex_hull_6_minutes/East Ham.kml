@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>East Ham</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>East Ham</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.0741931126188294,51.5014467440917
+0.0697512374356277,51.4988270909228
+0.0298748655294428,51.5094173725453
+0.020270707040521,51.5203757237966
+0.0297133266265752,51.5382001391126
+0.0592652167758652,51.5538737529206
+0.0739669679665716,51.5599103640571
+0.105922523069018,51.5332589932726
+0.105839558373816,51.5314617176754
+0.0741931126188294,51.5014467440917
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

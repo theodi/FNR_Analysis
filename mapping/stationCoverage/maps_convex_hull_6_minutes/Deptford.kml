@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Deptford</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Deptford</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.00586753322999745,51.4830494500732
+-0.00598516240496886,51.4803533248475
+-0.0135332141006899,51.4723870889459
+-0.0178893641321703,51.4715614497649
+-0.0236455308262994,51.4716586358474
+-0.027923913201376,51.4726300619215
+-0.0378818118985812,51.4754952735581
+-0.0643892905979396,51.4957220239615
+-0.06707883087196,51.5002632211859
+-0.0378162242561909,51.5105696028014
+-0.00586753322999745,51.4830494500732
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

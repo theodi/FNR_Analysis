@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Barking</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Barking</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.10649209779012,51.5143617028428
+0.099332027554383,51.5153894922364
+0.0678481766746007,51.5204458086485
+0.0635672949998507,51.5214205954986
+0.0621673638621285,51.5223445997128
+0.0585753934942512,51.5385964907923
+0.0616200383471998,51.5421405163864
+0.110176292491778,51.5628621112467
+0.149613488039183,51.5423595759553
+0.152071676041963,51.5333206163213
+0.10649209779012,51.5143617028428
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

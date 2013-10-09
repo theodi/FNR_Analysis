@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Silvertown</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Silvertown</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+0.0786354968938619,51.5040662221482
+0.0727124309955175,51.5005735458233
+0.0653911373454624,51.4980045954536
+-0.00419266278378673,51.4884171994931
+-0.0195214839226059,51.5003689739567
+-0.0130579173839945,51.5164482981901
+0.0189096707332227,51.5221979090173
+0.0333155744516969,51.5219490191223
+0.0835294715909447,51.5165707184322
+0.0786354968938619,51.5040662221482
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

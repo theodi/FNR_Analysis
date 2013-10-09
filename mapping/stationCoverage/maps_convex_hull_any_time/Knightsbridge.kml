@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Knightsbridge</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Knightsbridge</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.128001863622874,51.4904593637473
+-0.161369209581878,51.4846918587331
+-0.168603105132737,51.4839057206413
+-0.182962988293346,51.4850284996422
+-0.202551911019498,51.4997200574444
+-0.188700154020361,51.5219906610716
+-0.166944440824727,51.525250050752
+-0.14252335038317,51.5230671189941
+-0.132732193963649,51.5157167986732
+-0.129961593486985,51.5129745832133
+-0.123091944921878,51.504770617248
+-0.128001863622874,51.4904593637473
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

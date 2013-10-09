@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Wembley</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Wembley</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.273334618185105,51.533159906311
+-0.30799028443256,51.5318662628123
+-0.315063394365205,51.5355654116429
+-0.335896000421359,51.5574467049642
+-0.325042324407211,51.5779767831865
+-0.321958366638732,51.5833286768925
+-0.289044307724144,51.5756587571648
+-0.269087927638491,51.5690707391088
+-0.2521249794038,51.5598259130078
+-0.273334618185105,51.533159906311
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

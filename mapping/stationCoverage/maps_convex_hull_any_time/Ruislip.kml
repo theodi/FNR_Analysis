@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Ruislip</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Ruislip</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.37771475040114,51.5580324028822
+-0.398345726681688,51.5457253485475
+-0.481092622106416,51.5297388620381
+-0.486440096103845,51.5423984053819
+-0.495837900199719,51.6072695576904
+-0.489824489790432,51.6143867821644
+-0.439134308452308,51.6182202327619
+-0.345179665709889,51.619631256359
+-0.358126367661443,51.5811423281959
+-0.37771475040114,51.5580324028822
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

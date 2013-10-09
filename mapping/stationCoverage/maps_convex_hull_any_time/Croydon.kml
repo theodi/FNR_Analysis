@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Croydon</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Croydon</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.0186698808172175,51.3537554551752
+-0.0174673583085296,51.348338755281
+-0.0603785818544764,51.3184780980295
+-0.119994129754183,51.2996640201819
+-0.157733924972755,51.324547272591
+-0.178112140403594,51.3536461078769
+-0.208497213383423,51.4215671782713
+-0.098439790877912,51.404543593529
+-0.0486433005911029,51.392032866282
+-0.0263160310761888,51.3763692775697
+-0.0186698808172175,51.3537554551752
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+<name>Euston</name>
+<description><![CDATA[]]></description>
+
+<Style id="1">
+<LineStyle>
+<width>5</width>
+<color>ffff0000</color>
+</LineStyle>
+<PolyStyle>
+<color>aa0000df</color>
+<fill>1</fill>
+</PolyStyle>
+</Style>
+
+<Placemark>
+<name>Euston</name>
+<description><![CDATA[]]></description>
+<styleUrl>#1</styleUrl>
+<visibility>1</visibility>
+<MultiGeometry>
+<Polygon>
+<outerBoundaryIs>
+<LinearRing>
+<coordinates>
+-0.103660717139174,51.5215458184111
+-0.103996715497894,51.5134570223307
+-0.122981124725418,51.5074669176532
+-0.148650988791612,51.5141704728187
+-0.162838968106571,51.5197897063087
+-0.164243500463575,51.5207110510928
+-0.163845756593253,51.5305976825108
+-0.153212936964693,51.5439209997658
+-0.148852165383232,51.5447516130971
+-0.116992162413283,51.5478419141624
+-0.107423712081162,51.5350969566377
+-0.103660717139174,51.5215458184111
+</coordinates>
+</LinearRing>
+</outerBoundaryIs>
+</Polygon>
+</MultiGeometry>
+</Placemark>
+</Document>
+</kml>
