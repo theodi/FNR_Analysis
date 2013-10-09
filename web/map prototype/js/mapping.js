@@ -291,7 +291,7 @@ function loadStations() {
 
 function loadBoroughBoundary(borough) {
 	if (!containsObject(borough,incidentLayers)) {
-		$.getJSON( "data/BoroughBoundaries/"+borough+".json", function( data ) {
+		$.getJSON( "data/boroughBoundaries/"+borough+".json", function( data ) {
         	        geojson = L.geoJson(data, {
 	                        style: boroughStyle,
         	                onEachFeature: onEachBoroughFeature,
@@ -309,7 +309,7 @@ function loadIncidentData(borough) {
 	if(mapLayerGroups[borough]) {
 		showLayer(borough);
 	} else {
-		$.getJSON( "data/IncidentsByBorough/"+borough+".json", function( data ) {
+		$.getJSON("data/incidentsByBorough/"+borough+".json", function( data ) {
 			geojson = L.geoJson(data, {
 				style: style,
 				onEachFeature: onEachFeature,
@@ -437,23 +437,3 @@ legend.onAdd = function (map) {
 
 legend.addTo(map);
 
-//loadBoroughs();
-$.getJSON( "data/boroughs.json", function( data ) {
-	var items = [];
-	$.each( data, function( key, val ) {
-		loadBoroughBoundary(val);
-	});
-});
-
-loadStations();
-   
-for (i = 0; i < incidentLayers.length; i++) {
-	loadIncidentData(incidentLayers[i]);
-}
-
-$( document ).ready(function() {
-	for (i = 0; i < incidentLayers.length; i++) {
-		loadIncidentData(incidentLayers[i]);
-	}
-	updateBoroughsSelected();
-});
