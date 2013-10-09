@@ -25,7 +25,7 @@ preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
     data$date <- as.Date(data$date, "%d-%b-%y")
     
     # I filter out everything is not from 2012
-    data <- subset(data, (date >= '2012-01-01') & (date <= '2012-12-31'))
+#    data <- subset(data, (date >= '2012-01-01') & (date <= '2012-12-31'))
     
     # I convert the incidents' OS Grid coordinates to geodesic and drop the orignal
     # ones
