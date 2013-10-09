@@ -3,19 +3,26 @@ var stationsData = undefined;
 
 
 var loadData = function (callback) {
-	d3.csv("data/incidents.csv", function (inputData) {
-		incidentsData = inputData;
-		// TODO: is what you see below necessary? why does d3.csv import all columns as strings?
-		_.each(incidentsData, function (incident) {
-			_.each([ 'firstPumpTime', 'secondPumpTime' ], function (columnName) {
-				incident[columnName] = parseFloat(incident[columnName]);
+
+	// TODO: is what you see below necessary? why does d3.csv import all columns as strings?
+	var forceColumnsToFloat = function (columnNames, a) {
+		_.each(a, function (record) {
+			_.each(columnNames, function (columnName) {
+				record[columnName] = parseFloat(record[columnName]);
 			});
 		});
+	}
+
+	d3.csv("data/incidents.csv", function (inputData) {
+		incidentsData = inputData;
+		forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude' ], incidentsData);
 		d3.csv("data/stations.csv", function (inputData) {
 			stationsData = inputData;
+			forceColumnsToFloat([ 'latitude', 'longitude' ], stationsData);
 			callback(null);
 		});
 	});
+
 }
 
 
@@ -30,10 +37,11 @@ var boroughsReload = function (stations) {
 	}), function (r) { return r.borough; })) };
 }
 
+
 // returns the mean of an array of numerical values
 var mean = function (a) {
 	a = [ ].concat(a);
-	return _.reduce(a, function (memo, num) { return memo + num; }, 0) / a.length;
+	return _.reduce(a, function (memo, num) { return memo + num; }, 0.0) / a.length;
 }
 
 
