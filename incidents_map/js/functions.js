@@ -18,8 +18,15 @@ var stationIcon = L.icon({
 
 function containsObject(obj, list) {
     var i;
-    for (i = 0; i < list.length; i++) {
-        if (list[i] === obj) {
+    for (i = 0; i < list.length; i++) {i
+	item = list[i];
+        if (item === obj) {
+            return true;
+        }
+    	if (item.indexOf("-minus-") > 0) {
+		item = item.substring(0,item.indexOf("-minus-"));
+    	}
+        if (item === obj) {
             return true;
         }
     }
