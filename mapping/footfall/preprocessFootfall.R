@@ -1,4 +1,4 @@
-fixMissingFootfall <- function (data) {
+preprocessFootfall.fixMissingFootfall <- function (data) {
 
 	# if any area data is missing, even party (e.g. one time slot) for any of 
 	# the days, I replace the data for that day in entirety (not just the 
@@ -21,7 +21,7 @@ fixMissingFootfall <- function (data) {
 }
 
 
-preprocessFootfall <- function () {
+preprocessFootfall.run <- function () {
 
 	# We won't use the whole of Telefonica's footfall data. We would like to 
 	# represent the average London week by using one week in December '12 and one 
@@ -40,9 +40,10 @@ preprocessFootfall <- function () {
 	dec09$time <- as.factor(dec09$time)
 	dec09$day <- weekdays(as.Date(dec09$date))
 	dec09$day <- as.factor(dec09$day)
+	dec09$footfall <- as.numeric(dec09$footfall)
 	dec09 <- dec09[, c("telefonicaGridId", "day", "time", "footfall")]
 	# I fill in for any missing data
-	dec09 <- fixMissingFootfall(dec09)
+	dec09 <- preprocessFootfall.fixMissingFootfall(dec09)
 
 
 	may13 <- read.csv("../../reference data/Telefonica/footfall-UK-13-may-2013-19-may-2013.csv.gz")
@@ -60,9 +61,10 @@ preprocessFootfall <- function () {
 	may13$time <- as.factor(may13$time)
 	may13$day <- weekdays(as.Date(may13$date))
 	may13$day <- as.factor(may13$day)
+	may13$footfall <- as.numeric(may13$footfall)
 	may13 <- may13[, c("telefonicaGridId", "day", "time", "footfall")]
 	# I fill in for any missing data
-	may13 <- fixMissingFootfall(may13)
+	may13 <- preprocessFootfall.fixMissingFootfall(may13)
 
 	# I merge Dec '12 and May '13 data
 	data <- rbind(may13, dec09)

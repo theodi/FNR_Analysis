@@ -3,4 +3,6 @@
 *.csv
 .RData
 .Rhistory
+*.Rproj
+.Rproj.user
 node_modules
