@@ -1,4 +1,6 @@
-preprocess.run <- function () {
+preprocess.REFERENCE_DATA = "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
+
+preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
 
     source("./OSGridToGeodesic.R")
     
@@ -9,7 +11,7 @@ preprocess.run <- function () {
     
     # I read the original data (no need for Google Refine, as for the Javascript 
     # version)
-    data <- read.csv("../../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz", header = TRUE, sep = ',', colClasses = classes, na.strings = 'NULL')
+    data <- read.csv(filename, header = TRUE, sep = ',', colClasses = classes, na.strings = 'NULL')
     
     # I drop a) the rows that have NULL values in columns I need (not all rows with 
     # NULL values!), and b) the columns I don't need
@@ -27,9 +29,9 @@ preprocess.run <- function () {
     data[, c("latitude", "longitude")] <- OSGridToGeodesic(data.frame(easting = data$Easting_rounded, northing = data$Northing_rounded))
     data <- data[, !(names(data) %in% c('Northing_rounded', 'Easting_rounded'))]
     
-    # and save it, for the d3js in the website to use it
-    write.table(data, file = "incidents.csv", row.names = FALSE, sep = ',', na = 'NULL')
-
+    data
 }
 
-
+preprocess.save <- function (filename = "incidents.csv") {
+    write.table(preprocess.run(), file = filename, row.names = FALSE, sep = ',', na = 'NULL')
+}
