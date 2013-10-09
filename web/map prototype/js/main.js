@@ -19,7 +19,7 @@ for (i = 0; i < incidentLayers.length; i++) {
 
 $(document).ready(function() {
 	loadData(function (err) {
-		log("incidents.csv loaded");
+		log("incidents.csv and stations.csv loaded");
 		for (var i = 0; i < incidentLayers.length; i++) {
 			loadIncidentData(incidentLayers[i]);
 		}
