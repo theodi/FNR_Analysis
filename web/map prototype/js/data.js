@@ -74,3 +74,39 @@ var getBoroughResponseTime = function (borough, closedStations) {
 		return getStationResponseTime(station, closedStations);
 	}));	
 };
+
+
+var getBoroughIncidentData = function (borough, closed) {
+	close = [ ].concat(close);
+
+	// Below is Davetaz's experimental measure for the ideal square on the map
+	LAT_LENGTH = 0.001;
+    LONG_LENGTH = 0.0015;
+	// (A)
+	boroughsAttendedByClosedStations = _.unique(_.filter(incidentsData, function (r) {
+		return _.contains(closed, r.firstPumpStation);
+	}));
+	// (B) and (C) do not need porting
+	// (D)
+	boroughIncidents = _.filter(incidentsData, function (r) {
+		return (r.borough == borough) && !_.contains(closed, r.firstPumpStation);
+	})
+	// (E)
+	boroughSquareIncidents = { };
+	_.each(boroughIncidents, function (i) {
+		var squareKey = (Math.floor(i.latitude / LAT_LENGTH) * LAT_LENGTH) + 
+			',' + (Math.floor(i.longitude / LONG_LENGTH) * LONG_LENGTH);
+		boroughSquareIncidents[squareKey] = (boroughSquareIncidents[squareKey] || [ ]).concat(i);
+	});
+
+	/* debugging only
+	var k = _.keys(boroughSquareIncidents)[0];
+	console.log("The first of the keys is " + k);
+	console.log("It contains " + boroughSquareIncidents[k].length + " incidents");
+	console.log("The first incident is");
+	console.log(boroughSquareIncidents[k][0]);
+	*/	
+	// (F)
+
+
+}

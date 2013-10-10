@@ -29,6 +29,10 @@ if (file_exists($required_filename)) {
 
 $mysqli = new mysqli("localhost", "root", "", "lfb_all");
 
+# (A) 
+# GIACECCO: this looks like it creates a query that returns the 
+# all borough names where there have been incidents attended 
+# (first pump) by at least one closed station
 if (count($stations_excluded) > 0) {
 	$query = "Select distinct(WardName) from lfb_all where ";
 	for($i=0;$i<count($stations_excluded);$i++) {
@@ -38,8 +42,11 @@ if (count($stations_excluded) > 0) {
 } else {
 	$query = "Select distinct(WardName) from lfb_all;";
 }
-	
 $res = $mysqli->query($query) or die($mysqli->error);
+
+# (B)
+# GIACECCO: this looks like it creates the filename for the cached / to
+# be cached data, for each of the boroughs set above
 while ($row = $res->fetch_array(MYSQLI_ASSOC)) {
 	$ward = trim($row["WardName"]);
 	if ($ward != "Not geo-coded") {
@@ -52,11 +59,15 @@ while ($row = $res->fetch_array(MYSQLI_ASSOC)) {
 			$filename = substr($filename,0,-1) . ".js";
 		}
 		if (!file_exists($filename)) {
+			# GIACECCO: this is practically a "GOTO" to the creation
+			# of the data, if the cache does not exist
 			getDataForWard($ward,$stations_excluded,$filename);
 		}
 	}
 }
 
+# (C)
+# GIACECCO: if the cached data exists, it's returned
 if (file_exists($required_filename)) {
 	header('Content-type: application/json');
 	echo file_get_contents($required_filename);
@@ -64,8 +75,11 @@ if (file_exists($required_filename)) {
 }
 
 function getDataForWard($ward,$stations_excluded,$filename) {
+	# (D)
 	global $mysqli,$lat_length,$long_length,$stations_reporting;
 	$query = 'Select * from lfb_all where ';
+	# GIACECCO: $stations_reporting was not initialised before, this 
+	# condition will never be true... or will it?
 	if (count($stations_reporting) > 0) {	
 		$query .= "(";
 		for ($i=0;$i<count($stations_reporting);$i++) {
@@ -82,9 +96,12 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 		$query = substr($query,0,-4);
 		$query .= ') and ';
 	}
+	# GIACECCO: why lfb_all.FirstPumpArriving_AttendanceTime>0 ? it's
+	# always so
 	$query .= 'lfb_all.FirstPumpArriving_AttendanceTime>0 and WardName="'.$ward.'" order by Latitude_rounded;';
 //	$query = 'Select * from lfb_all where lfb_all.FirstPumpArriving_AttendanceTime>0 order by Latitude_rounded;';
 	$res = $mysqli->query($query) or die($mysqli->error);
+	# (E)
 	while ($row = $res->fetch_array(MYSQLI_ASSOC)) {
 		$count++;
 		$lat_base = $row["Latitude_rounded"] / $lat_length;
