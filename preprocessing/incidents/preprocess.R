@@ -15,10 +15,10 @@ preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
     
     # I drop a) the rows that have NULL values in columns I need (not all rows with 
     # NULL values!), and b) the columns I don't need
-    data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'WardName', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation', 'SecondPumpArriving_AttendanceTime', 'SecondPumpArriving_DeployedFromStation'))
+    data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'WardName', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation'))
     
     # I rename the columns
-    colnames(data) <- c('date', 'time', 'incidentGroup', 'borough', 'eastingRounded', 'northingRounded', 'station', 'firstPumpTime', 'firstPumpStation', 'secondPumpTime', 'secondPumpStation')
+    colnames(data) <- c('date', 'time', 'incidentGroup', 'borough', 'eastingRounded', 'northingRounded', 'station', 'firstPumpTime', 'firstPumpStation')
     
     # I convert dates to R's format, thanks to instructions at 
     # http://www.ats.ucla.edu/stat/r/faq/string_dates.htm
@@ -27,7 +27,7 @@ preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
     # I filter out everything is not from 2012
 #    data <- subset(data, (date >= '2012-01-01') & (date <= '2012-12-31'))
     
-    # I convert the incidents' OS Grid coordinates to geodesic and drop the orignal
+    # I convert the incidents' OS Grid coordinates to geodesic and drop the original
     # ones
     data[, c("latitude", "longitude")] <- OSGridToGeodesic(data.frame(easting = data$eastingRounded, northing = data$northingRounded))
     data <- data[, !(names(data) %in% c('northingRounded', 'eastingRounded'))]
