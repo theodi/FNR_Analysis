@@ -18,8 +18,9 @@ for (i = 0; i < incidentLayers.length; i++) {
 }
 
 $(document).ready(function() {
+	log("Starting loading data...");
 	loadData(function (err) {
-		log("incidents.csv and stations.csv loaded");
+		log("Data loaded (incidents.csv and stations.csv).");
 		for (var i = 0; i < incidentLayers.length; i++) {
 			loadIncidentData(incidentLayers[i]);
 		}
