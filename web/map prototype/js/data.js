@@ -135,4 +135,6 @@ var getBoroughIncidentData = function (borough, closed) {
 	console.log("Attending stations are: " + JSON.stringify(boroughSquareIncidents[k].attendingStations));
 	/*/	
 
+	// Still not finished!
+
 }
