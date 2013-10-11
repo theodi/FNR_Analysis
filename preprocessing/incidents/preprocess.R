@@ -54,10 +54,10 @@ preprocess.save <- function (filename = "incidents.csv") {
 
 
 # Equivalent to the JavaScript function 'getStationResponseTime' in the website
-# script 'data.js'. E.g. test.getStationResponseTime("Acton", c("Acton")) 
+# script 'data.js'. E.g. test.getWardResponseTime("Acton", c("Acton")) 
 # calculates the performance in the Acton area after the Acton station only
 # was closed
-test.getStationResponseTime <- function (stationAreaName, closedStationsNames) {
-    mean(subset(incidents, (ward == stationAreaName) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime) 
+test.getWardResponseTime <- function (wardName, closedStationsNames) {
+    mean(subset(incidents, (ward == wardName) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime) 
 }
 
