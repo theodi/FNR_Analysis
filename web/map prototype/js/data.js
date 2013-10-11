@@ -15,7 +15,7 @@ var loadData = function (callback) {
 
 	d3.csv("data/incidents.csv", function (inputData) {
 		incidentsData = inputData;
-		forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude' ], incidentsData);
+		forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'davetazLatitude', 'davetazLongitude' ], incidentsData);
 		d3.csv("data/stations.csv", function (inputData) {
 			stationsData = inputData;
 			forceColumnsToFloat([ 'latitude', 'longitude' ], stationsData);
@@ -80,9 +80,10 @@ var getBoroughIncidentData = function (borough, closed) {
 	close = [ ].concat(close);
 
 	// Below is Davetaz's experimental measure for the ideal square on the map
-	LAT_LENGTH = 0.001;
+	LAT_LENGTH = 0.0010;
     LONG_LENGTH = 0.0015;
-	// (A)
+
+ 	// (A)
 	boroughsAttendedByClosedStations = _.unique(_.filter(incidentsData, function (r) {
 		return _.contains(closed, r.firstPumpStation);
 	}));
@@ -91,22 +92,47 @@ var getBoroughIncidentData = function (borough, closed) {
 	boroughIncidents = _.filter(incidentsData, function (r) {
 		return (r.borough == borough) && !_.contains(closed, r.firstPumpStation);
 	})
-	// (E)
+	// (E) 
+	// This section creates data for each of the squares to be displayed on the 
+	// map, that is any square that contains at least one incident. 
+	// Note that the calculation of each incident's "Davetaz grid" 
+	// coordinates was moved to the pre-processing stage to make the JavaScript 
+	// lighter
 	boroughSquareIncidents = { };
 	_.each(boroughIncidents, function (i) {
-		var squareKey = (Math.floor(i.latitude / LAT_LENGTH) * LAT_LENGTH) + 
-			',' + (Math.floor(i.longitude / LONG_LENGTH) * LONG_LENGTH);
-		boroughSquareIncidents[squareKey] = (boroughSquareIncidents[squareKey] || [ ]).concat(i);
+		var squareKey = i.davetazLatitude.toFixed(4) + ',' + i.davetazLongitude.toFixed(4);
+		if (!boroughSquareIncidents[squareKey]) {
+			// a new square!
+			var longitude = squareKey.split(",");
+			latitude = parseFloat(longitude[1]);
+			longitude = parseFloat(longitude[0]);
+			boroughSquareIncidents[squareKey] = { };
+			boroughSquareIncidents[squareKey].polygon = latitude.toFixed(4) + "," + longitude.toFixed(4) + "\n";
+			boroughSquareIncidents[squareKey].polygon += (latitude + LONG_LENGTH).toFixed(4) + "," + latitude + "\n";
+			boroughSquareIncidents[squareKey].polygon += (latitude + LONG_LENGTH).toFixed(4) + "," + (latitude + LAT_LENGTH, 3).toFixed(4) + "\n";
+			boroughSquareIncidents[squareKey].polygon += latitude + "," + (latitude + LAT_LENGTH).toFixed(4) + "\n";
+			boroughSquareIncidents[squareKey].polygon += latitude.toFixed(4) + "," + longitude.toFixed(4);
+		}
+		boroughSquareIncidents[squareKey].incidents = (boroughSquareIncidents[squareKey].incidents || [ ]).concat(i);
+	});
+	// (F) appears not to be doing anything relevant!
+	// (G)
+	// This section enriches each square data with additional *consolidated* 
+	// data that could not be calculated while still adding incidents
+	_.each(_.keys(boroughSquareIncidents), function (squareKey) {
+		boroughSquareIncidents[squareKey].meanFirstPumpTime = mean(_.map(boroughSquareIncidents[squareKey].incidents, function (i) { return i.firstPumpTime; }));
+		boroughSquareIncidents[squareKey].attendingStations = _.unique(_.map(boroughSquareIncidents[squareKey].incidents, function (i) { return i.firstPumpStation; }));
 	});
 
-	/* debugging only
+	/*/ debugging only
 	var k = _.keys(boroughSquareIncidents)[0];
-	console.log("The first of the keys is " + k);
-	console.log("It contains " + boroughSquareIncidents[k].length + " incidents");
+	console.log("There are " + _.keys(boroughSquareIncidents).length + " squares, the first of the keys is " + k);
+	console.log("It contains " + boroughSquareIncidents[k].incidents.length + " incidents");
 	console.log("The first incident is");
-	console.log(boroughSquareIncidents[k][0]);
-	*/	
-	// (F)
-
+	console.log(boroughSquareIncidents[k].incidents[0]);
+	console.log("The square's polygon is " + boroughSquareIncidents[k].polygon);
+	console.log("The average attendance time is " + boroughSquareIncidents[k].meanFirstPumpTime);
+	console.log("Attending stations are: " + JSON.stringify(boroughSquareIncidents[k].attendingStations));
+	/*/	
 
 }

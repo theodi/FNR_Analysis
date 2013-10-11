@@ -115,6 +115,9 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 	}
 	mysqli_free_result($res);	
 	
+	# (F)
+	# GIACECCO: what is this piece of code doing? it is used later
+	# down but it is not clear
 	if (count($stations_excluded) > 0) {
 		$ward = $ward . "-minus-";
 		for ($i=0;$i<count($stations_excluded);$i++) {
@@ -123,6 +126,7 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 		$ward = substr($ward,0,-1);
 	}
 
+	# (G)
 	foreach ($squares as $grid_square => $data) {
 		$polygon_coordinates = "";
 		$polygon_coordinates[] = $data["long_base"] . "," . $data["lat_base"];
