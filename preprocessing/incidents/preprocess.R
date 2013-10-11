@@ -23,7 +23,7 @@ preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
     data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'WardName', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation'))
     
     # I rename the columns
-    colnames(data) <- c('date', 'time', 'incidentGroup', 'borough', 'eastingRounded', 'northingRounded', 'station', 'firstPumpTime', 'firstPumpStation')
+    colnames(data) <- c('date', 'time', 'incidentGroup', 'borough', 'eastingRounded', 'northingRounded', 'stationArea', 'firstPumpTime', 'firstPumpStation')
     
     # I convert dates to R's format, thanks to instructions at 
     # http://www.ats.ucla.edu/stat/r/faq/string_dates.htm
@@ -51,3 +51,13 @@ preprocess.save <- function (filename = "incidents.csv") {
     write.table(incidents, file = filename, row.names = FALSE, sep = ',', na = 'NULL')
     incidents
 }
+
+
+# Equivalent to the JavaScript function 'getStationResponseTime' in the website
+# script 'data.js'. E.g. test.getStationResponseTime("Acton", c("Acton")) 
+# calculates the performance in the Acton area after the Acton station only
+# was closed
+test.getStationResponseTime <- function (stationAreaName, closedStationsNames) {
+    mean(subset(incidents, (stationArea == stationAreaName) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime) 
+}
+
