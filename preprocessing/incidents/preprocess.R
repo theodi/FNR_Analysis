@@ -3,6 +3,11 @@ preprocess.REFERENCE_DATA = "../../reference data/LFB/LFB data 1 Jan 2009 to 31 
 preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
 
     source("./OSGridToGeodesic.R")
+
+    # Below is the size in latitude and longitude of the map square Davetaz
+    # has experimentally identified as relevant for representation
+    DAVETAZ_SQUARE_LATITUDE_SIZE <- 0.001
+    DAVETAZ_SQUARE_LONGITUDE_SIZE <- 0.0015
     
     # this was prepared following the general instructions by Bloomberg School 
     # of Public Health's prof. Roger Peng, in Coursera's course "Computing for Data 
@@ -31,10 +36,18 @@ preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
     # ones
     data[, c("latitude", "longitude")] <- OSGridToGeodesic(data.frame(easting = data$eastingRounded, northing = data$northingRounded))
     data <- data[, !(names(data) %in% c('northingRounded', 'eastingRounded'))]
+
+    # I calculate the coordinates of Davetaz's square the incident belongs to
+    data[, c("davetazLatitude", "davetazLongitude") ] <- cbind(
+        data$latitude %/% DAVETAZ_SQUARE_LATITUDE_SIZE * DAVETAZ_SQUARE_LATITUDE_SIZE,
+        data$longitude %/% DAVETAZ_SQUARE_LONGITUDE_SIZE * DAVETAZ_SQUARE_LONGITUDE_SIZE
+        )    
     
     data
 }
 
 preprocess.save <- function (filename = "incidents.csv") {
-    write.table(preprocess.run(), file = filename, row.names = FALSE, sep = ',', na = 'NULL')
+    incidents <- preprocess.run()
+    write.table(incidents, file = filename, row.names = FALSE, sep = ',', na = 'NULL')
+    incidents
 }
