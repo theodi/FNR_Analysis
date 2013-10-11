@@ -1,9 +1,9 @@
 // Setup
 
 //var incidentLayers = ["Newham","Lambeth"];
-var incidentLayers = [];
-var closeStationsSelection = [];
-var markers = {};
+var incidentLayers = [ ];
+var closeStationsSelection = [ ];
+var markers = { };
 
 // TODO: Resize icons based upon zoom level
 var stationIconClosing = L.icon({
@@ -16,22 +16,6 @@ var stationIcon = L.icon({
 	iconSize: [20, 20]
 });
 
-function containsObject(obj, list) {
-    var i;
-    for (i = 0; i < list.length; i++) {i
-	item = list[i];
-        if (item === obj) {
-            return true;
-        }
-    	if (item.indexOf("-minus-") > 0) {
-		item = item.substring(0,item.indexOf("-minus-"));
-    	}
-        if (item === obj) {
-            return true;
-        }
-    }
-    return false;
-}
 
 function removeArrayItem(item,array) {
 	for(var i = array.length - 1; i >= 0; i--) {
@@ -70,12 +54,14 @@ function boroughControl(name) {
 	}
 }
 
+// This updates the box to the top right of the map, listing the stations that
+// are currently simulated as closed.
 function updateBoroughsSelected() {
 	$('boroughs').html("");
-	$.getJSON( "data/boroughs.json", function( data ) {
+	$.getJSON("data/boroughs.json", function(data) {
 		var items = [];
-		$.each( data, function( key, val ) {
-			if (containsObject(val,incidentLayers)) {
+		$.each(data, function( key, val ) {
+			if (_.contains(incidentLayers, val)) {
 				items.push(val + "<input id='sel_" + val + "' type='checkbox' checked onClick='boroughControl(\"sel_"+val+"\")'/><br/>" );
 			}
 		});
@@ -83,65 +69,57 @@ function updateBoroughsSelected() {
 	});
 }
 
-function updateBoroughStyle(borough, stations) {
-	data = getBoroughResponseTime(borough, stations);
-	color = getColor(data);
-	console.log("New response time for " + borough + " is " + data + " color " + color);
-	layerhook = mapLayerGroups["B:" + borough]._layers;
-	for (key in layerhook) {
-		mapLayerGroups["B:" + borough]._layers[key].setStyle({fillColor:color});
+var updateBoroughStyle = function (borough) {
+	var data = getBoroughResponseTime(borough, closeStationsSelection);
+	var color = getColor(data);
+	log("New response time for " + borough + " is " + data + " color " + color);
+	for (var key in mapLayerGroups["B:" + borough]._layers) {
+		mapLayerGroups["B:" + borough]._layers[key].setStyle({ fillColor:color });
 		mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
 	}
 }
 
 function closeStation(name) {
-	// Stage one: Add this station to the array of closed stations
-	if (!containsObject(name,closeStationsSelection)) {
+	if (!_.contains(closeStationsSelection, name)) {
+		// Add the station to the array of closed stations
 		closeStationsSelection.push(name);
 		closeStationsSelection.sort();
+		// I set the station icon's to 'closed'
+		markers[name].setIcon(stationIconClosing);
+		// For each borough impacted by the closure...
+		_.each(boroughsReload(closeStationsSelection).boroughs, function (borough) {
+			if (_.contains(incidentLayers, borough)) {
+				loadIncidentData(borough);
+			}
+			//Change the colors of the borough shading to reflect closures
+			updateBoroughStyle(borough);
+		});
+		updateBoroughsSelected();
+	} else {
+		log(name + " station is already closed.");
 	}
-	markers[name].setIcon(stationIconClosing);
-	stations = closeStationsSelection.join(",");
-	_.each(boroughsReload(closeStationsSelection).boroughs, function(borough) {
-		if (containsObject(borough,incidentLayers)) {
-			loadIncidentData(borough,closeStationsSelection);
-		}
-		//Change the colors of the borough shading to reflect closures
-		updateBoroughStyle(borough,stations);
-	});
-	updateBoroughsSelected();
 }
 
 function openStation(name) {
-	console.log(incidentLayers);
-	closeCache = closeStationsSelection;
-	markers[name].setIcon(stationIcon);
-	_.each(boroughsReload(name).boroughs, function(borough) {
-		if (!containsObject(name,closeCache)) {
-			closeCache.push(name);
-		}
-		old_borough = borough + "-minus-";
-		for (i=0;i<closeCache.length;i++) {
-			old_borough = old_borough + closeCache[i] + "_";
-		}
-		old_borough = old_borough.substring(0,old_borough.length - 1);
-		console.log("Hiding " + old_borough);
-		if (containsObject(old_borough,incidentLayers)) {
-			hideLayer("I:"+old_borough);
-		}
-
-		temparrayclosures = removeArrayItem(name,closeStationsSelection);
-		if (containsObject(borough,incidentLayers) || containsObject(old_borough,incidentLayers)) {
-			if (temparrayclosures.length > 0) {
-				loadIncidentData(borough,temparrayclosures);
-			} else {
+	if (_.contains(closeStationsSelection, name)) {
+		markers[name].setIcon(stationIcon);
+		closeStationsSelection = removeArrayItem(name, closeStationsSelection);	
+		_.each(boroughsReload(name).boroughs, function (borough) {
+			// for each borough impacted by the change, I hide the layers that
+			// are currently displayed and are outdated 
+			var layerName = borough + "-minus-" + closeStationsSelection.join("_");
+			if (_.contains(incidentLayers, layerName)) {
+				hideLayer("I:"+layerName);
+			}
+			if (_.contains(incidentLayers, borough) || _.contains(incidentLayers, layerName)) {
 				loadIncidentData(borough);
 			}
-		}
-		updateBoroughStyle(borough,closeStationsSelection)
-	});
-	closeStationsSelection = removeArrayItem(name,closeStationsSelection);	
-	updateBoroughsSelected();
+			updateBoroughStyle(borough)
+		});
+		updateBoroughsSelected();
+	} else {
+		log(name + " station is already open.")
+	}
 }
 
 function getColor(d) {
@@ -207,15 +185,13 @@ function zoomToFeature(e) {
 
 function onEachFeature(feature, layer) {
 	var lg = mapLayerGroups["I:" + feature.properties.ward];
-	if (lg === undefined) {
+	if (!lg) {
+		log("Creating the layer I:" + feature.properties.ward + " for the first time");
 		lg = new L.layerGroup();
 		mapLayerGroups["I:" + feature.properties.ward] = lg;
-		console.log("Layername = I:" + feature.properties.ward);
-		lg.addLayer(layer);
-	} else {
-		lg.addLayer(layer);	
 	}
-	
+	console.log("Showing layer I:" + feature.properties.ward);
+	lg.addLayer(layer);
 	layer.on({
 		mouseover: highlightFeature,
 		mouseout: resetHighlight,
@@ -257,11 +233,11 @@ function showMarkerDetails(station_name) {
 function loadStations() {
 	var lg = mapLayerGroups["Stations"];
 	if (lg === undefined) {
-                lg = new L.layerGroup();
-                mapLayerGroups["Stations"] = lg;
+        lg = new L.layerGroup();
+        mapLayerGroups["Stations"] = lg;
 	}
-	$.getJSON( "data/stations.json", function( data ) {
-		for (i=0;i<data.length;i++) {
+	$.getJSON("data/stations.json", function(data) {
+		for (i=0; i<data.length; i++) {
 			station = data[i];
 			var markerLocation = new L.LatLng(station.latitude, station.longitude);
 			// GIACECCO: where does this .closing property comes from? Can't find it anywhere else in DaveTaz's code
@@ -279,41 +255,32 @@ function loadStations() {
 	});
 }
 
+
 function loadBoroughBoundary(borough) {
-	$.getJSON( "data/BoroughBoundaries/"+borough+".json", function( data ) {
-                geojson = L.geoJson(data, { 
+	$.getJSON( "data/BoroughBoundaries/" + borough + ".json", function(data) {
+        geojson = L.geoJson(data, { 
 			style: boroughStyle,
-        	        onEachFeature: onEachBoroughFeature,
-	        })
-		if (!containsObject(borough,incidentLayers)) {
-        	  	showLayer("B:" + borough);
-		}
+	        onEachFeature: onEachBoroughFeature,
         });
+		if (!_.contains(incidentLayers, borough)) {
+    	  	showLayer("B:" + borough);
+		}
+    });
 }
 
-function loadIncidentData(borough) {
+
+function loadIncidentData (borough) {
    	closedStations = closeStationsSelection;
 
    	if (closedStations.length > 0) {
 		plain_borough = borough;
-		query_string = "?borough=" + borough + "&close=";
-		borough = borough + "-minus-";
-		for (i=0;i<closedStations.length;i++) {
-			borough = borough + closedStations[i] + "_";
-			query_string = query_string + closedStations[i] + ",";
-		}
-		borough = borough.substring(0,borough.length - 1);
-		query_string = query_string.substring(0,query_string.length - 1);
-		url = "library/GetBoroughIncidentData.php" + query_string;
+		borough = borough + "-minus-" + closedStations.join("_");
 		if(mapLayerGroups["B:"+borough]) {
 			hideLayer("B:"+plain_borough);
 		}
-	} else {
-		url = "library/GetBoroughIncidentData.php?borough="+borough
 	}
-	console.log(url);
 
-	if (!containsObject(borough,incidentLayers)) {
+	if (!_.contains(incidentLayers, borough)) {
 		incidentLayers.push(borough);
 	}
 	
@@ -329,12 +296,14 @@ function loadIncidentData(borough) {
 	}
 }
 
+
 function showLayer(id) {
 	if (mapLayerGroups[id]) {
 		var lg = mapLayerGroups[id];
 		map.addLayer(lg);   
 	}
 }
+
 
 function hideLayer(id) {
 	if (mapLayerGroups[id]) {
@@ -343,6 +312,7 @@ function hideLayer(id) {
 	}
 }
 
+
 var map = L.map('map').setView([51.5, 0.04], 14);
 
 var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
@@ -350,7 +320,6 @@ var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{
 	key: 'BC9A493B41014CAABB98F0471D759707',
 	styleId: 22677
 }).addTo(map);
-
 
 // control that shows state info on hover
 var info = L.control();
@@ -405,19 +374,12 @@ legend.onAdd = function (map) {
 
 legend.addTo(map);
 
-//loadBoroughs();
+// loadBoroughs();
 $.getJSON( "data/boroughs.json", function( data ) {
-	var items = [];
-	$.each( data, function( key, val ) {
+	_.each(data, function (val) {
 		loadBoroughBoundary(val);
 	});
 });
 
 loadStations();
    
-$( document ).ready(function() {
-	for (i = 0; i < incidentLayers.length; i++) {
-		loadIncidentData(incidentLayers[i]);
-	}
-	updateBoroughsSelected();
-});
