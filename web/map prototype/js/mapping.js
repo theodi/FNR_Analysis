@@ -83,8 +83,8 @@ function updateBoroughsSelected() {
 	});
 }
 
-function updateBoroughStyle(borough,stations) {
-	data = getBoroughResponseTime(borough, stations.split(","));
+function updateBoroughStyle(borough, stations) {
+	data = getBoroughResponseTime(borough, stations);
 	color = getColor(data);
 	console.log("New response time for " + borough + " is " + data + " color " + color);
 	layerhook = mapLayerGroups["B:" + borough]._layers;
@@ -320,16 +320,12 @@ function loadIncidentData(borough) {
 	if(mapLayerGroups["I:"+borough]) {
 		showLayer("I:"+borough);
 	} else {
-		$.getJSON( url , function( data ) {
-			geojson = L.geoJson(data, {
-				style: style,
-				onEachFeature: onEachFeature,
-			});
-			showLayer("I:"+borough);
-		})
-		.error( function() {
-			console.log("Failed to load incident data for borough " + borough);
+		var data = getBoroughIncidentData(borough, closedStations);
+		geojson = L.geoJson(data, {
+			style: style,
+			onEachFeature: onEachFeature,
 		});
+		showLayer("I:"+borough);
 	}
 }
 

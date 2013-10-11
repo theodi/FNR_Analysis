@@ -107,13 +107,19 @@ var getBoroughIncidentData = function (borough, closed) {
 			latitude = parseFloat(longitude[1]);
 			longitude = parseFloat(longitude[0]);
 			boroughSquareIncidents[squareKey] = { };
-			boroughSquareIncidents[squareKey].polygon = latitude.toFixed(4) + "," + longitude.toFixed(4) + "\n";
-			boroughSquareIncidents[squareKey].polygon += (latitude + LONG_LENGTH).toFixed(4) + "," + latitude + "\n";
-			boroughSquareIncidents[squareKey].polygon += (latitude + LONG_LENGTH).toFixed(4) + "," + (latitude + LAT_LENGTH, 3).toFixed(4) + "\n";
-			boroughSquareIncidents[squareKey].polygon += latitude + "," + (latitude + LAT_LENGTH).toFixed(4) + "\n";
-			boroughSquareIncidents[squareKey].polygon += latitude.toFixed(4) + "," + longitude.toFixed(4);
+			boroughSquareIncidents[squareKey].polygon = [ ];
+			boroughSquareIncidents[squareKey].polygon.push(longitude.toFixed(4) + ", " + latitude.toFixed(4));
+			boroughSquareIncidents[squareKey].polygon.push((longitude + LONG_LENGTH).toFixed(4) + ", " + latitude.toFixed(4));
+			boroughSquareIncidents[squareKey].polygon.push((longitude + LONG_LENGTH).toFixed(4) + ", " + (latitude + LAT_LENGTH).toFixed(4));
+			boroughSquareIncidents[squareKey].polygon.push(longitude.toFixed(4) + ", " + (latitude + LAT_LENGTH).toFixed(4));
+			boroughSquareIncidents[squareKey].polygon.push(longitude.toFixed(4) + ", " + latitude.toFixed(4));
+			boroughSquareIncidents[squareKey].attendingStations = { };
 		}
 		boroughSquareIncidents[squareKey].incidents = (boroughSquareIncidents[squareKey].incidents || [ ]).concat(i);
+		// This keeps counters for which stations attended the incidents and how 
+		// many times. 
+		boroughSquareIncidents[squareKey].attendingStations[i.firstPumpStation] = 
+			(boroughSquareIncidents[squareKey].attendingStations[i.firstPumpStation] || 0) + 1;
 	});
 	// (F) appears not to be doing anything relevant!
 	// (G)
@@ -121,20 +127,41 @@ var getBoroughIncidentData = function (borough, closed) {
 	// data that could not be calculated while still adding incidents
 	_.each(_.keys(boroughSquareIncidents), function (squareKey) {
 		boroughSquareIncidents[squareKey].meanFirstPumpTime = mean(_.map(boroughSquareIncidents[squareKey].incidents, function (i) { return i.firstPumpTime; }));
-		boroughSquareIncidents[squareKey].attendingStations = _.unique(_.map(boroughSquareIncidents[squareKey].incidents, function (i) { return i.firstPumpStation; }));
+		// I make the station attendance object into an array of the same
+		boroughSquareIncidents[squareKey].attendingStations = _.pairs(boroughSquareIncidents[squareKey].attendingStations);
+		// I make the station attendance figures into %s of themselves
+		boroughSquareIncidents[squareKey].attendingStations = _.map(boroughSquareIncidents[squareKey].attendingStations, 
+			function (station) { station[1] = station[1] / boroughSquareIncidents[squareKey].incidents.length; return station; }
+		);
+		// I order the station attendances by % of attendance, highest to lowest
+		boroughSquareIncidents[squareKey].attendingStations.sort(function (a, b) { return a[1] < b[1] ? 1 : -1; });
 	});
 
-	/*/ debugging only
-	var k = _.keys(boroughSquareIncidents)[0];
-	console.log("There are " + _.keys(boroughSquareIncidents).length + " squares, the first of the keys is " + k);
-	console.log("It contains " + boroughSquareIncidents[k].incidents.length + " incidents");
-	console.log("The first incident is");
-	console.log(boroughSquareIncidents[k].incidents[0]);
-	console.log("The square's polygon is " + boroughSquareIncidents[k].polygon);
-	console.log("The average attendance time is " + boroughSquareIncidents[k].meanFirstPumpTime);
-	console.log("Attending stations are: " + JSON.stringify(boroughSquareIncidents[k].attendingStations));
-	/*/	
+	/* I know that the section below is very ugly: why am I creating this
+	   data as a string, if I am parsing it into JSON just a few lines down?
+	   This is just to introduce as little regression as possible from 
+	   Davetaz's original code. */
+	var leafletJsonString = '{"type":"FeatureCollection","features":[\n'; 
+	var id = 0;
+	leafletJsonString += _.map(boroughSquareIncidents, function (square) {
+		// Davetaz used a simple square count as id, is that ideal?
+		id++; 
+		var temp = '{"type":"Feature","id":"' + id + '","properties":{';
+		temp += '"incidents":' + square.incidents.length +',';
+		temp += '"ward":"' + borough + (closed.length > 0 ? '-minus-' + closed.join('_') : '') + '",';
+		temp += '"response":' + square.meanFirstPumpTime + ',';
+		temp += '"attending":"' + 
+			_.reduce(square.attendingStations, function (memo, station) { 
+				return memo + station[0] + " (" + (station[1] * 100).toFixed(0) + "%) "; 
+			}, "") + 
+			'"},';
+		temp += '"geometry":{"type":"Polygon","coordinates":[[ [';
+		temp += square.polygon.join("], [");
+		temp += '] ]]}}';
+		return temp;
+	}).join(',\n');
+	leafletJsonString += ']}';
 
-	// Still not finished!
+	return JSON.parse(leafletJsonString);
 
 }
