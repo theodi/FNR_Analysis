@@ -74,7 +74,7 @@ function closeStation(name) {
 		// I set the station icon's to 'closed'
 		stationMarkers[name].setIcon(stationIconClosing);
 		// For each borough impacted by the closure...
-		_.each(boroughsReload(closedStations).boroughs, function (borough) {
+		_.each(getImpactedBoroughs(closedStations), function (borough) {
 			if (_.contains(incidentLayers, borough)) {
 				loadIncidentData(borough);
 			}
@@ -91,7 +91,7 @@ function openStation(name) {
 	if (_.contains(closedStations, name)) {
 		stationMarkers[name].setIcon(stationIcon);
 		closedStations = removeArrayItem(name, closedStations);	
-		_.each(boroughsReload(name).boroughs, function (borough) {
+		_.each(getImpactedBoroughs(name), function (borough) {
 			// for each borough impacted by the change, I hide the layers that
 			// are currently displayed and are outdated 
 			var layerName = borough + "-minus-" + closedStations.join("_");

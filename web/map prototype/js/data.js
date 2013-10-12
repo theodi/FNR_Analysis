@@ -30,14 +30,14 @@ var loadData = function (callback) {
 
 
 /* This function replaces the calls to BoroughsReload.php. Input is one station 
-   name or an array of station names. It returns an { boroughs: [Array] } object
-   with the list of borough names whose incidents have been attended by the 
-   stations as 'first pumps'. */
-var boroughsReload = function (stations) {
+   name or an array of station names. It returns an array with the list of 
+   borough names whose incidents have been attended by the stations as 
+   'first pumps'. */
+var getImpactedBoroughs = function (stations) {
 	stations = [ ].concat(stations);
-	return { boroughs: _.unique(_.map(_.filter(incidentsData, function (r) {
+	return _.unique(_.map(_.filter(incidentsData, function (r) {
 		return _.contains(stations, r.firstPumpStation);
-	}), function (r) { return r.borough; })) };
+	}), function (r) { return r.borough; }));
 }
 
 

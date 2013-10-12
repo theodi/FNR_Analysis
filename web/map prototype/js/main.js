@@ -7,12 +7,5 @@ $(document).ready(function() {
 	loadData(function (err) {
 		loadBoroughsBoundaries();
 		loadStations();
-		log("Loading incidents data for selected boundaries.");
-		// in reality, the map never loads for the first time with incidents
-		// showing
-		for (var i = 0; i < incidentLayers.length; i++) {
-			loadIncidentData(incidentLayers[i]);
-		}
-		updateBoroughsSelected();
 	});
 });
