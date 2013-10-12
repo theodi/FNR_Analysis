@@ -18,10 +18,14 @@ incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_
     # version)
     data <- read.csv(filename, header = TRUE, sep = ',', colClasses = classes, na.strings = 'NULL')
     
-    # I drop a) the rows that have NULL values in columns I need (not all rows with 
-    # NULL values!), and b) the columns I don't need
+    # I drop a) the rows that have NULL values in columns I need (not all rows 
+    # with NULL values!), and b) the columns I don't need
     data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'WardName', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation'))
-    
+ 
+    # I drop all rows that have 'Not geo-coded' as the borough the incident 
+    # happened in
+    data <- subset(data, WardName != 'Not geo-coded')
+
     # I rename the columns
     colnames(data) <- c('date', 'time', 'incidentGroup', 'borough', 'eastingRounded', 'northingRounded', 'ward', 'firstPumpTime', 'firstPumpStation')
     
@@ -32,8 +36,8 @@ incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_
     # I filter out everything is not from 2012
 #    data <- subset(data, (date >= '2012-01-01') & (date <= '2012-12-31'))
     
-    # I convert the incidents' OS Grid coordinates to geodesic and drop the original
-    # ones
+    # I convert the incidents' OS Grid coordinates to geodesic and drop the 
+    # original ones
     data[, c("latitude", "longitude")] <- OSGridToGeodesic(data.frame(easting = data$eastingRounded, northing = data$northingRounded))
     data <- data[, !(names(data) %in% c('northingRounded', 'eastingRounded'))]
 
