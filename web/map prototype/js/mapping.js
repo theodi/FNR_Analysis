@@ -7,9 +7,12 @@ var incidentLayers = [ ];
    closed */
 var closedStations = [ ];
 
+/* stationMarkers is an array of Leaflet 'Marker' objects 
+   http://leafletjs.com/reference.html#marker representing the positions of the
+   stations on the map and their state of open (blue) or closed (red) */ 
 var stationMarkers = { };
 
-// TODO: Resize icons based upon zoom level
+// DAVETAZ TODO: Resize icons based upon zoom level
 var stationIconClosing = L.icon({
 	iconUrl: 'images/icon_firetruck_closing.png',
 	iconSize: [20, 20]
@@ -21,14 +24,10 @@ var stationIcon = L.icon({
 });
 
 
-function removeArrayItem(item,array) {
-	for(var i = array.length - 1; i >= 0; i--) {
- 	   if (array[i] === item) {
-	       array.splice(i, 1);
-	   }
-	}
-	return array;
+function removeArrayItem(item, array) {
+	return _.filter(array, function (x) { return item !== x});
 }
+
 
 function boroughControl(name) {
 	borough = name.substring(4,name.length);
