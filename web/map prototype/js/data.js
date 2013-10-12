@@ -13,13 +13,15 @@ var loadData = function (callback) {
 		});
 	}
 
+	log("Starting loading data...");
 	d3.csv("data/incidents.csv", function (inputData) {
 		incidentsData = inputData;
 		forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'davetazLatitude', 'davetazLongitude' ], incidentsData);
 		d3.csv("data/stations.csv", function (inputData) {
 			stationsData = inputData;
 			forceColumnsToFloat([ 'latitude', 'longitude' ], stationsData);
-			callback(null);
+			log("Data loaded (incidents.csv and stations.csv).");
+			if(callback) callback(null);
 		});
 	});
 

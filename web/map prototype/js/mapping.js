@@ -57,6 +57,7 @@ function boroughControl(name) {
 // This updates the box to the top right of the map, listing the stations that
 // are currently simulated as closed.
 function updateBoroughsSelected() {
+	log("Updating the selected borough box.")
 	$('boroughs').html("");
 	$.getJSON("data/boroughs.json", function(data) {
 		var items = [];
@@ -256,7 +257,21 @@ function loadStations() {
 }
 
 
-function loadBoroughBoundary(borough) {
+// loads the borough boundaries data
+var loadBoroughsBoundaries = function (callback) {
+	log("Loading and displaying London boroughs' boundaries.");
+	$.getJSON( "data/boroughs.json", function( data ) {
+		_.each(data, function (val) {
+			loadBoroughBoundary(val);
+		});
+		if (callback) callback(null);
+	});
+}
+
+
+// loads and shows one borough's boundaries on the map, if the borough
+// requires displaying
+var loadBoroughBoundary = function (borough, callback) {
 	$.getJSON( "data/BoroughBoundaries/" + borough + ".json", function(data) {
         geojson = L.geoJson(data, { 
 			style: boroughStyle,
@@ -265,6 +280,7 @@ function loadBoroughBoundary(borough) {
 		if (!_.contains(incidentLayers, borough)) {
     	  	showLayer("B:" + borough);
 		}
+		if (callback) callback(null);
     });
 }
 
@@ -373,13 +389,4 @@ legend.onAdd = function (map) {
 };
 
 legend.addTo(map);
-
-// loadBoroughs();
-$.getJSON( "data/boroughs.json", function( data ) {
-	_.each(data, function (val) {
-		loadBoroughBoundary(val);
-	});
-});
-
-loadStations();
    
