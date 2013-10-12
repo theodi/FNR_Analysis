@@ -56,14 +56,17 @@ function updateBoroughsSelected() {
 	$('boroughs').append(items);
 }
 
-var updateBoroughStyle = function (borough) {
-	var data = getBoroughResponseTime(borough, closedStations);
-	var color = getColor(data);
-	log("New response time for " + borough + " is " + data + " color " + color);
-	for (var key in mapLayerGroups["B:" + borough]._layers) {
-		mapLayerGroups["B:" + borough]._layers[key].setStyle({ fillColor:color });
-		mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
-	}
+var updateBoroughStyle = function (boroughList) {
+	boroughList = [ ].concat(boroughList);
+	_.each(boroughList, function (borough) { 
+		var data = getBoroughResponseTime(borough, closedStations);
+		var color = getColor(data);
+		log("New response time for " + borough + " is " + data + " color " + color);
+		for (var key in mapLayerGroups["B:" + borough]._layers) {
+			mapLayerGroups["B:" + borough]._layers[key].setStyle({ fillColor:color });
+			mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
+		}
+	});
 }
 
 function closeStation(name) {
@@ -109,7 +112,7 @@ function openStation(name) {
 	}
 }
 
-function getColor(d) {
+var getColor = function (d) {
 	return d > 1140 ? '#8d4e4a' :
 		d > 1020 ? '#ae504c' :
 		d > 900 ? '#e14f4e' :
@@ -124,7 +127,8 @@ function getColor(d) {
 		'#FFEDA0';
 }
 
-function style(feature) {
+
+var style = function (feature) {
 	return {
 		weight: 1,
 		opacity: 1,
@@ -134,7 +138,8 @@ function style(feature) {
 	};
 }
 
-function boroughStyle(feature) {
+
+var boroughStyle = function (feature) {
 	return {
 		weight: 1,
 		color: 'grey',
@@ -159,30 +164,18 @@ function highlightFeature(e) {
 	info.update(layer.feature.properties);
 }
 
-function resetHighlight(e) {
+
+var resetHighlight = function (e) {
 	boroughsGeoJson.resetStyle(e.target);
 	info.update();
 }
 
-function zoomToFeature(e) {
+
+var zoomToFeature = function (e) {
 	map.fitBounds(e.target.getBounds());
 }
 
-function onEachFeature(feature, layer) {
-	var lg = mapLayerGroups["I:" + feature.properties.ward];
-	if (!lg) {
-		log("Creating the layer I:" + feature.properties.ward + " for the first time");
-		lg = new L.layerGroup();
-		mapLayerGroups["I:" + feature.properties.ward] = lg;
-	}
-	console.log("Showing layer I:" + feature.properties.ward);
-	lg.addLayer(layer);
-	layer.on({
-		mouseover: highlightFeature,
-		mouseout: resetHighlight,
-		click: zoomToFeature
-	});	
-}
+
 
 function showBoroughDetail(e) {
 	props = e.target.feature.properties;
@@ -191,24 +184,6 @@ function showBoroughDetail(e) {
 	loadIncidentData(props.borough,closedStations);
 	updateBoroughsSelected();
 	map.fitBounds(e.target.getBounds());
-}
-
-function onEachBoroughFeature(feature, layer) {
-	var lg = mapLayerGroups["B:" + feature.properties.borough];
-	if (lg === undefined) {
-		lg = new L.layerGroup();
-		mapLayerGroups["B:" + feature.properties.borough] = lg;
-		lg.addLayer(layer);
-	} else {
-		lg.addLayer(layer);	
-	}
-	
-	layer.on({
-		mouseover: highlightFeature,
-		mouseout: resetHighlight,
-		click: showBoroughDetail
-	});
-		
 }
 
 function showMarkerDetails(station_name) {
@@ -248,10 +223,31 @@ var loadBoroughsBoundaries = function (callback) {
 }
 
 
-// loads and shows one borough's boundaries on the map, if the borough
-// requires displaying
+// Loads and shows one borough's boundaries on the map, if the borough
+// requires displaying.
+// GIACECCO: not clear if this is called on page creation only or later, too
 var loadBoroughBoundary = function (borough, callback) {
+
+	var onEachBoroughFeature = function (feature, layer) {
+		var lg = mapLayerGroups["B:" + feature.properties.borough];
+		if (!lg) {
+			// The layer group for the borough did not exist
+			lg = new L.layerGroup();
+			mapLayerGroups["B:" + feature.properties.borough] = lg;
+		}
+		lg.addLayer(layer);	
+		layer.on({
+			mouseover: highlightFeature,
+			mouseout: resetHighlight,
+			click: showBoroughDetail
+		});
+	}
+
 	$.getJSON( "data/boroughBoundaries/" + borough + ".json", function(data) {
+		// Differently from Davetaz's original code, I calculate the borough
+		// response time with all stations open on the fly, rather than storing 
+		// it into the borough definition JSON files. 
+		data.features[0].properties.response = getBoroughResponseTime(borough, closedStations);
         boroughsGeoJson = L.geoJson(data, { 
 			style: boroughStyle,
 	        onEachFeature: onEachBoroughFeature,
@@ -264,8 +260,23 @@ var loadBoroughBoundary = function (borough, callback) {
 }
 
 
-function loadIncidentData (borough) {
-   	closedStations = closedStations;
+var loadIncidentData = function (borough) {
+
+	var onEachIncidentsFeature = function (feature, layer) {
+		var lg = mapLayerGroups["I:" + feature.properties.ward];
+		if (!lg) {
+			log("Creating the layer I:" + feature.properties.ward + " for the first time");
+			lg = new L.layerGroup();
+			mapLayerGroups["I:" + feature.properties.ward] = lg;
+		}
+		console.log("Showing layer I:" + feature.properties.ward);
+		lg.addLayer(layer);
+		layer.on({
+			mouseover: highlightFeature,
+			mouseout: resetHighlight,
+			click: zoomToFeature
+		});	
+	}
 
    	if (closedStations.length > 0) {
 		plain_borough = borough;
@@ -274,25 +285,23 @@ function loadIncidentData (borough) {
 			hideLayer("B:"+plain_borough);
 		}
 	}
-
 	if (!_.contains(incidentLayers, borough)) {
 		incidentLayers.push(borough);
 	}
-	
 	if(mapLayerGroups["I:"+borough]) {
 		showLayer("I:"+borough);
 	} else {
 		var data = getBoroughIncidentData(borough, closedStations);
 		boroughsGeoJson = L.geoJson(data, {
 			style: style,
-			onEachFeature: onEachFeature,
+			onEachFeature: onEachIncidentsFeature,
 		});
 		showLayer("I:"+borough);
 	}
 }
 
 
-function showLayer(id) {
+var showLayer = function (id) {
 	if (mapLayerGroups[id]) {
 		var lg = mapLayerGroups[id];
 		map.addLayer(lg);   
@@ -300,7 +309,7 @@ function showLayer(id) {
 }
 
 
-function hideLayer(id) {
+var hideLayer = function (id) {
 	if (mapLayerGroups[id]) {
 		lg = mapLayerGroups[id];
 		map.removeLayer(lg);   
@@ -349,7 +358,7 @@ var boroughsGeoJson;
    Davetaz used it */
 var mapLayerGroups = { };
 
-map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
+// map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
 var legend = L.control({position: 'bottomright'});
 

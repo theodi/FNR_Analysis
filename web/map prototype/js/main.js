@@ -5,7 +5,9 @@ var log = function (s) {
 
 $(document).ready(function() {
 	loadData(function (err) {
-		loadBoroughsBoundaries();
+		loadBoroughsBoundaries(function (err) {
+			// updateBoroughStyle(BOROUGHS_NAMES);
+		});
 		loadStations();
 	});
 });
