@@ -1,6 +1,6 @@
-preprocess.REFERENCE_DATA = "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
+incidents.preprocess.REFERENCE_DATA <- "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
 
-preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
+incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_DATA) {
 
     source("./OSGridToGeodesic.R")
 
@@ -46,18 +46,36 @@ preprocess.run <- function (filename = preprocess.REFERENCE_DATA) {
     data
 }
 
-preprocess.save <- function (filename = "incidents.csv") {
-    incidents <- preprocess.run()
+incidents.preprocess.save <- function (filename = "incidents.csv") {
+    incidents <- incidents.preprocess.run()
     write.table(incidents, file = filename, row.names = FALSE, sep = ',', na = 'NULL')
     incidents
 }
 
 
-# Equivalent to the JavaScript function 'getStationResponseTime' in the website
-# script 'data.js'. E.g. test.getWardResponseTime("Acton", c("Acton")) 
-# calculates the performance in the Acton area after the Acton station only
-# was closed
-test.getWardResponseTime <- function (wardName, closedStationsNames) {
-    mean(subset(incidents, (ward == wardName) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime) 
+# Equivalent to "getStationResponseTime" in the website 'data.js' *and*
+# vectorised. 
+test.getWardResponseTime <- function (wardNames, closedStationsNames = c( )) {
+    sapply(wardNames, function (w) { 
+        mean(subset(incidents, (ward == w) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
+    })
 }
 
+# Equivalent to "getStationsInBorough in the website's "data.js".
+test.getStationsInBorough <- function (boroughName) {
+    # TODO: still need to understand why I need to as.character the result
+    # to use it in test.getBoroughResponseTime below
+    as.character(unique(subset(stations, borough == boroughName)$name));
+}
+
+# Equivalent to "getBoroughResponseTime" in the website's "data.js".
+# According to the original JavaScript source by Davetaz, this returns the 
+# average response time of all wards whose stations are open and located in the 
+# borough.
+# It is *not* the average response time of all incidents that happened in the
+# borough, attended by stations that are not closed. 
+test.getBoroughResponseTime <- function (boroughName, closedStationsNames = c( )) {
+    stations <- test.getStationsInBorough(boroughName)
+    notClosedStations <- stations[ !(stations %in% closedStationsNames) ]
+    mean(data.frame(notClosedStations, mean = test.getWardResponseTime(notClosedStations, closedStations))$mean)
+}
