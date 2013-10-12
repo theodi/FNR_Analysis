@@ -160,7 +160,7 @@ function highlightFeature(e) {
 }
 
 function resetHighlight(e) {
-	geojson.resetStyle(e.target);
+	boroughsGeoJson.resetStyle(e.target);
 	info.update();
 }
 
@@ -252,7 +252,7 @@ var loadBoroughsBoundaries = function (callback) {
 // requires displaying
 var loadBoroughBoundary = function (borough, callback) {
 	$.getJSON( "data/BoroughBoundaries/" + borough + ".json", function(data) {
-        geojson = L.geoJson(data, { 
+        boroughsGeoJson = L.geoJson(data, { 
 			style: boroughStyle,
 	        onEachFeature: onEachBoroughFeature,
         });
@@ -283,7 +283,7 @@ function loadIncidentData (borough) {
 		showLayer("I:"+borough);
 	} else {
 		var data = getBoroughIncidentData(borough, closedStations);
-		geojson = L.geoJson(data, {
+		boroughsGeoJson = L.geoJson(data, {
 			style: style,
 			onEachFeature: onEachFeature,
 		});
@@ -340,7 +340,9 @@ info.update = function (props) {
 
 info.addTo(map);
 
-var geojson;
+/* boroughsGeoJson is a Leaflet GeoJSON object 
+   http://leafletjs.com/reference.html#geojson containing the boroughs' data */
+var boroughsGeoJson;
 
 /* mapLayerGroups is a hash of Leaflet LayerGroup objects 
    http://leafletjs.com/reference.html#layergroup , still not clear how
@@ -352,21 +354,17 @@ map.attributionControl.addAttribution('Population data &copy; <a href="http://ce
 var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
-
 	var div = L.DomUtil.create('div', 'info legend'),
 		grades = [0, 60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140],
 		labels = [],
 		from, to;
-
 	for (var i = 0; i < grades.length; i++) {
 		from = grades[i];
 		to = grades[i + 1];
-
 		labels.push(
 			'<i style="background:' + getColor(from + 1) + '"></i> ' +
 			from + (to ? '&ndash;' + to : '+'));
 	}
-
 	div.innerHTML = labels.join('<br>');
 	return div;
 };
