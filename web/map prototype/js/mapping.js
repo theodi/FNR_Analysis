@@ -251,7 +251,7 @@ var loadBoroughsBoundaries = function (callback) {
 // loads and shows one borough's boundaries on the map, if the borough
 // requires displaying
 var loadBoroughBoundary = function (borough, callback) {
-	$.getJSON( "data/BoroughBoundaries/" + borough + ".json", function(data) {
+	$.getJSON( "data/boroughBoundaries/" + borough + ".json", function(data) {
         boroughsGeoJson = L.geoJson(data, { 
 			style: boroughStyle,
 	        onEachFeature: onEachBoroughFeature,
