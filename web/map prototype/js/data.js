@@ -1,3 +1,5 @@
+var BOROUGHS_NAMES = ["Barking and Dagenham", "Barnet", "Bexley", "Brent", "Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield", "Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey", "Harrow", "Havering", "Hillingdon", "Hounslow", "Islington", "Kensington and Chelsea", "Kingston upon Thames", "Lambeth", "Lewisham", "Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark", "Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth", "Westminster"]
+
 var incidentsData = undefined;
 var stationsData = undefined;
 
@@ -20,11 +22,10 @@ var loadData = function (callback) {
 		d3.csv("data/stations.csv", function (inputData) {
 			stationsData = inputData;
 			forceColumnsToFloat([ 'latitude', 'longitude' ], stationsData);
-			log("Data loaded (incidents.csv and stations.csv).");
+			log("Data loaded (boroughs.json, incidents.csv and stations.csv).");
 			if(callback) callback(null);
 		});
 	});
-
 }
 
 

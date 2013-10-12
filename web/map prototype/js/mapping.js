@@ -29,32 +29,17 @@ function removeArrayItem(item, array) {
 }
 
 
-function boroughControl(name) {
-	borough = name.substring(4,name.length);
-	console.log(borough);
-	if (document.getElementById(name).checked) {
-		if (mapLayerGroups[borough]) {
-			showLayer("I:"+borough);
-			hideLayer("B:"+borough);
-		} else {
-			loadIncidentData(borough,closedStations);
-		}
-	} else {
-		// Hide any Incident layers that start with the borough we want to hide
-		for (key in mapLayerGroups) {
-			if (key.substring(0,borough.length) == borough) {
-				hideLayer("I:"+key);
-				incidentLayers = removeArrayItem(key,incidentLayers);
-			}
-		}
-		// Hide the borough incident detail
-		if (mapLayerGroups[borough]) {
-			hideLayer("I:"+borough);
-			showLayer("B:"+borough);
-			incidentLayers = removeArrayItem(borough,incidentLayers);
-		}
-		updateBoroughsSelected();
-	}
+// Hides one borough's incidents. 
+function hideBoroughIncidents (borough) {
+	log("Hiding the incidents layer for " + borough + " and replacing with the overall borough view");
+	_.each(_.filter(_.keys(mapLayerGroups), function(layerGroupName) {
+		return layerGroupName.substring(0, borough.length) == borough;
+	}), function (layerGroupName) {
+		hideLayer(layerGroupName);
+		incidentLayers = removeArrayItem(layerGroupName, incidentLayers);
+	});
+	showLayer("B:" + borough);
+	updateBoroughsSelected();
 }
 
 // This updates the box to the top right of the map, listing the stations that
@@ -62,15 +47,13 @@ function boroughControl(name) {
 function updateBoroughsSelected() {
 	log("Updating the selected borough box.")
 	$('boroughs').html("");
-	$.getJSON("data/boroughs.json", function(data) {
-		var items = [];
-		$.each(data, function( key, val ) {
-			if (_.contains(incidentLayers, val)) {
-				items.push(val + "<input id='sel_" + val + "' type='checkbox' checked onClick='boroughControl(\"sel_"+val+"\")'/><br/>" );
-			}
-		});
-		$('boroughs').append(items);
+	var items = [ ];
+	_.each(BOROUGHS_NAMES, function(borough) {
+		if (_.contains(incidentLayers, borough)) {
+			items.push(borough + "<input id='sel_" + borough + "' type='checkbox' checked onClick='hideBoroughIncidents(\"" + borough + "\")'/><br/>" );
+		}
 	});
+	$('boroughs').append(items);
 }
 
 var updateBoroughStyle = function (borough) {
@@ -164,14 +147,12 @@ function boroughStyle(feature) {
 
 function highlightFeature(e) {
 	var layer = e.target;
-
 	layer.setStyle({
 		weight: 5,
 		color: '#666',
 		dashArray: '',
 		fillOpacity: 0.7
 	});
-
 	if (!L.Browser.ie && !L.Browser.opera) {
 		layer.bringToFront();
 	}
@@ -263,12 +244,10 @@ function loadStations() {
 // loads the borough boundaries data
 var loadBoroughsBoundaries = function (callback) {
 	log("Loading and displaying London boroughs' boundaries.");
-	$.getJSON( "data/boroughs.json", function( data ) {
-		_.each(data, function (val) {
-			loadBoroughBoundary(val);
-		});
-		if (callback) callback(null);
+	_.each(BOROUGHS_NAMES, function (borough) {
+		loadBoroughBoundary(borough);
 	});
+	if (callback) callback(null);
 }
 
 
@@ -365,7 +344,11 @@ info.update = function (props) {
 info.addTo(map);
 
 var geojson;
-var mapLayerGroups = [];
+
+/* mapLayerGroups is a hash of Leaflet LayerGroup objects 
+   http://leafletjs.com/reference.html#layergroup , still not clear how
+   Davetaz used it */
+var mapLayerGroups = { };
 
 map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
