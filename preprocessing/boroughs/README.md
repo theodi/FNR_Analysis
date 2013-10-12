@@ -1,0 +1,1 @@
+The London boroughs .kml definition is courtesy of http://www.londonspovertyprofile.org.uk/ and was downloaded from http://www.londonspovertyprofile.org.uk/indicators/mapkml/map.kml on 12/10/2013.
