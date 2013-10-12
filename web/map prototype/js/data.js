@@ -65,12 +65,16 @@ var getStationsInBorough = function (borough) {
 
 
 /* This function replaces the calls to GetAreaResponseTime.php when a borough is
-   specified. It returns the average first pump attendance time to incidents 
-   located in the 'borough', by all the borough's stations, excluding the ones 
-   listed in closedStations */ 
+   specified. 
+   According to the original source by Davetaz, this returns the average 
+   response time of all wards whose stationa are open and located in the 
+   borough.
+   It is *not* the average response time of all incidents that happened in the
+   borough, attended by stations that are not closed. */ 
 var getBoroughResponseTime = function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
-	return mean(_.map(getStationsInBorough(borough), function (station) {
+	return mean(_.map(_.filter(getStationsInBorough(borough), function (station) {
+		return !_.contains(closedStations, station); }), function (station) {
 		return getWardResponseTime(station, closedStations);
 	}));	
 };
