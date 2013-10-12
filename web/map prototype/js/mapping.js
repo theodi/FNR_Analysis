@@ -221,23 +221,20 @@ function loadStations() {
         lg = new L.layerGroup();
         mapLayerGroups["Stations"] = lg;
 	}
-	$.getJSON("data/stations.json", function(data) {
-		for (i=0; i<data.length; i++) {
-			station = data[i];
-			var markerLocation = new L.LatLng(station.latitude, station.longitude);
-			// GIACECCO: where does this .closing property comes from? Can't find it anywhere else in DaveTaz's code
-			if (station.closing == "true") {
-				stationMarkers[station.name] = new L.Marker(markerLocation, {icon: stationIconClosing, name: station.name});
-			} else {
-				stationMarkers[station.name] = new L.Marker(markerLocation, {icon: stationIcon, name: station.name});
-			}
-			stationMarkers[station.name].on('mouseover', function(evt) {
-				showMarkerDetails(evt.target.options.name);
-			});
-			lg.addLayer(stationMarkers[station.name]);
+	_.each(stationsData, function (station) {
+		var markerLocation = new L.LatLng(station.latitude, station.longitude);
+		// GIACECCO: where does this .closing property comes from? Can't find it anywhere else in DaveTaz's code
+		if (station.closing == "true") {
+			stationMarkers[station.name] = new L.Marker(markerLocation, {icon: stationIconClosing, name: station.name});
+		} else {
+			stationMarkers[station.name] = new L.Marker(markerLocation, {icon: stationIcon, name: station.name});
 		}
-		showLayer("Stations");
+		stationMarkers[station.name].on('mouseover', function(evt) {
+			showMarkerDetails(evt.target.options.name);
+		});
+		lg.addLayer(stationMarkers[station.name]);
 	});
+	showLayer("Stations");
 }
 
 

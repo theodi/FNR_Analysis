@@ -22,7 +22,7 @@ var loadData = function (callback) {
 		d3.csv("data/stations.csv", function (inputData) {
 			stationsData = inputData;
 			forceColumnsToFloat([ 'latitude', 'longitude' ], stationsData);
-			log("Data loaded (boroughs.json, incidents.csv and stations.csv).");
+			log("Data loaded (incidents.csv and stations.csv).");
 			if(callback) callback(null);
 		});
 	});
