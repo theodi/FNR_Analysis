@@ -1,9 +1,13 @@
-// Setup
-
-//var incidentLayers = ["Newham","Lambeth"];
+/* IncidentLayers is an array listing all layers being visible. The layers 
+   names are prefixed by "B:", or "I:" depending on the kind of layer 
+   (borough, incidents) */
 var incidentLayers = [ ];
-var closeStationsSelection = [ ];
-var markers = { };
+
+/* closedStations is an array listing all the stations that are
+   closed */
+var closedStations = [ ];
+
+var stationMarkers = { };
 
 // TODO: Resize icons based upon zoom level
 var stationIconClosing = L.icon({
@@ -34,7 +38,7 @@ function boroughControl(name) {
 			showLayer("I:"+borough);
 			hideLayer("B:"+borough);
 		} else {
-			loadIncidentData(borough,closeStationsSelection);
+			loadIncidentData(borough,closedStations);
 		}
 	} else {
 		// Hide any Incident layers that start with the borough we want to hide
@@ -71,7 +75,7 @@ function updateBoroughsSelected() {
 }
 
 var updateBoroughStyle = function (borough) {
-	var data = getBoroughResponseTime(borough, closeStationsSelection);
+	var data = getBoroughResponseTime(borough, closedStations);
 	var color = getColor(data);
 	log("New response time for " + borough + " is " + data + " color " + color);
 	for (var key in mapLayerGroups["B:" + borough]._layers) {
@@ -81,14 +85,14 @@ var updateBoroughStyle = function (borough) {
 }
 
 function closeStation(name) {
-	if (!_.contains(closeStationsSelection, name)) {
+	if (!_.contains(closedStations, name)) {
 		// Add the station to the array of closed stations
-		closeStationsSelection.push(name);
-		closeStationsSelection.sort();
+		closedStations.push(name);
+		closedStations.sort();
 		// I set the station icon's to 'closed'
-		markers[name].setIcon(stationIconClosing);
+		stationMarkers[name].setIcon(stationIconClosing);
 		// For each borough impacted by the closure...
-		_.each(boroughsReload(closeStationsSelection).boroughs, function (borough) {
+		_.each(boroughsReload(closedStations).boroughs, function (borough) {
 			if (_.contains(incidentLayers, borough)) {
 				loadIncidentData(borough);
 			}
@@ -102,13 +106,13 @@ function closeStation(name) {
 }
 
 function openStation(name) {
-	if (_.contains(closeStationsSelection, name)) {
-		markers[name].setIcon(stationIcon);
-		closeStationsSelection = removeArrayItem(name, closeStationsSelection);	
+	if (_.contains(closedStations, name)) {
+		stationMarkers[name].setIcon(stationIcon);
+		closedStations = removeArrayItem(name, closedStations);	
 		_.each(boroughsReload(name).boroughs, function (borough) {
 			// for each borough impacted by the change, I hide the layers that
 			// are currently displayed and are outdated 
-			var layerName = borough + "-minus-" + closeStationsSelection.join("_");
+			var layerName = borough + "-minus-" + closedStations.join("_");
 			if (_.contains(incidentLayers, layerName)) {
 				hideLayer("I:"+layerName);
 			}
@@ -204,7 +208,7 @@ function showBoroughDetail(e) {
 	props = e.target.feature.properties;
 	borough = props.borough;
 	hideLayer("B:" + props.borough);
-	loadIncidentData(props.borough,closeStationsSelection);
+	loadIncidentData(props.borough,closedStations);
 	updateBoroughsSelected();
 	map.fitBounds(e.target.getBounds());
 }
@@ -243,14 +247,14 @@ function loadStations() {
 			var markerLocation = new L.LatLng(station.latitude, station.longitude);
 			// GIACECCO: where does this .closing property comes from? Can't find it anywhere else in DaveTaz's code
 			if (station.closing == "true") {
-				markers[station.name] = new L.Marker(markerLocation, {icon: stationIconClosing, name: station.name});
+				stationMarkers[station.name] = new L.Marker(markerLocation, {icon: stationIconClosing, name: station.name});
 			} else {
-				markers[station.name] = new L.Marker(markerLocation, {icon: stationIcon, name: station.name});
+				stationMarkers[station.name] = new L.Marker(markerLocation, {icon: stationIcon, name: station.name});
 			}
-			markers[station.name].on('mouseover', function(evt) {
+			stationMarkers[station.name].on('mouseover', function(evt) {
 				showMarkerDetails(evt.target.options.name);
 			});
-			lg.addLayer(markers[station.name]);
+			lg.addLayer(stationMarkers[station.name]);
 		}
 		showLayer("Stations");
 	});
@@ -286,7 +290,7 @@ var loadBoroughBoundary = function (borough, callback) {
 
 
 function loadIncidentData (borough) {
-   	closedStations = closeStationsSelection;
+   	closedStations = closedStations;
 
    	if (closedStations.length > 0) {
 		plain_borough = borough;
