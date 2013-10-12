@@ -22,9 +22,9 @@ incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_
     # with NULL values!), and b) the columns I don't need
     data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'WardName', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation'))
  
-    # I drop all rows that have 'Not geo-coded' as the borough the incident 
+    # I drop all rows that have ' Not geo-coded' as the borough the incident 
     # happened in
-    data <- subset(data, WardName != 'Not geo-coded')
+    data <- subset(data, WardName != ' Not geo-coded')
 
     # I rename the columns
     colnames(data) <- c('date', 'time', 'incidentGroup', 'borough', 'eastingRounded', 'northingRounded', 'ward', 'firstPumpTime', 'firstPumpStation')
