@@ -1,6 +1,24 @@
-// FT's and Davetaz's prototype used 
-// var COLOUR_GRADES_MAX_VALUE = [60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140];
-var COLOUR_GRADES_MAX_VALUE = [ 90, 180, 270, 360, 450, 540, 630, 720, 810, 900];
+/* FT's and Davetaz's prototype used 
+var COLOUR_GRADES_MAX_VALUE = [60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140]; */
+
+/* Giacecco's first attempt at an improvement
+var COLOURS_GRADES = [ '#5f904a', '#73be52', '#9dd07e', '#d7d465', '#f9c0b9', 
+		'#f49f99', '#f07d78', '#ed5c5c', '#e14f4e', '#ae504c', '#8d4e4a' ],
+	COLOUR_GRADES_MAX_VALUE = [ 90, 180, 270, 360, 450, 540, 630, 720, 810, 900]; */
+
+/* Second attempt, same number of grades (11), calculated using 
+   http://www.perbang.dk/rgbgradient/ , inverse HSV gradient from 0FDB3A 
+   to E60800
+var COLOURS_GRADES = [ '#0FDB39', '#0EDC0D', '#3BDD0C', '#68DE0A', '#96DF09',
+		'#C5E007', '#E1CC06', '#E29D04', '#E36C03', '#E43A01', '#E60800' ],
+	COLOUR_GRADES_MAX_VALUE = [ 60, 120, 180, 240, 300, 360, 420, 480, 540, 600]; */
+
+/* Third attempt, lower number of grades (6), calculated using 
+   http://www.perbang.dk/rgbgradient/ , inverse HSV gradient from 0FDB3A 
+   to E60800 */
+var COLOURS_GRADES = [ '#0FDB39', '#3BDD0C', '#96DF09', '#E1CC06', '#E36C03',
+		'#E60800' ],
+	COLOUR_GRADES_MAX_VALUE = [ 120, 240, 360, 480, 600 ]; 
 
 
 // DAVETAZ TODO: Resize icons based upon zoom level
@@ -113,17 +131,10 @@ var openCandidateStations = function () {
 }
 
 
-// GIACECCO AND DAVETAZ TODO: these are the same colour levels used by the 
-// Financial Times for their similar exercise. We likely want a) to switch to
-// a series of colours that gives visibility of the 6 minutes attendance 
-// target (now hidden in the 5th colour level) and b) completely revised it 
-// when we finally integrate Telefonica's footfall data 
 var getColor = function (d) {
-	var COLOURS = [ '#5f904a', '#73be52', '#9dd07e', '#d7d465', '#f9c0b9', 
-		'#f49f99', '#f07d78', '#ed5c5c', '#e14f4e', '#ae504c', '#8d4e4a' ],
-		i;
+	var i;
 	for(i = 0; d > COLOUR_GRADES_MAX_VALUE[i]; i++) { }
-	return COLOURS[i];
+	return COLOURS_GRADES[i];
 }
 
 
