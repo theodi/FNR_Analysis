@@ -1,3 +1,9 @@
+// FT's and Davetaz's prototype used 
+// [60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140]
+var COLOUR_GRADES_MAX_VALUE = [60, 180, 300, 420, 540, 660, 780, 900, 1020, 
+	1140];
+
+
 // DAVETAZ TODO: Resize icons based upon zoom level
 var stationIconClosing = L.icon({
 	iconUrl: 'images/icon_firetruck_closing.png',
@@ -114,18 +120,11 @@ var openCandidateStations = function () {
 // target (now hidden in the 5th colour level) and b) completely revised it 
 // when we finally integrate Telefonica's footfall data 
 var getColor = function (d) {
-	return d > 1140 ? '#8d4e4a' :
-		d > 1020 ? '#ae504c' :
-		d > 900 ? '#e14f4e' :
-		d > 780 ? '#ed5c5c' :
-		d > 660 ? '#f07d78' :
-		d > 540 ? '#f49f99' :
-		d > 420 ? '#f9c0b9' :
-		d > 300 ? '#d7d465' :
-		d > 180 ? '#9dd07e' :
-		d > 60  ? '#73be52' :
-		d <= 60  ? '#5f904a' :
-		'#FFEDA0';
+	var COLOURS = [ '#5f904a', '#73be52', '#9dd07e', '#d7d465', '#f9c0b9', 
+		'#f49f99', '#f07d78', '#ed5c5c', '#e14f4e', '#ae504c', '#8d4e4a' ],
+		i;
+	for(i = 0; d > COLOUR_GRADES_MAX_VALUE[i]; i++) { }
+	return COLOURS[i];
 }
 
 
@@ -406,7 +405,7 @@ var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
 	var div = L.DomUtil.create('div', 'info legend'),
-		grades = [0, 60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140],
+		grades = [ 0 ].concat(COLOUR_GRADES_MAX_VALUE),
 		labels = [],
 		from, to;
 	for (var i = 0; i < grades.length; i++) {
