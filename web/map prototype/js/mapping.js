@@ -1,17 +1,3 @@
-/* IncidentLayers is an array listing all layers being visible. The layers 
-   names are prefixed by "B:", or "I:" depending on the kind of layer 
-   (borough, incidents) */
-var incidentLayers = [ ];
-
-/* closedStations is an array listing all the stations that are
-   closed */
-var closedStations = [ ];
-
-/* stationMarkers is an array of Leaflet 'Marker' objects 
-   http://leafletjs.com/reference.html#marker representing the positions of the
-   stations on the map and their state of open (blue) or closed (red) */ 
-var stationMarkers = { };
-
 // DAVETAZ TODO: Resize icons based upon zoom level
 var stationIconClosing = L.icon({
 	iconUrl: 'images/icon_firetruck_closing.png',
@@ -22,11 +8,6 @@ var stationIcon = L.icon({
 	iconUrl: 'images/icon_firetruck_ok.png',
 	iconSize: [20, 20]
 });
-
-
-function removeArrayItem(item, array) {
-	return _.filter(array, function (x) { return item !== x});
-}
 
 
 // Hides one borough's incidents. 
@@ -43,8 +24,8 @@ function hideBoroughIncidents (borough) {
 }
 
 
-// This updates the box to the top right of the map, listing the stations that
-// are currently simulated as closed.
+// This updates the box outside the map, at the top right of the page, listing 
+// the *closed* stations only. Open stations don't need the same.
 function updateBoroughsSelected() {
 	log("Updating the selected borough box.")
 	$('boroughs').html("");
@@ -117,6 +98,11 @@ function openStation(name) {
 }
 
 
+// GIACECCO AND DAVETAZ TODO: these are the same colour levels used by the 
+// Financial Times for their similar exercise. We likely want a) to switch to
+// a series of colours that gives visibility of the 6 minutes attendance 
+// target (now hidden in the 5th colour level) and b) completely revised it 
+// when we finally integrate Telefonica's footfall data 
 var getColor = function (d) {
 	return d > 1140 ? '#8d4e4a' :
 		d > 1020 ? '#ae504c' :
@@ -128,7 +114,7 @@ var getColor = function (d) {
 		d > 300 ? '#d7d465' :
 		d > 180 ? '#9dd07e' :
 		d > 60  ? '#73be52' :
-		d < 60  ? '#5f904a' :
+		d <= 60  ? '#5f904a' :
 		'#FFEDA0';
 }
 
@@ -351,6 +337,19 @@ var boroughsGeoJson;
    Davetaz used it */
 var mapLayerGroups = { };
 
+/* IncidentLayers is an array listing all layers being visible. The layers 
+   names are prefixed by "B:", or "I:" depending on the kind of layer 
+   (borough, incidents) */
+var incidentLayers = [ ];
+
+/* closedStations is an array listing all the stations that are
+   closed */
+var closedStations = [ ];
+
+/* stationMarkers is an array of Leaflet 'Marker' objects 
+   http://leafletjs.com/reference.html#marker representing the positions of the
+   stations on the map and their state of open (blue) or closed (red) */ 
+var stationMarkers = { };
 
 /* *****************************************************************************
    The section below creates and updates the map information box in the top 
