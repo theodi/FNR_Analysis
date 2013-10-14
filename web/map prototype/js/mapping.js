@@ -42,6 +42,7 @@ function hideBoroughIncidents (borough) {
 	updateBoroughsSelected();
 }
 
+
 // This updates the box to the top right of the map, listing the stations that
 // are currently simulated as closed.
 function updateBoroughsSelected() {
@@ -56,6 +57,7 @@ function updateBoroughsSelected() {
 	$('boroughs').append(items);
 }
 
+
 var updateBoroughStyle = function (boroughList) {
 	boroughList = [ ].concat(boroughList);
 	_.each(boroughList, function (borough) { 
@@ -68,6 +70,7 @@ var updateBoroughStyle = function (boroughList) {
 		}
 	});
 }
+
 
 function closeStation(name) {
 	if (!_.contains(closedStations, name)) {
@@ -90,6 +93,7 @@ function closeStation(name) {
 	}
 }
 
+
 function openStation(name) {
 	if (_.contains(closedStations, name)) {
 		stationMarkers[name].setIcon(stationIcon);
@@ -111,6 +115,7 @@ function openStation(name) {
 		log(name + " station is already open.")
 	}
 }
+
 
 var getColor = function (d) {
 	return d > 1140 ? '#8d4e4a' :
@@ -150,6 +155,7 @@ var boroughStyle = function (feature) {
 	};
 }
 
+
 function highlightFeature(e) {
 	var layer = e.target;
 	layer.setStyle({
@@ -176,7 +182,6 @@ var zoomToFeature = function (e) {
 }
 
 
-
 function showBoroughDetail(e) {
 	props = e.target.feature.properties;
 	borough = props.borough;
@@ -186,9 +191,11 @@ function showBoroughDetail(e) {
 	map.fitBounds(e.target.getBounds());
 }
 
+
 function showMarkerDetails(station_name) {
 	$('station').html(station_name);
 }
+
 
 function loadStations() {
 	var lg = mapLayerGroups["Stations"];
@@ -317,6 +324,10 @@ var hideLayer = function (id) {
 }
 
 
+/* *****************************************************************************
+   Leaflet map initialisation and display
+   ************************************************************************** */
+
 var map = L.map('map').setView([51.5, 0.04], 14);
 
 var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png', {
@@ -325,7 +336,27 @@ var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{
 	styleId: 22677
 }).addTo(map);
 
-// control that shows state info on hover
+/* GIACECCO TODO: we may likely want something similar to the commented line 
+   below from the census example we started from, but stating the fact that the 
+   data is actually open! */
+// map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
+
+/* boroughsGeoJson is a Leaflet GeoJSON object 
+   http://leafletjs.com/reference.html#geojson containing the boroughs' 
+   GeoJSON data */
+var boroughsGeoJson;
+
+/* mapLayerGroups is a hash of Leaflet LayerGroup objects 
+   http://leafletjs.com/reference.html#layergroup , still not clear how
+   Davetaz used it */
+var mapLayerGroups = { };
+
+
+/* *****************************************************************************
+   The section below creates and updates the map information box in the top 
+   right corner.
+   ************************************************************************** */
+
 var info = L.control();
 
 info.onAdd = function (map) {
@@ -334,11 +365,17 @@ info.onAdd = function (map) {
 	return this._div;
 };
 
+/* This function updates the information box at the top right of the map. */
 info.update = function (props) {
 	if (props) {
+		// 'props.borough' is a reference to the tile's 'borough' property in 
+		// its JSON definition 
 		if (props.borough) {
 			this._div.innerHTML = ('Borough: <b>' + props.borough + '</b>');
 		} else {
+			// TODO: the 'else' branch is valid only until we start displaying 
+			// the wards rather than the boroughs. This will have to be 
+			// rewritten
 			this._div.innerHTML = (
 			'Number of Incidents: <b>' + props.incidents + '</b><br />Average Response Time: <b>' + props.response + '</b><br/>Managing Station: <b>' + props.managing + '</b><br/>Stations responding: <b>' + props.attending + '</b>');
 		}
@@ -349,16 +386,12 @@ info.update = function (props) {
 
 info.addTo(map);
 
-/* boroughsGeoJson is a Leaflet GeoJSON object 
-   http://leafletjs.com/reference.html#geojson containing the boroughs' data */
-var boroughsGeoJson;
 
-/* mapLayerGroups is a hash of Leaflet LayerGroup objects 
-   http://leafletjs.com/reference.html#layergroup , still not clear how
-   Davetaz used it */
-var mapLayerGroups = { };
-
-// map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
+/* *****************************************************************************
+   Map legend creation and display.
+   Note: on Chrome - and likely other browsers - it is normal that the legend
+   disappears if you open the JavaScript console. 
+   ************************************************************************** */
 
 var legend = L.control({position: 'bottomright'});
 
@@ -379,4 +412,3 @@ legend.onAdd = function (map) {
 };
 
 legend.addTo(map);
-   
