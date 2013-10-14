@@ -68,23 +68,23 @@ var getStationsInBorough = function (borough) {
 
 
 /* This function replaces the calls to GetAreaResponseTime.php when a borough is
-   specified. 
-   According to the original source by Davetaz, this returns the average 
-   response time of all wards whose stationa are open and located in the 
-   borough.
-   It is *not* the average response time of all incidents that happened in the
-   borough, attended by stations that are not closed. */ 
-// GIACECCO TODO: check why the output of this function is occasionally NaN, 
-// e.g. for Harrow and Hounslow if I close the following stations: Bow, 
-// Battersea, Edmonton, Hillingdon, Holloway. This likely happens because no 
-// other known station attended incidents in the borough, so we can't guess 
-// what the response time would be from past performance!
+   specified. */
 var getBoroughResponseTime = function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
-	return mean(_.map(_.filter(getStationsInBorough(borough), function (station) {
-		return !_.contains(closedStations, station); }), function (station) {
-		return getWardResponseTime(station, closedStations);
-	}));	
+
+	/* Below is the old version, before Giacecco and Ulrich decided it was 
+	   to redefine borough response time. 
+
+		return mean(_.map(_.filter(getStationsInBorough(borough), function (station) {
+			return !_.contains(closedStations, station); }), function (station) {
+			return getWardResponseTime(station, closedStations);
+	}));
+	*/
+
+	// ... and here is the new version
+	return mean(_.map(_.filter(incidentsData, function (i) {
+		return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
+	}), function (i) { return i.firstPumpTime; }));
 };
 
 

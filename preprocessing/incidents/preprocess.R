@@ -72,14 +72,20 @@ test.getStationsInBorough <- function (boroughName) {
     as.character(unique(subset(stations, borough == boroughName)$name));
 }
 
-# Equivalent to "getBoroughResponseTime" in the website's "data.js".
-# According to the original JavaScript source by Davetaz, this returns the 
-# average response time of all wards whose stations are open and located in the 
-# borough.
-# It is *not* the average response time of all incidents that happened in the
-# borough, attended by stations that are not closed. 
+# Equivalent to "getBoroughResponseTime" in the website's "data.js" *and*
+# vectorised
 test.getBoroughResponseTime <- function (boroughName, closedStationsNames = c( )) {
-    stations <- test.getStationsInBorough(boroughName)
-    notClosedStations <- stations[ !(stations %in% closedStationsNames) ]
-    mean(data.frame(notClosedStations, mean = test.getWardResponseTime(notClosedStations, closedStations))$mean)
+
+    # Below is the old version, before Giacecco and Ulrich decided it was 
+    # to redefine borough response time. 
+    #
+    # stations <- test.getStationsInBorough(boroughName)
+    # notClosedStations <- stations[ !(stations %in% closedStationsNames) ]
+    # mean(data.frame(notClosedStations, mean = test.getWardResponseTime(notClosedStations, closedStations))$mean)
+
+    # ... and here is the new version
+    sapply(boroughNames, function (b) {
+        mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
+    })
+
 }
