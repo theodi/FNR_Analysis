@@ -74,6 +74,11 @@ var getStationsInBorough = function (borough) {
    borough.
    It is *not* the average response time of all incidents that happened in the
    borough, attended by stations that are not closed. */ 
+// GIACECCO TODO: check why the output of this function is occasionally NaN, 
+// e.g. for Harrow and Hounslow if I close the following stations: Bow, 
+// Battersea, Edmonton, Hillingdon, Holloway. This likely happens because no 
+// other known station attended incidents in the borough, so we can't guess 
+// what the response time would be from past performance!
 var getBoroughResponseTime = function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
 	return mean(_.map(_.filter(getStationsInBorough(borough), function (station) {
