@@ -53,7 +53,7 @@ var updateBoroughStyle = function (boroughList) {
 }
 
 
-function closeStation(name) {
+var closeStation = function (name) {
 	if (!_.contains(closedStations, name)) {
 		// Add the station to the array of closed stations
 		closedStations.push(name);
@@ -75,7 +75,12 @@ function closeStation(name) {
 }
 
 
-function openStation(name) {
+var closeCandidateStations = function () {
+	_.each(STATIONS_FACING_CLOSURE_NAMES, closeStation);
+}
+
+
+var openStation = function (name) {
 	if (_.contains(closedStations, name)) {
 		stationMarkers[name].setIcon(stationIcon);
 		closedStations = removeArrayItem(name, closedStations);	
@@ -95,6 +100,11 @@ function openStation(name) {
 	} else {
 		log(name + " station is already open.")
 	}
+}
+
+
+var openCandidateStations = function () {
+	_.each(STATIONS_FACING_CLOSURE_NAMES, openStation);
 }
 
 

@@ -1,4 +1,19 @@
-var BOROUGHS_NAMES = ["Barking and Dagenham", "Barnet", "Bexley", "Brent", "Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield", "Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey", "Harrow", "Havering", "Hillingdon", "Hounslow", "Islington", "Kensington and Chelsea", "Kingston upon Thames", "Lambeth", "Lewisham", "Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark", "Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth", "Westminster"]
+var BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent", 
+		"Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield", 
+		"Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey", "Harrow", 
+		"Havering", "Hillingdon", "Hounslow", "Islington", 
+		"Kensington and Chelsea", "Kingston upon Thames", "Lambeth", "Lewisham", 
+		"Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark", 
+		"Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth", 
+		"Westminster" ],
+
+	// At the moment of writing, and according to the colour levels we are 
+	// currently using for the legend, of the statons facing closure Southwark is the 
+	// only single station closure that produces a visible effect on the map
+	STATIONS_FACING_CLOSURE_NAMES = [ "Belsize", "Bow", "Clerkenwell", 
+		"Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark", 
+		"Westminster", "Woolwich" ];
+
 
 var incidentsData = undefined;
 var stationsData = undefined;
