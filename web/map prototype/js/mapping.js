@@ -1,7 +1,6 @@
 // FT's and Davetaz's prototype used 
-// [60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140]
-var COLOUR_GRADES_MAX_VALUE = [60, 180, 300, 420, 540, 660, 780, 900, 1020, 
-	1140];
+// var COLOUR_GRADES_MAX_VALUE = [60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140];
+var COLOUR_GRADES_MAX_VALUE = [ 90, 180, 270, 360, 450, 540, 630, 720, 810, 900];
 
 
 // DAVETAZ TODO: Resize icons based upon zoom level
