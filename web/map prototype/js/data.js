@@ -49,8 +49,9 @@ var loadData = function (callback) {
    borough names whose incidents have been attended by the stations as 
    'first pumps'. */
 var getImpactedBoroughs = _.memoize(function (stations) {
+	stations = [ ].concat(stations)
 	return _.unique(_.map(_.filter(incidentsData, function (r) {
-		return _.contains([ ].concat(stations), r.firstPumpStation);
+		return _.contains(stations, r.firstPumpStation);
 	}), function (r) { return r.borough; }));
 }, function (stations) {
 	return ([ ].concat(stations)).sort().join("_");
