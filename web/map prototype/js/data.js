@@ -113,7 +113,7 @@ var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
 
 // TODO GIACECCO: this is likely broken at the moment of writing. It also
 // needs memoization 
-var getBoroughIncidentData = _.memoize(function (borough, closed) {
+var getBoroughIncidentData = _.memoize(function (borough, closedStations) {
 	close = [ ].concat(close);
 
 	// Below is Davetaz's experimental measure for the ideal square on the map
@@ -122,12 +122,12 @@ var getBoroughIncidentData = _.memoize(function (borough, closed) {
 
  	// (A)
 	boroughsAttendedByClosedStations = _.unique(_.filter(incidentsData, function (r) {
-		return _.contains(closed, r.firstPumpStation);
+		return _.contains(closedStations, r.firstPumpStation);
 	}));
 	// (B) and (C) do not need porting
 	// (D)
 	boroughIncidents = _.filter(incidentsData, function (r) {
-		return (r.borough == borough) && !_.contains(closed, r.firstPumpStation);
+		return (r.borough == borough) && !_.contains(closedStations, r.firstPumpStation);
 	})
 	// (E) 
 	// This section creates data for each of the squares to be displayed on the 
@@ -185,7 +185,7 @@ var getBoroughIncidentData = _.memoize(function (borough, closed) {
 		id++; 
 		var temp = '{"type":"Feature","id":"' + id + '","properties":{';
 		temp += '"incidents":' + square.incidents.length +',';
-		temp += '"ward":"' + borough + (closed.length > 0 ? '-minus-' + closed.join('_') : '') + '",';
+		temp += '"ward":"' + borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '') + '",';
 		temp += '"response":' + square.meanFirstPumpTime + ',';
 		temp += '"attending":"' + 
 			_.reduce(square.attendingStations, function (memo, station) { 
@@ -201,6 +201,6 @@ var getBoroughIncidentData = _.memoize(function (borough, closed) {
 
 	return JSON.parse(leafletJsonString);
 
-}, function (borough, closed) {
-	return borough + (closed.length > 0 ? "-minus-" + closed.join("_") : "");
+}, function (borough, closedStations) {
+	return borough + (closedStations.length > 0 ? "-minus-" + closedStations.join("_") : "");
 });
