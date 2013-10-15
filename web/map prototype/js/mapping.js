@@ -98,6 +98,8 @@ var closeStation = function (name) {
 }
 
 
+// GIACECCO TODO: this can likely be made faster by calling the stations in
+// reverse alphabetical order
 var closeCandidateStations = function () {
 	_.each(STATIONS_FACING_CLOSURE_NAMES, closeStation);
 }
