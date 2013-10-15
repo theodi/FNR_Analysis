@@ -362,7 +362,9 @@ var mapLayerGroups = { };
 var incidentLayers = [ ];
 
 /* closedStations is an array listing all the stations that are
-   closed */
+   closed 
+   THIS MUST BE KEPT SORTED AS MANY FUNCTIONS RELY ON THE ALPHABETICAL
+   ORDER TO UNIQUELY IDENTIFY A SET OF CLOSED STATIONS */
 var closedStations = [ ];
 
 /* stationMarkers is an array of Leaflet 'Marker' objects 

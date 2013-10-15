@@ -67,6 +67,7 @@ var mean = function (a) {
    'GetAreaResponseTime.php' file. It returns the average first pump 
    attendance time to incidents located in the specified ward, by all 
    stations excluding the ones listed in closedStations */ 
+// GIACECCO TODO: to be removed, it is unused now
 var getWardResponseTime = function (ward, closedStations) {
 	closedStations = [ ].concat(closedStations);
 	return mean(_.map(_.filter(incidentsData, function (incident) {
@@ -75,16 +76,16 @@ var getWardResponseTime = function (ward, closedStations) {
 };
 
 
-var getStationsInBorough = function (borough) {
+var getStationsInBorough = _.memoize(function (borough) {
 	return _.map(_.where(stationsData, { borough: borough }), function (r) {
 		return r.name;
-	});
-};
+	})
+});
 
 
 /* This function replaces the calls to GetAreaResponseTime.php when a borough is
    specified. */
-var getBoroughResponseTime = function (borough, closedStations) {
+var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
 
 	/* Below is the old version, before Giacecco and Ulrich decided it was 
@@ -100,7 +101,10 @@ var getBoroughResponseTime = function (borough, closedStations) {
 	return mean(_.map(_.filter(incidentsData, function (i) {
 		return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
 	}), function (i) { return i.firstPumpTime; }));
-};
+}, function (borough, closedStations) {
+	closedStations = [ ].concat(closedStations);
+	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
+});
 
 
 var getBoroughIncidentData = function (borough, closed) {
