@@ -106,8 +106,7 @@ var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
 		return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
 	}), function (i) { return i.firstPumpTime; }));
 }, function (borough, closedStations) {
-	closedStations = [ ].concat(closedStations);
-	closedStations.sort();
+	closedStations = ([ ].concat(closedStations)).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
