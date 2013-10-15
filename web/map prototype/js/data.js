@@ -56,7 +56,7 @@ var getImpactedBoroughs = _.memoize(function (stations) {
 }, function (stations) {
 	stations = [ ].concat(stations);
 	stations.sort();
-	return stations.join("_");
+	return stations.sort().join("_");
 })
 
 
@@ -80,6 +80,7 @@ var getWardResponseTime = function (ward, closedStations) {
 };
 
 
+// GIACECCO TODO: vectorise this
 var getStationsInBorough = _.memoize(function (borough) {
 	return _.map(_.where(stationsData, { borough: borough }), function (r) {
 		return r.name;
@@ -89,6 +90,7 @@ var getStationsInBorough = _.memoize(function (borough) {
 
 /* This function replaces the calls to GetAreaResponseTime.php when a borough is
    specified. */
+// GIACECCO TODO: vectorise this
 var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
 
