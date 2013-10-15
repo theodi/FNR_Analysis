@@ -113,7 +113,7 @@ var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
 
 // TODO GIACECCO: this is likely broken at the moment of writing. It also
 // needs memoization 
-var getBoroughIncidentData = function (borough, closed) {
+var getBoroughIncidentData = _.memoize(function (borough, closed) {
 	close = [ ].concat(close);
 
 	// Below is Davetaz's experimental measure for the ideal square on the map
@@ -201,4 +201,6 @@ var getBoroughIncidentData = function (borough, closed) {
 
 	return JSON.parse(leafletJsonString);
 
-}
+}, function (borough, closed) {
+	return borough + (closed.length > 0 ? "-minus-" + closed.join("_") : "");
+});
