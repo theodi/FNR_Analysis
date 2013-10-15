@@ -48,12 +48,16 @@ var loadData = function (callback) {
    name or an array of station names. It returns an array with the list of 
    borough names whose incidents have been attended by the stations as 
    'first pumps'. */
-var getImpactedBoroughs = function (stations) {
+var getImpactedBoroughs = _.memoize(function (stations) {
 	stations = [ ].concat(stations);
 	return _.unique(_.map(_.filter(incidentsData, function (r) {
 		return _.contains(stations, r.firstPumpStation);
 	}), function (r) { return r.borough; }));
-}
+}, function (stations) {
+	stations = [ ].concat(stations);
+	stations.sort();
+	return stations.join("_");
+})
 
 
 // returns the mean of an array of numerical values
@@ -103,10 +107,13 @@ var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
 	}), function (i) { return i.firstPumpTime; }));
 }, function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
+	closedStations.sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
 
+// TODO GIACECCO: this is likely broken at the moment of writing. It also
+// needs memoization 
 var getBoroughIncidentData = function (borough, closed) {
 	close = [ ].concat(close);
 
