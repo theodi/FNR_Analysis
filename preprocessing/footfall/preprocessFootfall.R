@@ -34,8 +34,9 @@ preprocessOutputAreas.run <- function (relevantGridIDs = NA) {
 	# I calculate the volume of each output areas in 'Davetaz squares': this is 
 	# necessarily to later easily calculate the 'footfall density' of a point in
 	# the map. 
-	# TODO: is it mathematically correct to multiply latitude degrees by
-	# longitude degrees below?
+	# TODO: the calculation below is not completely correct because of the 
+	# Earth's curvature, but as we need this to calculate an 'index' rather than
+	# the actual area, we can tolerate the issue
     outputAreas$davetazArea <- outputAreas$width * outputAreas$heigth / DAVETAZ_SQUARE_LONGITUDE_SIZE /DAVETAZ_SQUARE_LATITUDE_SIZE
 	# I force the class of the columns and fix the formats if necessary
 	outputAreas$telefonicaGridId <- as.factor(outputAreas$telefonicaGridId)
@@ -122,16 +123,14 @@ preprocessFootfall.readMay2013 <- function (filenames = c("footfall-UK-13-may-20
 }
 
 
-preprocessFootfall.run <- function () {
-
-	# data <- rbind(preprocessFootfall.readDec2012(), preprocessFootfall.readMay2013())
-	data <- preprocessFootfall.readDec2012()
-
+# Produces one line per grid per day per hour from the non-consolidated (but 
+# clean) rawFootfall
+preprocessFootfall.consolidate <- function (rawFootfall) {
 	# I calculate the footfall mean for every grid id, day of week and 
 	# hour 
 	# TODO: there must be an incredible better way for doing what the next 
 	# section does
-	footfall <- lapply(split(data$footfall, list(data$telefonicaGridId, data$day, data$time)), mean)
+	footfall <- lapply(split(rawFootfall$footfall, list(rawFootfall$telefonicaGridId, rawFootfall$day, rawFootfall$time)), mean)
 	footfall <- do.call(rbind.data.frame, footfall)
 	colnames(footfall) <- c('mean')
 	temp <- rownames(footfall)
@@ -139,6 +138,15 @@ preprocessFootfall.run <- function () {
     footfall$day <- sapply(footfall$temp, function (x) { unlist(strsplit(x, "[.]"))[2] })
     footfall$time <- sapply(footfall$temp, function (x) { unlist(strsplit(x, "[.]"))[3] })
     footfall[, c('telefonicaGridId', 'day', 'time', 'mean')]
+}
+
+
+# creates a footfall data frame replacing the grid id with its
+# 'footfall density', calculated vs the area of a 'Davetaz square'
+preprocessFootfall.addFootfallDensity <- function (consolidatedFootfall, outputAreas) {
+	temp <- merge(x = consolidatedFootfall, y = outputAreas, all.x = TRUE)
+	temp$footfallDensity <- temp$footfall / temp$davetazArea
+	temp[, names(temp) %in% c("longitudeCentre", "latitudeCentre", "footfallDensity")]
 }
 
 
