@@ -137,7 +137,7 @@ var getBoroughIncidentData = _.memoize(function (borough, closedStations) {
 	// lighter
 	boroughSquareIncidents = { };
 	_.each(boroughIncidents, function (i) {
-		var squareKey = i.davetazLatitude.toFixed(4) + ',' + i.davetazLongitude.toFixed(4);
+		var squareKey =  i.davetazLongitude.toFixed(4) + ',' + i.davetazLatitude.toFixed(4);
 		if (!boroughSquareIncidents[squareKey]) {
 			// a new square!
 			var longitude = squareKey.split(",");

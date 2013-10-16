@@ -283,7 +283,6 @@ var loadIncidentData = function (borough) {
 			lg = new L.layerGroup();
 			mapLayerGroups["I:" + feature.properties.ward] = lg;
 		}
-		console.log("Showing layer I:" + feature.properties.ward);
 		lg.addLayer(layer);
 		layer.on({
 			mouseover: highlightFeature,
