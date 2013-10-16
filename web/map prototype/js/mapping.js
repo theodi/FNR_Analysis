@@ -37,7 +37,7 @@ var stationIcon = L.icon({
 var hideBoroughIncidents = function (borough) {
 	log("Hiding the incidents layer for " + borough + " and replacing with the overall borough view");
 	_.each(_.filter(_.keys(mapLayerGroups), function(layerGroupName) {
-		return layerGroupName.substring(0, borough.length) == borough;
+		return layerGroupName.match(new RegExp(borough)) != null;
 	}), function (layerGroupName) {
 		hideLayer(layerGroupName);
 		incidentLayers = removeArrayItem(layerGroupName, incidentLayers);
