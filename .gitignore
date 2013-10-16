@@ -1,8 +1,1 @@
-.DS_Store
-~*
-*.csv
-.RData
-.Rhistory
-*.Rproj
-.Rproj.user
-node_modules
+_site
