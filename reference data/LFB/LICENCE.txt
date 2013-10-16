@@ -1,0 +1,7 @@
+The data in 'LFB data 1 Apr 2007 to 31 Dec 2008.csv.gz' and 
+'LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz' is licensed under the Open 
+Government Licence v1.0 http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/. 
+The original .csv files can be downloaded from 
+http://data.london.gov.uk/datastore/package/london-fire-brigade-incident-records. 
+The files were downloaded, copied and gzi'ed here for the team's convenience on 
+8 October 2013.
