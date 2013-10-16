@@ -50,10 +50,11 @@ incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_
     data
 }
 
-incidents.preprocess.save <- function (filename = "incidents.csv") {
+incidents.preprocess.save <- function (filenamePrefix = "incidents/") {
     incidents <- incidents.preprocess.run()
-    write.table(incidents, file = filename, row.names = FALSE, sep = ',', na = 'NULL')
-    incidents
+    for (b in unique(incidents$borough)) {
+        write.table(subset(incidents, borough == b), file = paste(filenamePrefix, b, ".csv", sep = ""), row.names = FALSE, sep = ',', na = 'NULL')
+    }
 }
 
 
