@@ -31,7 +31,7 @@ var forceColumnsToFloat = function (columnNames, a) {
 
 
 // Loads and stores permanently all incidents that happened in the specified 
-// borough
+// borough, then calls callback(err)
 var loadIncidents = function (borough, callback) {
 	if (_.contains(incidentsDataBoroughs, borough)) {
 		if (callback) callback (null);
@@ -42,12 +42,13 @@ var loadIncidents = function (borough, callback) {
 			forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'davetazLatitude', 'davetazLongitude' ], inputData);
 			incidentsData = incidentsData.concat(inputData);
 			log("Borough " + borough + " incidents data loaded.");
-			if (callback) callback (null, inputData);
+			if (callback) callback (null);
 		})
 	}
 }
 
 
+// Loads all data that is required for the application startup
 var loadData = function (callback) {
 	log("Loading stations data...");
 	d3.csv("data/stations.csv", function (inputData) {
@@ -80,7 +81,6 @@ var mean = function (a) {
 }
 
 
-// GIACECCO TODO: vectorise this
 var getStationsInBorough = _.memoize(function (borough) {
 	return _.map(_.where(stationsData, { borough: borough }), function (r) {
 		return r.name;
@@ -88,8 +88,8 @@ var getStationsInBorough = _.memoize(function (borough) {
 });
 
 
-/* Like getBoroughResponseTime below, but assumes that the data has been loaded
-   already */
+/* Like getBoroughResponseTime below, but assumes that the incidents data for
+   the borough has been loaded already */
 var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
 	return mean(_.map(_.filter(incidentsData, function (i) {
@@ -101,20 +101,19 @@ var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
 });
 
 
-/* This function replaces the calls to GetAreaResponseTime.php when a borough is
-   specified. */
+/*  The function loads the necessary detailed incident data, calculates the 
+    specified borough's response time and then calls back
+    callback(err, boroughResponseTime) */
 var getBoroughResponseTime = function (borough, closedStations, callback) {
 	closedStations = [ ].concat(closedStations);
 	loadIncidents(borough, function (err) {
-		if (err) {
-			callback(err, undefined) 
-		} else {
-			callback(null, getBoroughResponseTimeM(borough, closedStations));
-		}  
+		err ? callback(err, undefined): callback(null, getBoroughResponseTimeM(borough, closedStations));  
 	});
 };
 
 
+/* Like getBoroughIncidentData below, but assumes that the incidents data for
+   the borough has been loaded already */
 var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 	close = [ ].concat(close);
 
@@ -208,6 +207,9 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 });
 
 
+/* The function produces the GeoJSON object that is required by Leaflet 
+   to visualise the detailed incident data for the specified borough, then calls 
+   back callback(err, geoJsonObject) */
 var getBoroughIncidentData = function (borough, closedStations, callback) {
 	closedStations = [ ].concat(closedStations);
 	loadIncidents(borough, function (err) {
