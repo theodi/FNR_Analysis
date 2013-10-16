@@ -112,7 +112,27 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
 };
 
 
-/* Like getBoroughIncidentData below, but assumes that the incidents data for
+/* Like getBoroughScore below, but assumes that the incidents data for
+   the borough has been loaded already */
+var getBoroughScoreM = _.memoize(function (borough, closedStations) {
+	// TODO: STAB ONLY
+	getBoroughResponseTimeM(borough, closedStations);
+}, function (borough, closedStations) {
+	closedStations = ([ ].concat(closedStations)).sort();
+	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
+});
+
+
+/*  The function loads the necessary detailed incident data, calculates the 
+    specified borough's score vs time and population and then calls back
+    callback(err, boroughscore) */
+var getBoroughScore = function (borough, closedStations, callback) {
+	// TODO: STAB ONLY
+	getBoroughResponseTime(borough, closedStations, callback);
+};
+
+
+/* Like getBoroughDetailedResponse below, but assumes that the incidents data for
    the borough has been loaded already */
 var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 	close = [ ].concat(close);
@@ -188,6 +208,8 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 		temp += '"incidents":' + square.incidents.length +',';
 		temp += '"ward":"' + borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '') + '",';
 		temp += '"response":' + square.meanFirstPumpTime + ',';
+		// TODO: BELOW IS A STAB ONLY
+		temp += '"score":' + square.meanFirstPumpTime + ',';
 		temp += '"attending":"' + 
 			_.reduce(square.attendingStations, function (memo, station) { 
 				return memo + station[0] + " (" + (station[1] * 100).toFixed(0) + "%) "; 
@@ -210,9 +232,10 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 /* The function produces the GeoJSON object that is required by Leaflet 
    to visualise the detailed incident data for the specified borough, then calls 
    back callback(err, geoJsonObject) */
-var getBoroughIncidentData = function (borough, closedStations, callback) {
+var getBoroughDetailedResponse = function (borough, closedStations, callback) {
 	closedStations = [ ].concat(closedStations);
 	loadIncidents(borough, function (err) {
 		err ? callback(err, undefined) : callback(null, getBoroughIncidentDataM(borough, closedStations));  
 	});
 }
+
