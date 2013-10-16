@@ -1,3 +1,6 @@
+preprocessFootfall.TELEFONICA_REFERENCE_DATA_FOLDER <- "../../../ODI FNR Analysis (private)/reference data/Telefonica"
+
+
 preprocessFootfall.fixMissingFootfall <- function (data) {
 
 	# if any area data is missing, even party (e.g. one time slot) for any of 
@@ -21,6 +24,31 @@ preprocessFootfall.fixMissingFootfall <- function (data) {
 }
 
 
+preprocessFootfall.readDec2012 <- function (filenames = c("footfall-London-09-dec-2012-15-dec-2012.csv.gz"), fixMissing = TRUE) {
+		data = data.frame()
+		for (filename in filenames) {
+			temp <- read.csv(paste(preprocessFootfall.TELEFONICA_REFERENCE_DATA_FOLDER, "/", filename, sep = ""))
+			temp <- temp[, c('Date', 'Time', 'Grid_ID', 'Total')]
+			colnames(temp) <- c("date", "time", "telefonicaGridId", "footfall")
+			# remove any duplicates
+			temp <- temp[!duplicated(paste(temp$telefonicaGridId, temp$date, temp$time, temp$footfall)),]
+			# I force the class of the columns and fix the formats if necessary
+			temp$telefonicaGridId <- as.factor(temp$telefonicaGridId)
+			# December's dates need being converted to R's format
+			temp$date <- as.Date(temp$date, "%d/%m/%Y")
+			temp$time <- as.factor(temp$time)
+			temp$day <- weekdays(as.Date(temp$date))
+			temp$day <- as.factor(temp$day)
+			temp$footfall <- as.numeric(temp$footfall)
+			temp <- temp[, c("telefonicaGridId", "day", "time", "footfall")]
+			# I fill in for any missing data
+			if (fixMissing) temp <- preprocessFootfall.fixMissingFootfall(temp)
+			data <- rbind(data, temp)
+		}
+		data
+}
+
+
 preprocessFootfall.run <- function () {
 
 	# We won't use the whole of Telefonica's footfall data. We would like to 
@@ -28,22 +56,6 @@ preprocessFootfall.run <- function () {
 	# in May '13. The data needs some pre-processing as it was generated in 
 	# different times by different Telefonica analysts. 
 
-	dec09 <- read.csv("../../reference data/Telefonica/footfall-London-09-dec-2012-15-dec-2012.csv.gz")
-	dec09 <- dec09[, c('Date', 'Time', 'Grid_ID', 'Total')]
-	colnames(dec09) <- c("date", "time", "telefonicaGridId", "footfall")
-	# remove any duplicates
-	dec09 <- dec09[!duplicated(paste(dec09$telefonicaGridId, dec09$date, dec09$time, dec09$footfall)),]
-	# I force the class of the columns and fix the formats if necessary
-	dec09$telefonicaGridId <- as.factor(dec09$telefonicaGridId)
-	# December's dates need being converted to R's format
-	dec09$date <- as.Date(dec09$date, "%d/%m/%Y")
-	dec09$time <- as.factor(dec09$time)
-	dec09$day <- weekdays(as.Date(dec09$date))
-	dec09$day <- as.factor(dec09$day)
-	dec09$footfall <- as.numeric(dec09$footfall)
-	dec09 <- dec09[, c("telefonicaGridId", "day", "time", "footfall")]
-	# I fill in for any missing data
-	dec09 <- preprocessFootfall.fixMissingFootfall(dec09)
 
 
 	may13 <- read.csv("../../reference data/Telefonica/footfall-UK-13-may-2013-19-may-2013.csv.gz")
