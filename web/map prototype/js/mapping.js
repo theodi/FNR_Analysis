@@ -34,7 +34,7 @@ var stationIcon = L.icon({
 
 
 // Hides one borough's incidents. 
-function hideBoroughIncidents (borough) {
+var hideBoroughIncidents = function (borough) {
 	log("Hiding the incidents layer for " + borough + " and replacing with the overall borough view");
 	_.each(_.filter(_.keys(mapLayerGroups), function(layerGroupName) {
 		return layerGroupName.substring(0, borough.length) == borough;
@@ -49,7 +49,7 @@ function hideBoroughIncidents (borough) {
 
 // This updates the box outside the map, at the top right of the page, listing 
 // the *closed* stations only. Open stations don't need the same.
-function updateBoroughsSelected() {
+var updateBoroughsSelected = function () {
 	log("Updating the selected borough box.")
 	$('boroughs').html("");
 	var items = [ ];
@@ -163,7 +163,7 @@ var boroughStyle = function (feature) {
 }
 
 
-function highlightFeature(e) {
+var highlightFeature = function (e) {
 	var layer = e.target;
 	layer.setStyle({
 		weight: 5,
@@ -189,7 +189,7 @@ var zoomToFeature = function (e) {
 }
 
 
-function showBoroughDetail(e) {
+var showBoroughDetail = function (e) {
 	props = e.target.feature.properties;
 	borough = props.borough;
 	hideLayer("B:" + props.borough);
@@ -199,12 +199,12 @@ function showBoroughDetail(e) {
 }
 
 
-function showMarkerDetails(station_name) {
+var showMarkerDetails = function (station_name) {
 	$('station').html(station_name);
 }
 
 
-function loadStations() {
+var loadStations = function () {
 	var lg = mapLayerGroups["Stations"];
 	if (lg === undefined) {
         lg = new L.layerGroup();

@@ -6,7 +6,7 @@ var log = function (s) {
 
 // general utility removing 'item' from 'array', this is used mainly in 
 // mapping.js
-function removeArrayItem(item, array) {
+var removeArrayItem = function (item, array) {
 	return _.filter(array, function (x) { return item !== x});
 }
 
