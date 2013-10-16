@@ -15,7 +15,7 @@ var BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
 		"Westminster", "Woolwich" ];
 
 
-var incidentsData = undefined;
+var incidentsData = [ ];
 var incidentsDataBoroughs = [ ];
 var stationsData = undefined;
 
@@ -38,7 +38,7 @@ var loadIncidents = function (borough, callback) {
 	} else {
 		log("Loading " + borough + " incidents data for the first time...");
 		d3.csv("data/incidents/" + borough + ".csv", function (inputData) {
-			incidentsDataBoroughs.push(borugh);
+			incidentsDataBoroughs.push(borough);
 			forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'davetazLatitude', 'davetazLongitude' ], inputData);
 			incidentsData = incidentsData.concat(inputData);
 			log("Borough " + borough + " incidents data loaded.");
@@ -106,7 +106,11 @@ var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
 var getBoroughResponseTime = function (borough, closedStations, callback) {
 	closedStations = [ ].concat(closedStations);
 	loadIncidents(borough, function (err) {
-		err ? callback(err, undefined) : callback(null, getBoroughResponseTimeM(borough, closedStations));  
+		if (err) {
+			callback(err, undefined) 
+		} else {
+			callback(null, getBoroughResponseTimeM(borough, closedStations));
+		}  
 	});
 };
 
