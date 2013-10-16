@@ -16,30 +16,45 @@ var BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
 
 
 var incidentsData = undefined;
+var incidentsDataBoroughs = [ ];
 var stationsData = undefined;
 
 
-var loadData = function (callback) {
-
-	// TODO: is what you see below necessary? why does d3.csv import all columns as strings?
-	var forceColumnsToFloat = function (columnNames, a) {
-		_.each(a, function (record) {
-			_.each(columnNames, function (columnName) {
-				record[columnName] = parseFloat(record[columnName]);
-			});
+// TODO: is what you see below necessary? why does d3.csv import all columns as strings?
+var forceColumnsToFloat = function (columnNames, a) {
+	_.each(a, function (record) {
+		_.each(columnNames, function (columnName) {
+			record[columnName] = parseFloat(record[columnName]);
 		});
+	});
+}
+
+
+// Loads and stores permanently all incidents that happened in the specified 
+// borough
+var loadIncidents = function (borough, callback) {
+	if (_.contains(incidentsDataBoroughs, borough)) {
+		if (callback) callback (null);
+	} else {
+		log("Loading " + borough + " incidents data for the first time...");
+		d3.csv("data/incidents/" + borough + ".csv", function (inputData) {
+			incidentsDataBoroughs.push(borugh);
+			forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'davetazLatitude', 'davetazLongitude' ], inputData);
+			incidentsData = incidentsData.concat(inputData);
+			log("Borough " + borough + " incidents data loaded.");
+			if (callback) callback (null, inputData);
+		})
 	}
+}
 
-	log("Starting loading data...");
-	d3.csv("data/incidents.csv", function (inputData) {
-		incidentsData = inputData;
-		forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'davetazLatitude', 'davetazLongitude' ], incidentsData);
-		d3.csv("data/stations.csv", function (inputData) {
-			stationsData = inputData;
-			forceColumnsToFloat([ 'latitude', 'longitude' ], stationsData);
-			log("Data loaded (incidents.csv and stations.csv).");
-			if(callback) callback(null);
-		});
+
+var loadData = function (callback) {
+	log("Loading stations data...");
+	d3.csv("data/stations.csv", function (inputData) {
+		stationsData = inputData;
+		forceColumnsToFloat([ 'latitude', 'longitude' ], stationsData);
+		log("stations.csv loaded.");
+		if(callback) callback(null);
 	});
 }
 
@@ -65,19 +80,6 @@ var mean = function (a) {
 }
 
 
-/* This function replaces the 'getStationResponseTime' function in the 
-   'GetAreaResponseTime.php' file. It returns the average first pump 
-   attendance time to incidents located in the specified ward, by all 
-   stations excluding the ones listed in closedStations */ 
-// GIACECCO TODO: to be removed, it is unused now
-var getWardResponseTime = function (ward, closedStations) {
-	closedStations = [ ].concat(closedStations);
-	return mean(_.map(_.filter(incidentsData, function (incident) {
-		return (incident.ward == ward) && !_.contains(closedStations, incident.firstPumpStation);
-	}), function (incident) { return incident.firstPumpTime; }));
-};
-
-
 // GIACECCO TODO: vectorise this
 var getStationsInBorough = _.memoize(function (borough) {
 	return _.map(_.where(stationsData, { borough: borough }), function (r) {
@@ -86,22 +88,10 @@ var getStationsInBorough = _.memoize(function (borough) {
 });
 
 
-/* This function replaces the calls to GetAreaResponseTime.php when a borough is
-   specified. */
-// GIACECCO TODO: vectorise this
-var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
+/* Like getBoroughResponseTime below, but assumes that the data has been loaded
+   already */
+var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
-
-	/* Below is the old version, before Giacecco and Ulrich decided it was 
-	   to redefine borough response time. 
-
-		return mean(_.map(_.filter(getStationsInBorough(borough), function (station) {
-			return !_.contains(closedStations, station); }), function (station) {
-			return getWardResponseTime(station, closedStations);
-	}));
-	*/
-
-	// ... and here is the new version
 	return mean(_.map(_.filter(incidentsData, function (i) {
 		return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
 	}), function (i) { return i.firstPumpTime; }));
@@ -111,9 +101,17 @@ var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
 });
 
 
-// TODO GIACECCO: this is likely broken at the moment of writing. It also
-// needs memoization 
-var getBoroughIncidentData = _.memoize(function (borough, closedStations) {
+/* This function replaces the calls to GetAreaResponseTime.php when a borough is
+   specified. */
+var getBoroughResponseTime = function (borough, closedStations, callback) {
+	closedStations = [ ].concat(closedStations);
+	loadIncidents(borough, function (err) {
+		err ? callback(err, undefined) : callback(null, getBoroughResponseTimeM(borough, closedStations));  
+	});
+};
+
+
+var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 	close = [ ].concat(close);
 
 	// Below is Davetaz's experimental measure for the ideal square on the map
@@ -204,3 +202,11 @@ var getBoroughIncidentData = _.memoize(function (borough, closedStations) {
 }, function (borough, closedStations) {
 	return borough + (closedStations.length > 0 ? "-minus-" + closedStations.join("_") : "");
 });
+
+
+var getBoroughIncidentData = function (borough, closedStations, callback) {
+	closedStations = [ ].concat(closedStations);
+	loadIncidents(borough, function (err) {
+		err ? callback(err, undefined) : callback(null, getBoroughIncidentDataM(borough, closedStations));  
+	});
+}
