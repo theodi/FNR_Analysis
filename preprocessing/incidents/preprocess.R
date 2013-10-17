@@ -68,12 +68,20 @@ incident.preprocess.locateOnTelefonicaGrid <- function (incidents, telefonicaOut
             # Note: if more than one output area is equally distant from the 
             # incident, the first is arbitrarily taken. We may want to change that
             # (R newbies read http://stackoverflow.com/a/5577776 )
-            outputAreas[match(min(distances), distances), ]$telefonicaGridId
+            # outputAreas[match(min(distances), distances), ]$telefonicaGridId
+            match(min(distances), distances)
         }
 
     outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
-    incidents$telefonicaGridId <- sapply(1:nrow(incidents), function (i) { findClosestOutputArea(incidents[i, ]) })
+    temp <- sapply(1:nrow(incidents), function (i) { findClosestOutputArea(incidents[i, ]) })
+    incidents$telefonicaGridId <- outputAreas$telefonicaGridId[temp]
+    incidents$area <- outputAreas$davetazArea[temp]
     incidents
+}
+
+
+incidents.preprocess.addFootfall <- function (telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
+
 }
 
 
