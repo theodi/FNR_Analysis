@@ -1,4 +1,4 @@
-# My translation to R of Chris Veness' code at 
+# Giacecco's translation to R of Chris Veness' code at 
 # http://www.movable-type.co.uk/scripts/latlong-gridref.html
 
 # TODO: the original function got a single gridref as an input, not a vector of
