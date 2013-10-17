@@ -22,13 +22,44 @@
 		<station>
 			Hover Over a Station to see info
 		</station>
-	</section>
+  </section>
+  <script type="text/html" id="template-info-borough">
+    <dl>
+      <dt>Borough</dt>
+      <dd><%= borough %></dd>
+    </dl>
+  </script>
+
+  <script type="text/html" id="template-info-ward">
+    <dl>
+      <dt>Number of incidents</dt>
+      <dd><%= incidents %></dd>
+      <dt>Average response time</dt>
+      <dd><%= reponse %></dd>
+      <dt>Managing station</dt>
+      <dd><%= managing %></dd>
+      <dt>Stations responding</dt>
+      <dd><%= attending %></dd>
+    </dl>
+  </script>
+
+  <script type="text/html" id="template-legend">
+    <ol class="legend">
+      <% _.each(grades, function(grade) { %>
+        <li>
+          <i style="background-color: <%= grade.color %>;"></i>
+          <%= grade.from %><%= grade.to ? " &ndash; " + grade.to : "+" %>
+        </li>
+      <% }); %>
+    </ol>
+  </script>
+
 	<script src="js/lib/underscore-1.5.2.js"></script>
 	<script src="js/lib/d3-v3.js"></script>
 	<script src="js/lib/leaflet-0.6.4.js"></script>
 	<script src="js/lib/jquery-1.10.2.js"></script>
 	<script src="js/data.js"></script>
-	<script src="js/mapping.js"></script>
+	<script src="js/map.js"></script>
 	<script src="js/main.js"></script>
 	</script>
 </body>
