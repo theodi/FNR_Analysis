@@ -1,12 +1,12 @@
-preprocessFootfall.TELEFONICA_REFERENCE_DATA_FOLDER <- "../../../ODI FNR Analysis (private)/reference data/Telefonica"
+footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER <- "../../../ODI FNR Analysis (private)/reference data/Telefonica"
 
 
-preprocessOutputAreas.save <- function (filename = "outputAreas.csv") {
-	write.table(preprocessOutputAreas.run(), file = filename, row.names = FALSE, sep = ',')
+outputAreas.preprocess.save <- function (outputAreas, filename = "outputAreas.csv") {
+	write.table(outputAreas, file = filename, row.names = FALSE, sep = ',')
 }
 
 
-preprocessOutputAreas.run <- function (relevantGridIDs = NA) {
+outputAreas.preprocess.run <- function (relevantGridIDs) {
 
     # Below is the size in latitude and longitude of the map square Davetaz
     # has experimentally identified as relevant for visualisation
@@ -21,11 +21,10 @@ preprocessOutputAreas.run <- function (relevantGridIDs = NA) {
 	LENGTH_OF_A_DEGREE_OF_LATITUDE <- 111.25826132219737 # km
 	LENGTH_OF_A_DEGREE_OF_LONGITUDE <- 69.4032968251825 # km
 
-	outputAreas <- read.csv(paste(preprocessFootfall.TELEFONICA_REFERENCE_DATA_FOLDER, "/telefonica-output-areas.csv.gz", sep = ""))
+	outputAreas <- read.csv(paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/telefonica-output-areas.csv.gz", sep = ""))
 	colnames(outputAreas) <- c("telefonicaGridId", "longitudeCentre", "latitudeCentre", "areaSqKm")
 	# I remove from the areas the rows referring to grid ids that are not listed
 	# in the December data
-	if (!is.na(relevantGridIDs)) relevantGridIDs <- read.csv(paste(preprocessFootfall.TELEFONICA_REFERENCE_DATA_FOLDER, "/footfall-London-09-dec-2012-15-dec-2012.csv.gz", sep = ""))$Grid_ID
 	outputAreas <- subset(outputAreas, telefonicaGridId %in% relevantGridIDs)
 	# I calculate each output area's dimensions, assuming it is squared
 	temp <- sqrt(outputAreas$areaSqKm)
@@ -37,40 +36,31 @@ preprocessOutputAreas.run <- function (relevantGridIDs = NA) {
 	# TODO: the calculation below is not completely correct because of the 
 	# Earth's curvature, but as we need this to calculate an 'index' rather than
 	# the actual area, we can tolerate the issue
-    outputAreas$davetazArea <- outputAreas$width * outputAreas$heigth / DAVETAZ_SQUARE_LONGITUDE_SIZE /DAVETAZ_SQUARE_LATITUDE_SIZE
+    outputAreas$area <- outputAreas$width * outputAreas$heigth / DAVETAZ_SQUARE_LONGITUDE_SIZE /DAVETAZ_SQUARE_LATITUDE_SIZE
 	# I force the class of the columns and fix the formats if necessary
 	outputAreas$telefonicaGridId <- as.factor(outputAreas$telefonicaGridId)
-	outputAreas[, names(outputAreas) %in% c("telefonicaGridId", "longitudeCentre", "latitudeCentre", "davetazArea")]
+	outputAreas[, names(outputAreas) %in% c("telefonicaGridId", "longitudeCentre", "latitudeCentre", "area")]
 }
 
 
-preprocessFootfall.fixMissingFootfall <- function (data) {
-
-	# if any area data is missing, even party (e.g. one time slot) for any of 
-	# the days, I replace the data for that day in entirety (not just the 
-	# missing time slot) with the average footfall of the same kind of day 
-	# (weekday / weekend) for the same area, from the days where it is available
-	data_fixed <- data
-	for (d in unique(data$day)) {
-		copyFrom <- if (!(d %in% c('Saturday', 'Sunday'))) c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') else c('Saturday', 'Sunday')
-		dataForDay <- subset(data, day == d)
+# I remove the same footfall without all areas where any footfall information 
+# is missing. The second nearest Telefonica area will be used.
+footfall.preprocess.fixMissingFootfall <- function (footfall) {
+	missingAreas <- c()
+	for (d in unique(footfall$day)) {
+		dataForDay <- subset(footfall, day == d)
 		noOfRecordsPerArea <- sapply(split(dataForDay$time, dataForDay$telefonicaGridId), length)
-		missingAreas <- names(noOfRecordsPerArea[noOfRecordsPerArea < 24])
-		for (a in missingAreas) {
-			otherDaysData <- subset(data, (telefonicaGridId == a) & (day %in% copyFrom))
-			averages <- sapply(split(otherDaysData$footfall, otherDaysData$time), mean)
-			data_fixed <- rbind(data_fixed, cbind(telefonicaGridId = a, day = d, time = names(averages), footfall = averages))
-		}
+		missingAreas <- c(missingAreas, names(noOfRecordsPerArea[noOfRecordsPerArea < 24]))
 	}
-	data_fixed
-
+	missingAreas
+	footfall[ !(footfall$telefonicaGridId %in% missingAreas), ]
 }
 
 
-preprocessFootfall.readDec2012 <- function (filenames = c("footfall-London-09-dec-2012-15-dec-2012.csv.gz"), fixMissing = TRUE) {
+footfall.preprocess.readDec2012 <- function (filenames = c("footfall-London-09-dec-2012-15-dec-2012.csv.gz"), fixMissing = TRUE) {
 		data = data.frame()
 		for (filename in filenames) {
-			temp <- read.csv(paste(preprocessFootfall.TELEFONICA_REFERENCE_DATA_FOLDER, "/", filename, sep = ""))
+			temp <- read.csv(paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/", filename, sep = ""))
 			temp <- temp[, c('Date', 'Time', 'Grid_ID', 'Total')]
 			colnames(temp) <- c("date", "time", "telefonicaGridId", "footfall")
 			# remove any duplicates
@@ -85,7 +75,7 @@ preprocessFootfall.readDec2012 <- function (filenames = c("footfall-London-09-de
 			temp$footfall <- as.numeric(temp$footfall)
 			temp <- temp[, c("telefonicaGridId", "day", "time", "footfall")]
 			# I fill in for any missing data
-			if (fixMissing) temp <- preprocessFootfall.fixMissingFootfall(temp)
+			if (fixMissing) temp <- footfall.preprocess.fixMissingFootfall(temp)
 			data <- rbind(data, temp)
 		}
 		data
@@ -95,15 +85,15 @@ preprocessFootfall.readDec2012 <- function (filenames = c("footfall-London-09-de
 
 # Currently not maintained, as Telefonica may decide that we cannot use the 
 # May 2013 data
-preprocessFootfall.readMay2013 <- function (filenames = c("footfall-UK-13-may-2013-19-may-2013.csv.gz"), fixMissing = TRUE) {
+footfall.preprocess.readMay2013 <- function (filenames = c("footfall-UK-13-may-2013-19-may-2013.csv.gz"), fixMissing = TRUE) {
 		data = data.frame()
 		for (filename in filenames) {
-			temp <- read.csv(paste(preprocessFootfall.TELEFONICA_REFERENCE_DATA_FOLDER, "/", filename, sep = ""))			
+			temp <- read.csv(paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/", filename, sep = ""))			
 			temp <- temp[, c('Date', 'Time', 'Grid.ID', 'Total')]
 			colnames(temp) <- c("date", "time", "telefonicaGridId", "footfall")
 			# I remove from the May data the rows referring to grid ids that are not listed
 			# in the December data
-			if (!exists(dec2012)) dec2012 <- preprocessFootfall.readDec2012(fixMissing = FALSE)
+			if (!exists(dec2012)) dec2012 <- footfall.preprocess.readDec2012(fixMissing = FALSE)
 			temp <- subset(temp, telefonicaGridId %in% dec09$telefonicaGridId)
 			# remove any duplicates
 			temp <- temp[!duplicated(paste(temp$telefonicaGridId, temp$date, temp$time, temp$footfall)),]
@@ -117,7 +107,7 @@ preprocessFootfall.readMay2013 <- function (filenames = c("footfall-UK-13-may-20
 			temp$footfall <- as.numeric(temp$footfall)
 			temp <- temp[, c("telefonicaGridId", "day", "time", "footfall")]
 			# I fill in for any missing data
-			if (fixMissing) temp <- preprocessFootfall.fixMissingFootfall(temp)
+			if (fixMissing) temp <- footfall.preprocess.fixMissingFootfall(temp)
 			data <- rbind(data, temp)
 		}
 		data
@@ -126,7 +116,7 @@ preprocessFootfall.readMay2013 <- function (filenames = c("footfall-UK-13-may-20
 
 # Produces one line per grid per day per hour from non-summarised (but 
 # clean) footfall data, typically data sets from more than one week 
-preprocessFootfall.consolidate <- function (rawFootfall) {
+footfall.preprocess.consolidate <- function (rawFootfall) {
 	library(plyr)
 	# if I don't convert the keys to character, ddply fails inexplicably
 	rawFootfall$telefonicaGridId <- as.character(rawFootfall$telefonicaGridId)
@@ -143,12 +133,19 @@ preprocessFootfall.consolidate <- function (rawFootfall) {
 	results
 }
 
+
+footfall.preprocess.save <- function (footfall, filename = "footfall.csv") {
+	write.table(footfall, file = filename, row.names = FALSE, sep = ',')
+}
+
+
 # creates a footfall data frame replacing the grid id with its
 # 'footfall density', calculated vs the area of a 'Davetaz square'
-preprocessFootfall.addFootfallDensity <- function (consolidatedFootfall, outputAreas) {
-	temp <- merge(x = consolidatedFootfall, y = outputAreas, all.x = TRUE)
-	temp$footfallDensity <- temp$footfall / temp$davetazArea
-	temp[, names(temp) %in% c("longitudeCentre", "latitudeCentre", "footfallDensity")]
+footfall.preprocess.addFootfallDensity <- function (footfall, outputAreas) {
+	temp <- merge(x = footfall, y = outputAreas, all.x = TRUE)
+	temp$footfallDensity <- temp$footfall / temp$area
+	# temp[, names(temp) %in% c("telefonicaGridId", "day", "time", "footfallDensity")]
+	temp
 }
 
 
