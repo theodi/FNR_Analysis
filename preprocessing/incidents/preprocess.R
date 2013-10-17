@@ -85,18 +85,22 @@ incident.preprocess.addTelefonicaGrid <- function (incidents, telefonicaOutputAr
 }
 
 
-# TODO: this is incomplete and likely broken
+# adds footfall information and removes the Telefonica grid id
 incidents.preprocess.addFootfall <- function (incidents, telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
 
-    findFootfall <- function (incident) {
-        day <- weekdays(incident$date)
-        subset(footfall, (footfall$telefonicaGridId == incident$telefonicaGridId) & (footfall$day == day) & (footfall$time == incident$time))
+    findFootfall <- function (g, d, t) {
+        footfall[ (footfall$telefonicaGridId == g) & (footfall$day == d) & (footfall$time == t), c('footfallDensity') ]
     }
 
-    # TODO: fix the classes specification below
+    library(plyr)
     footfall <- read.csv(telefonicaFootfallCSVFile, header = TRUE, colClasses = structure(c("factor", "factor", "factor", "numeric")))
-    incidents$footfall <- sapply(1:nrow(incidents), function (i) { findFootfall(incidents[i, ]) })
-    incidents
+    print("finished reading")
+    incidents$day <- weekdays(incidents$date)
+    incidents <- ddply(incidents, .(telefonicaGridId, day, time), function (df) {
+        df$footfall <- findFootfall(df[1, ]$telefonicaGridId, df[1, ]$day, df[1, ]$time)
+        df    
+    })
+    incidents[, !(names(incidents) %in% c('telefonicaGridId', 'day'))]
 }
 
 
