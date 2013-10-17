@@ -35,6 +35,11 @@ incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_
     
     # I filter out everything is not from 2012
 #    data <- subset(data, (date >= '2012-01-01') & (date <= '2012-12-31'))
+
+    # I drop minutes and seconds from the time column, as there is
+    # more granularity that I can use, including what I have in the footfall
+    # data
+    data$time <- sapply(data$time, function (t) { as.numeric(unlist(strsplit(t, ":"))[1]) })
     
     # I convert the incidents' OS Grid coordinates to geodesic and drop the 
     # original ones
@@ -59,7 +64,7 @@ incidents.preprocess.save <- function (incidents, filenamePrefix = "incidents/")
 
 # Enhances the input incidents data frame by (re-)identifying its closest 
 # Telefonica 'output area'. Returns the enhanced incidents data frame
-incident.preprocess.locateOnTelefonicaGrid <- function (incidents, telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
+incident.preprocess.addTelefonicaGrid <- function (incidents, telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
 
     library(sp)
 
@@ -76,13 +81,22 @@ incident.preprocess.locateOnTelefonicaGrid <- function (incidents, telefonicaOut
     outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
     temp <- sapply(1:nrow(incidents), function (i) { findClosestOutputArea(incidents[i, ]) })
     incidents$telefonicaGridId <- outputAreas$telefonicaGridId[temp]
-    incidents$area <- outputAreas$davetazArea[temp]
     incidents
 }
 
 
-incidents.preprocess.addFootfall <- function (telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
+# TODO: this is incomplete and likely broken
+incidents.preprocess.addFootfall <- function (incidents, telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
 
+    findFootfall <- function (incident) {
+        day = weekdays(incident$date)
+        subset(footfall, (footfall$telefonicaGridId == incident$telefonicaGridId) & (footfall$day == day) & (footfall$time == incident$time))$footfallDensity
+    }
+
+    # TODO: fix the classes specification below
+    footfall <- read.csv(telefonicaFootfallCSVFile, header = TRUE, colClasses = structure(c("factor", "factor", "factor", "numeric")))
+    incidents$footfall <- sapply(1:nrow(incidents), function (i) { findFootfall(incidents[i, ]) })
+    incidents
 }
 
 
