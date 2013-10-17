@@ -89,6 +89,7 @@ preprocessFootfall.readDec2012 <- function (filenames = c("footfall-London-09-de
 			data <- rbind(data, temp)
 		}
 		data
+		# TODO: why is footfall character when the data frame is returned by this function?!?!? 
 }
 
 
@@ -123,23 +124,24 @@ preprocessFootfall.readMay2013 <- function (filenames = c("footfall-UK-13-may-20
 }
 
 
-# Produces one line per grid per day per hour from the non-consolidated (but 
-# clean) rawFootfall
+# Produces one line per grid per day per hour from non-summarised (but 
+# clean) footfall data, typically data sets from more than one week 
 preprocessFootfall.consolidate <- function (rawFootfall) {
-	# I calculate the footfall mean for every grid id, day of week and 
-	# hour 
-	# TODO: there must be an incredible better way for doing what the next 
-	# section does
-	footfall <- lapply(split(rawFootfall$footfall, list(rawFootfall$telefonicaGridId, rawFootfall$day, rawFootfall$time)), mean)
-	footfall <- do.call(rbind.data.frame, footfall)
-	colnames(footfall) <- c('mean')
-	temp <- rownames(footfall)
-    footfall$telefonicaGridId <- sapply(footfall$temp, function (x) { unlist(strsplit(x, "[.]"))[1] })
-    footfall$day <- sapply(footfall$temp, function (x) { unlist(strsplit(x, "[.]"))[2] })
-    footfall$time <- sapply(footfall$temp, function (x) { unlist(strsplit(x, "[.]"))[3] })
-    footfall[, c('telefonicaGridId', 'day', 'time', 'mean')]
+	library(plyr)
+	# if I don't convert the keys to character, ddply fails inexplicably
+	rawFootfall$telefonicaGridId <- as.character(rawFootfall$telefonicaGridId)
+	rawFootfall$day <- as.character(rawFootfall$day)
+	rawFootfall$time <- as.character(rawFootfall$time)
+	# Note that I can't run ddply on the entire dataset, as R crashes with a
+	# segmentation fault!
+	results <- data.frame()
+	for (tgi in unique(rawFootfall$telefonicaGridId)) {
+		print(paste("Doing grid id", tgi, "..."))
+		areaFootfall <- subset(rawFootfall, telefonicaGridId == tgi)
+		results <- rbind(results, ddply(areaFootfall, .(telefonicaGridId, day, time), summarise, footfall = mean(footfall)))
+	}
+	results
 }
-
 
 # creates a footfall data frame replacing the grid id with its
 # 'footfall density', calculated vs the area of a 'Davetaz square'
