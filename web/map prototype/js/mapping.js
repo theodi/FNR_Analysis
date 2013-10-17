@@ -33,7 +33,21 @@ var stationIcon = L.icon({
 });
 
 
-// Hides one borough's incidents. 
+var boroughsByFirstRespondersPromise;
+
+var impactedBoroughs = function(closed_stations, callback) {
+  if(!boroughsByFirstRespondersPromise) {
+    boroughsByFirstRespondersPromise = $.get("/data/boroughs_by_first_responders.json")
+  }
+ boroughsByFirstRespondersPromise.success(function(data) {
+  callback(_.uniq(_.flatten(_.map(closed_stations, function(station) {
+    return data[station];
+  }))));
+ });
+}
+
+
+// Hides one borough's incidents.
 var hideBoroughIncidents = function (borough) {
 	log("Hiding the incidents layer for " + borough + " and replacing with the overall borough view");
 	_.each(_.filter(_.keys(mapLayerGroups), function(layerGroupName) {
@@ -64,15 +78,16 @@ var updateBoroughsSelected = function () {
 
 var updateBoroughStyle = function (boroughList) {
 	boroughList = [ ].concat(boroughList);
-	_.each(boroughList, function (borough) { 
-		var data = getBoroughResponseTime(borough, closedStations);
-		var color = getColor(data);
-		log("New response time for " + borough + " is " + data + " color " + color);
-		for (var key in mapLayerGroups["B:" + borough]._layers) {
-			mapLayerGroups["B:" + borough]._layers[key].setStyle({ fillColor:color });
-			mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
-		}
-	});
+	_.each(boroughList, function (borough) {
+		getBoroughResponseTime(borough, closedStations, function(_, data) {
+      var color = getColor(data);
+      log("New response time for " + borough + " is " + data + " color " + color);
+      for (var key in mapLayerGroups["B:" + borough]._layers) {
+        mapLayerGroups["B:" + borough]._layers[key].setStyle({ fillColor:color });
+        mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
+      }
+    });
+  });
 }
 
 
@@ -84,13 +99,15 @@ var closeStation = function (name) {
 		// I set the station icon's to 'closed'
 		stationMarkers[name].setIcon(stationIconClosing);
 		// For each borough impacted by the closure...
-		_.each(getImpactedBoroughs(closedStations), function (borough) {
-			if (_.contains(incidentLayers, borough)) {
-				loadIncidentData(borough);
-			}
-			//Change the colors of the borough shading to reflect closures
-			updateBoroughStyle(borough);
-		});
+    impactedBoroughs(closedStations, function(boroughs) {
+      _.each(boroughs, function (borough) {
+        if (_.contains(incidentLayers, borough)) {
+          loadIncidentData(borough);
+        }
+        //Change the colors of the borough shading to reflect closures
+        updateBoroughStyle(borough);
+      });
+    });
 		updateBoroughsSelected();
 	} else {
 		log(name + " station is already closed.");
@@ -108,19 +125,21 @@ var closeCandidateStations = function () {
 var openStation = function (name) {
 	if (_.contains(closedStations, name)) {
 		stationMarkers[name].setIcon(stationIcon);
-		closedStations = removeArrayItem(name, closedStations);	
-		_.each(getImpactedBoroughs(name), function (borough) {
-			// for each borough impacted by the change, I hide the layers that
-			// are currently displayed and are outdated 
-			var layerName = borough + "-minus-" + closedStations.join("_");
-			if (_.contains(incidentLayers, layerName)) {
-				hideLayer("I:"+layerName);
-			}
-			if (_.contains(incidentLayers, borough) || _.contains(incidentLayers, layerName)) {
-				loadIncidentData(borough);
-			}
-			updateBoroughStyle(borough)
-		});
+		closedStations = removeArrayItem(name, closedStations);
+		impactedBoroughs(name, function(boroughs) {
+      _.each(boroughs, function (borough) {
+        // for each borough impacted by the change, I hide the layers that
+        // are currently displayed and are outdated
+        var layerName = borough + "-minus-" + closedStations.join("_");
+        if (_.contains(incidentLayers, layerName)) {
+          hideLayer("I:"+layerName);
+        }
+        if (_.contains(incidentLayers, borough) || _.contains(incidentLayers, layerName)) {
+          loadIncidentData(borough);
+        }
+        updateBoroughStyle(borough)
+      });
+    });
 		updateBoroughsSelected();
 	} else {
 		log(name + " station is already open.")
@@ -259,13 +278,12 @@ var loadBoroughBoundary = function (borough, callback) {
 
 	$.getJSON( "data/boroughBoundaries/" + borough + ".json", function(data) {
 		// Differently from Davetaz's original code, I calculate the borough
-		// response time with all stations open on the fly, rather than storing 
-		// it into the borough definition JSON files. 
-		data.features[0].properties.response = getBoroughResponseTime(borough, closedStations);
-        boroughsGeoJson = L.geoJson(data, { 
-			style: boroughStyle,
-	        onEachFeature: onEachBoroughFeature,
-        });
+		// response time with all stations open on the fly, rather than storing
+		// it into the borough definition JSON files.
+    boroughsGeoJson = L.geoJson(data, {
+      style: boroughStyle,
+      onEachFeature: onEachBoroughFeature,
+    });
 		if (!_.contains(incidentLayers, borough)) {
     	  	showLayer("B:" + borough);
 		}
@@ -288,11 +306,11 @@ var loadIncidentData = function (borough) {
 			mouseover: highlightFeature,
 			mouseout: resetHighlight,
 			click: zoomToFeature
-		});	
+		});
 	}
 
-   	if (closedStations.length > 0) {
-		plain_borough = borough;
+  var plain_borough = borough;
+  if (closedStations.length > 0) {
 		borough = borough + "-minus-" + closedStations.join("_");
 		if(mapLayerGroups["B:"+borough]) {
 			hideLayer("B:"+plain_borough);
@@ -304,20 +322,21 @@ var loadIncidentData = function (borough) {
 	if(mapLayerGroups["I:"+borough]) {
 		showLayer("I:"+borough);
 	} else {
-		var data = getBoroughIncidentData(borough, closedStations);
-		boroughsGeoJson = L.geoJson(data, {
-			style: style,
-			onEachFeature: onEachIncidentsFeature,
-		});
-		showLayer("I:"+borough);
-	}
+    var data = getBoroughIncidentData(plain_borough, closedStations, function (_, data) {
+        boroughsGeoJson = L.geoJson(data, {
+        style: style,
+        onEachFeature: onEachIncidentsFeature,
+      });
+      showLayer("I:"+borough);
+	  });
+  }
 }
 
 
 var showLayer = function (id) {
 	if (mapLayerGroups[id]) {
 		var lg = mapLayerGroups[id];
-		map.addLayer(lg);   
+		map.addLayer(lg);
 	}
 }
 
@@ -325,7 +344,7 @@ var showLayer = function (id) {
 var hideLayer = function (id) {
 	if (mapLayerGroups[id]) {
 		lg = mapLayerGroups[id];
-		map.removeLayer(lg);   
+		map.removeLayer(lg);
 	}
 }
 
