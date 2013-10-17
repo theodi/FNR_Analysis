@@ -1,24 +1,24 @@
-/* FT's and Davetaz's prototype used 
+/* FT's and Davetaz's prototype used
 var COLOUR_GRADES_MAX_VALUE = [60, 180, 300, 420, 540, 660, 780, 900, 1020, 1140]; */
 
 /* Giacecco's first attempt at an improvement
-var COLOURS_GRADES = [ '#5f904a', '#73be52', '#9dd07e', '#d7d465', '#f9c0b9', 
+var COLOURS_GRADES = [ '#5f904a', '#73be52', '#9dd07e', '#d7d465', '#f9c0b9',
 		'#f49f99', '#f07d78', '#ed5c5c', '#e14f4e', '#ae504c', '#8d4e4a' ],
 	COLOUR_GRADES_MAX_VALUE = [ 90, 180, 270, 360, 450, 540, 630, 720, 810, 900]; */
 
-/* Second attempt, same number of grades (11), calculated using 
-   http://www.perbang.dk/rgbgradient/ , inverse HSV gradient from 0FDB3A 
+/* Second attempt, same number of grades (11), calculated using
+   http://www.perbang.dk/rgbgradient/ , inverse HSV gradient from 0FDB3A
    to E60800
 var COLOURS_GRADES = [ '#0FDB39', '#0EDC0D', '#3BDD0C', '#68DE0A', '#96DF09',
 		'#C5E007', '#E1CC06', '#E29D04', '#E36C03', '#E43A01', '#E60800' ],
 	COLOUR_GRADES_MAX_VALUE = [ 60, 120, 180, 240, 300, 360, 420, 480, 540, 600]; */
 
-/* Third attempt, lower number of grades (6), calculated using 
-   http://www.perbang.dk/rgbgradient/ , inverse HSV gradient from 0FDB3A 
+/* Third attempt, lower number of grades (6), calculated using
+   http://www.perbang.dk/rgbgradient/ , inverse HSV gradient from 0FDB3A
    to E60800 */
 var COLOURS_GRADES = [ '#0FDB39', '#3BDD0C', '#96DF09', '#E1CC06', '#E36C03',
 		'#E60800' ],
-	COLOUR_GRADES_MAX_VALUE = [ 120, 240, 360, 480, 600 ]; 
+	COLOUR_GRADES_MAX_VALUE = [ 120, 240, 360, 480, 600 ];
 
 
 // DAVETAZ TODO: Resize icons based upon zoom level
@@ -61,7 +61,7 @@ var hideBoroughIncidents = function (borough) {
 }
 
 
-// This updates the box outside the map, at the top right of the page, listing 
+// This updates the box outside the map, at the top right of the page, listing
 // the *closed* stations only. Open stations don't need the same.
 var updateBoroughsSelected = function () {
 	log("Updating the selected borough box.")
@@ -268,7 +268,7 @@ var loadBoroughBoundary = function (borough, callback) {
 			lg = new L.layerGroup();
 			mapLayerGroups["B:" + feature.properties.borough] = lg;
 		}
-		lg.addLayer(layer);	
+		lg.addLayer(layer);
 		layer.on({
 			mouseover: highlightFeature,
 			mouseout: resetHighlight,
@@ -361,39 +361,39 @@ var cloudmade = L.tileLayer('http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{
 	styleId: 22677
 }).addTo(map);
 
-/* GIACECCO TODO: we may likely want something similar to the commented line 
-   below from the census example we started from, but stating the fact that the 
+/* GIACECCO TODO: we may likely want something similar to the commented line
+   below from the census example we started from, but stating the fact that the
    data is actually open! */
 // map.attributionControl.addAttribution('Population data &copy; <a href="http://census.gov/">US Census Bureau</a>');
 
-/* boroughsGeoJson is a Leaflet GeoJSON object 
-   http://leafletjs.com/reference.html#geojson containing the boroughs' 
+/* boroughsGeoJson is a Leaflet GeoJSON object
+   http://leafletjs.com/reference.html#geojson containing the boroughs'
    GeoJSON data */
 var boroughsGeoJson;
 
-/* mapLayerGroups is a hash of Leaflet LayerGroup objects 
+/* mapLayerGroups is a hash of Leaflet LayerGroup objects
    http://leafletjs.com/reference.html#layergroup , still not clear how
    Davetaz used it */
 var mapLayerGroups = { };
 
-/* IncidentLayers is an array listing all layers being visible. The layers 
-   names are prefixed by "B:", or "I:" depending on the kind of layer 
+/* IncidentLayers is an array listing all layers being visible. The layers
+   names are prefixed by "B:", or "I:" depending on the kind of layer
    (borough, incidents) */
 var incidentLayers = [ ];
 
 /* closedStations is an array listing all the stations that are
-   closed 
+   closed
    THIS MUST BE KEPT SORTED AS MANY FUNCTIONS RELY ON THE ALPHABETICAL
    ORDER TO UNIQUELY IDENTIFY A SET OF CLOSED STATIONS */
 var closedStations = [ ];
 
-/* stationMarkers is an array of Leaflet 'Marker' objects 
+/* stationMarkers is an array of Leaflet 'Marker' objects
    http://leafletjs.com/reference.html#marker representing the positions of the
-   stations on the map and their state of open (blue) or closed (red) */ 
+   stations on the map and their state of open (blue) or closed (red) */
 var stationMarkers = { };
 
 /* *****************************************************************************
-   The section below creates and updates the map information box in the top 
+   The section below creates and updates the map information box in the top
    right corner.
    ************************************************************************** */
 
@@ -408,13 +408,13 @@ info.onAdd = function (map) {
 /* This function updates the information box at the top right of the map. */
 info.update = function (props) {
 	if (props) {
-		// 'props.borough' is a reference to the tile's 'borough' property in 
-		// its JSON definition 
+		// 'props.borough' is a reference to the tile's 'borough' property in
+		// its JSON definition
 		if (props.borough) {
 			this._div.innerHTML = ('Borough: <b>' + props.borough + '</b>');
 		} else {
-			// TODO: the 'else' branch is valid only until we start displaying 
-			// the wards rather than the boroughs. This will have to be 
+			// TODO: the 'else' branch is valid only until we start displaying
+			// the wards rather than the boroughs. This will have to be
 			// rewritten
 			this._div.innerHTML = (
 			'Number of Incidents: <b>' + props.incidents + '</b><br />Average Response Time: <b>' + props.response + '</b><br/>Managing Station: <b>' + props.managing + '</b><br/>Stations responding: <b>' + props.attending + '</b>');
@@ -422,7 +422,7 @@ info.update = function (props) {
 	} else {
 		this._div.innerHTML = ( ' Hover over an area ');
 	}
-}	
+}
 
 info.addTo(map);
 
@@ -430,7 +430,7 @@ info.addTo(map);
 /* *****************************************************************************
    Map legend creation and display.
    Note: on Chrome - and likely other browsers - it is normal that the legend
-   disappears if you open the JavaScript console. 
+   disappears if you open the JavaScript console.
    ************************************************************************** */
 
 var legend = L.control({position: 'bottomright'});
