@@ -63,12 +63,13 @@ incident.preprocess.locateOnTelefonicaGrid <- function (incidents, telefonicaOut
 
     library(sp)
 
+    # returns the row number of the outputAreas data frame that correspond to
+    # the closest output area to the given incident
     findClosestOutputArea <- function (incident) {
             distances <- spDistsN1(data.matrix(outputAreas[, c('longitudeCentre', 'latitudeCentre')]), matrix(c(incident$davetazLongitude, incident$davetazLatitude), nrow = 1, ncol = 2, byrow = TRUE), longlat = TRUE)
             # Note: if more than one output area is equally distant from the 
             # incident, the first is arbitrarily taken. We may want to change that
             # (R newbies read http://stackoverflow.com/a/5577776 )
-            # outputAreas[match(min(distances), distances), ]$telefonicaGridId
             match(min(distances), distances)
         }
 
