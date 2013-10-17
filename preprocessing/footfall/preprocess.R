@@ -43,7 +43,7 @@ outputAreas.preprocess.run <- function (relevantGridIDs) {
 }
 
 
-footfall.preprocess.readDec2012 <- function (filenames = c("footfall-London-09-dec-2012-15-dec-2012.csv.gz"), fixMissing = TRUE) {
+footfall.preprocess.readDec2012 <- function (filenames = c("footfall-London-09-dec-2012-15-dec-2012.csv.gz")) {
 		data = data.frame()
 		for (filename in filenames) {
 			temp <- read.csv(paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/", filename, sep = ""))
@@ -55,13 +55,10 @@ footfall.preprocess.readDec2012 <- function (filenames = c("footfall-London-09-d
 			temp$telefonicaGridId <- as.factor(temp$telefonicaGridId)
 			# December's dates need being converted to R's format
 			temp$date <- as.Date(temp$date, "%d/%m/%Y")
-			temp$time <- as.factor(temp$time)
-			temp$day <- weekdays(as.Date(temp$date))
-			temp$day <- as.factor(temp$day)
+			temp$time <- as.factor(as.numeric(sapply(temp$time, function (t) { unlist(strsplit(as.character(t), ":"))[1] })))
+			temp$day <- as.factor(weekdays(as.Date(temp$date)))
 			temp$footfall <- as.numeric(temp$footfall)
 			temp <- temp[, c("telefonicaGridId", "day", "time", "footfall")]
-			# I fill in for any missing data
-			if (fixMissing) temp <- footfall.preprocess.fixMissingFootfall(temp)
 			data <- rbind(data, temp)
 		}
 		data
@@ -71,7 +68,7 @@ footfall.preprocess.readDec2012 <- function (filenames = c("footfall-London-09-d
 
 # Currently not maintained, as Telefonica may decide that we cannot use the 
 # May 2013 data
-footfall.preprocess.readMay2013 <- function (filenames = c("footfall-UK-13-may-2013-19-may-2013.csv.gz"), fixMissing = TRUE) {
+footfall.preprocess.readMay2013 <- function (filenames = c("footfall-UK-13-may-2013-19-may-2013.csv.gz")) {
 		data = data.frame()
 		for (filename in filenames) {
 			temp <- read.csv(paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/", filename, sep = ""))			
@@ -86,14 +83,12 @@ footfall.preprocess.readMay2013 <- function (filenames = c("footfall-UK-13-may-2
 			# I force the class of the columns and fix the formats if necessary
 			temp$telefonicaGridId <- as.factor(temp$telefonicaGridId)
 			temp$date <- as.Date(temp$date)
-			temp$time <- paste(temp$time, ":00", sep = "", collapse = NULL)
+			temp$time <- as.factor(as.numeric(sapply(temp$time, function (t) { unlist(strsplit(as.character(t), ":"))[1] })))
 			temp$time <- as.factor(temp$time)
 			temp$day <- weekdays(as.Date(temp$date))
 			temp$day <- as.factor(temp$day)
 			temp$footfall <- as.numeric(temp$footfall)
 			temp <- temp[, c("telefonicaGridId", "day", "time", "footfall")]
-			# I fill in for any missing data
-			if (fixMissing) temp <- footfall.preprocess.fixMissingFootfall(temp)
 			data <- rbind(data, temp)
 		}
 		data
