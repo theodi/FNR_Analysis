@@ -58,6 +58,26 @@ incidents.preprocess.save <- function (filenamePrefix = "incidents/") {
 }
 
 
+# Enhances the input incidents data frame by (re-)identifying its closest 
+# Telefonica 'output area'. Returns the enhanced incidents data frame
+incident.preprocess.locateOnTelefonicaGrid <- function (incidents, telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
+
+    library(sp)
+
+    findClosestOutputArea <- function (incident) {
+            distances <- spDistsN1(data.matrix(outputAreas[, c('longitudeCentre', 'latitudeCentre')]), matrix(c(incident$davetazLongitude, incident$davetazLatitude), nrow = 1, ncol = 2, byrow = TRUE), longlat = TRUE)
+            # Note: if more than one output area is equally distant from the 
+            # incident, the first is arbitrarily taken. We may want to change that
+            # (R newbies read http://stackoverflow.com/a/5577776 )
+            outputAreas[match(min(distances), distances), ]$telefonicaGridId
+        }
+
+    outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
+    incidents$telefonicaGridId <- sapply(1:nrow(incidents), function (i) { findClosestOutputArea(incidents[i, ]) })
+    incidents
+}
+
+
 # Equivalent to "getStationResponseTime" in the website 'data.js' *and*
 # vectorised. 
 test.getWardResponseTime <- function (wardNames, closedStationsNames = c( )) {
