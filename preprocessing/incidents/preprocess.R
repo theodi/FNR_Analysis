@@ -39,7 +39,7 @@ incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_
     # I drop minutes and seconds from the time column, as there is
     # more granularity that I can use, including what I have in the footfall
     # data
-    data$time <- sapply(data$time, function (t) { as.numeric(unlist(strsplit(t, ":"))[1]) })
+    data$time <- as.factor(as.numeric(sapply(data$time, function (t) { unlist(strsplit(as.character(t), ":"))[1] })))
     
     # I convert the incidents' OS Grid coordinates to geodesic and drop the 
     # original ones
@@ -89,8 +89,8 @@ incident.preprocess.addTelefonicaGrid <- function (incidents, telefonicaOutputAr
 incidents.preprocess.addFootfall <- function (incidents, telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
 
     findFootfall <- function (incident) {
-        day = weekdays(incident$date)
-        subset(footfall, (footfall$telefonicaGridId == incident$telefonicaGridId) & (footfall$day == day) & (footfall$time == incident$time))$footfallDensity
+        day <- weekdays(incident$date)
+        subset(footfall, (footfall$telefonicaGridId == incident$telefonicaGridId) & (footfall$day == day) & (footfall$time == incident$time))
     }
 
     # TODO: fix the classes specification below
