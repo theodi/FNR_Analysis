@@ -43,20 +43,6 @@ outputAreas.preprocess.run <- function (relevantGridIDs) {
 }
 
 
-# I remove the same footfall without all areas where any footfall information 
-# is missing. The second nearest Telefonica area will be used.
-footfall.preprocess.fixMissingFootfall <- function (footfall) {
-	missingAreas <- c()
-	for (d in unique(footfall$day)) {
-		dataForDay <- subset(footfall, day == d)
-		noOfRecordsPerArea <- sapply(split(dataForDay$time, dataForDay$telefonicaGridId), length)
-		missingAreas <- c(missingAreas, names(noOfRecordsPerArea[noOfRecordsPerArea < 24]))
-	}
-	missingAreas
-	footfall[ !(footfall$telefonicaGridId %in% missingAreas), ]
-}
-
-
 footfall.preprocess.readDec2012 <- function (filenames = c("footfall-London-09-dec-2012-15-dec-2012.csv.gz"), fixMissing = TRUE) {
 		data = data.frame()
 		for (filename in filenames) {
@@ -114,6 +100,20 @@ footfall.preprocess.readMay2013 <- function (filenames = c("footfall-UK-13-may-2
 }
 
 
+# I remove any area whose footfall information is missing partly or completely. 
+# The second nearest Telefonica area will be used for calculations.
+footfall.preprocess.fixMissingFootfall <- function (footfall) {
+	missingAreas <- c()
+	for (d in unique(footfall$day)) {
+		dataForDay <- subset(footfall, day == d)
+		noOfRecordsPerArea <- sapply(split(dataForDay$time, dataForDay$telefonicaGridId), length)
+		missingAreas <- c(missingAreas, names(noOfRecordsPerArea[noOfRecordsPerArea < 24]))
+	}
+	missingAreas
+	footfall[ !(footfall$telefonicaGridId %in% missingAreas), ]
+}
+
+
 # Produces one line per grid per day per hour from non-summarised (but 
 # clean) footfall data, typically data sets from more than one week 
 footfall.preprocess.consolidate <- function (rawFootfall) {
@@ -144,8 +144,7 @@ footfall.preprocess.save <- function (footfall, filename = "footfall.csv") {
 footfall.preprocess.addFootfallDensity <- function (footfall, outputAreas) {
 	temp <- merge(x = footfall, y = outputAreas, all.x = TRUE)
 	temp$footfallDensity <- temp$footfall / temp$area
-	# temp[, names(temp) %in% c("telefonicaGridId", "day", "time", "footfallDensity")]
-	temp
+	temp[, names(temp) %in% c("telefonicaGridId", "day", "time", "footfallDensity")]
 }
 
 
