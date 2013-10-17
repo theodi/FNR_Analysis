@@ -322,7 +322,7 @@ var loadIncidentData = function (borough) {
 	if(mapLayerGroups["I:"+borough]) {
 		showLayer("I:"+borough);
 	} else {
-    var data = getBoroughIncidentData(plain_borough, closedStations, function (_, data) {
+    var data = getBoroughDetailedResponse(plain_borough, closedStations, function (_, data) {
         boroughsGeoJson = L.geoJson(data, {
         style: style,
         onEachFeature: onEachIncidentsFeature,
