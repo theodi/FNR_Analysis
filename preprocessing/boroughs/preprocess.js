@@ -19,18 +19,21 @@ parseString(result, function (err, result) {
     var id = 0;
     _.each(result.kml.Document[0].Placemark, function (d) {
         var performance = [ ];
+        var score = [ ];
         csv()
             .from.stream(fs.createReadStream(__dirname + '/' + argv.incidents + '/' + d.name[0] + '.csv'), {
                 columns: true
             })
             .on('record', function (row, index) {
                 performance.push(parseFloat(row.firstPumpTime));
+                score.push(parseFloat(row.score));
             })
             .on('error', function (error) {
               console.log(error.message);
             })
             .on('end', function (count) {
                 performance = mean(performance);
+                score = mean(score);
                 var polygon = _.map(d.Polygon[0].outerBoundaryIs[0].LinearRing[0].coordinates[0].split(" "), function (point) {
                     return [ parseFloat(point.split(",")[0]), parseFloat(point.split(",")[1]) ];
                 });
@@ -42,10 +45,11 @@ parseString(result, function (err, result) {
                     properties: {
                         "borough": d.name[0],
                         "response": performance,
+                        "score": score
                     },
                     geometry: {
                         type: "Polygon",
-                        coordinates: [ polygon ],
+                        coordinates: [ polygon ]
                     }
                 });
                 fs.writeFileSync(argv.out + "/" + d.name + ".json", JSON.stringify(borough));
