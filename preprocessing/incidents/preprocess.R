@@ -1,6 +1,6 @@
 incidents.preprocess.REFERENCE_DATA <- "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
 
-incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_DATA) {
+incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.REFERENCE_DATA) {
 
     source("./OSGridToGeodesic.R")
 
@@ -47,11 +47,13 @@ incidents.preprocess.run <- function (filename = incidents.preprocess.REFERENCE_
     data <- data[, !(names(data) %in% c('northingRounded', 'eastingRounded'))]
 
     # I calculate the coordinates of Davetaz's square the incident belongs to
+    # and drop the original coordinates
     data[, c("davetazLatitude", "davetazLongitude") ] <- cbind(
         data$latitude %/% DAVETAZ_SQUARE_LATITUDE_SIZE * DAVETAZ_SQUARE_LATITUDE_SIZE,
         data$longitude %/% DAVETAZ_SQUARE_LONGITUDE_SIZE * DAVETAZ_SQUARE_LONGITUDE_SIZE
         )    
-    
+    data <- data[, !(names(data) %in% c("latitude", "longitude"))]
+
     data
 }
 
@@ -66,23 +68,27 @@ incidents.preprocess.saveByBorough <- function (incidents, filenamePrefix = "byB
 # Telefonica 'output area' using the non-approximated longitude and latitude. 
 # Returns the enhanced incidents data frame and removes the non-approximated
 # longitude and latitude.
-incidents.preprocess.addTelefonicaGrid <- function (incidents, telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
+incidents.preprocess.addTelefonicaGrid <- function (incidents, outputData = data.frame(), telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
 
-    # returns the row number of the outputAreas data frame that correspond to
-    # the closest output area to the given incident
-    findClosestOutputArea <- function (incident) {
-            distances <- spDistsN1(data.matrix(outputAreas[, c('longitudeCentre', 'latitudeCentre')]), matrix(c(incident$longitude, incident$latitude), nrow = 1, ncol = 2, byrow = TRUE), longlat = TRUE)
+    # returns the Telefonica grid id of the output areas that is closest 
+    # to the given incident
+    findClosestOutputArea <- function (long, lat) {
+            distances <- spDistsN1(data.matrix(outputAreas[, c('longitudeCentre', 'latitudeCentre')]), matrix(c(long, lat), nrow = 1, ncol = 2, byrow = TRUE), longlat = TRUE)
             # Note: if more than one output area is equally distant from the 
             # incident, the first is arbitrarily taken. We may want to change that
-            # (R newbies read http://stackoverflow.com/a/5577776 )
-            match(min(distances), distances)
+            outputAreas$telefonicaGridId[match(min(distances), distances)]
         }
 
     library(sp)
-    outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
-    temp <- sapply(1:nrow(incidents), function (i) { findClosestOutputArea(incidents[i, ]) })
-    incidents$telefonicaGridId <- outputAreas$telefonicaGridId[temp]
-    incidents[, !(names(incidents) %in% c('longitude', 'latitude'))]
+    library(plyr)
+    if (nrow(outputData) == 0) {
+        outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
+    }
+    ddply(incidents, .(davetazLongitude, davetazLongitude), function (df) {
+        incidents$telefonicaGridId = findClosestOutputArea(df$davetazLongitude[1], df$davetazLatitude[1])
+        incidents
+    })
+
 }
 
 
