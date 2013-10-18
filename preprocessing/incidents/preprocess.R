@@ -1,3 +1,6 @@
+library(sp)
+library(plyr)
+
 incidents.preprocess.REFERENCE_DATA <- "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
 
 incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.REFERENCE_DATA) {
@@ -68,7 +71,7 @@ incidents.preprocess.saveByBorough <- function (incidents, filenamePrefix = "byB
 # Telefonica 'output area' using the non-approximated longitude and latitude. 
 # Returns the enhanced incidents data frame and removes the non-approximated
 # longitude and latitude.
-incidents.preprocess.addTelefonicaGrid <- function (incidents, outputData = data.frame(), telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
+incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = data.frame(), telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
 
     # returns the Telefonica grid id of the output areas that is closest 
     # to the given incident
@@ -79,9 +82,7 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputData = data
             outputAreas$telefonicaGridId[match(min(distances), distances)]
         }
 
-    library(sp)
-    library(plyr)
-    if (nrow(outputData) == 0) {
+    if (nrow(outputAreas) == 0) {
         outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
     }
     ddply(incidents, .(davetazLongitude, davetazLongitude), function (df) {
@@ -93,7 +94,26 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputData = data
 
 
 # adds footfall information and removes the Telefonica grid id
-incidents.preprocess.addFootfall <- function (incidents, telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
+incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame(), telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
+
+    findFootfall <- function (g, d, t) {
+        footfall[ (footfall$telefonicaGridId == g) & (footfall$day == d) & (footfall$time == t), c('footfallDensity') ]
+    }
+
+    if (nrow(footfall) == 0) {
+        footfall <- read.csv(telefonicaFootfallCSVFile, header = TRUE, colClasses = structure(c("factor", "factor", "factor", "numeric")))
+    }
+    incidents$day <- weekdays(incidents$date)
+    incidents <- ddply(incidents, .(telefonicaGridId, day, time), function (df) {
+        incidents$footfall <- findFootfall(incidents$telefonicaGridId[1], incidents$day[1], incidents$time[1])
+        incidents
+    })
+    incidents[, !(names(incidents) %in% c('telefonicaGridId', 'day'))]
+}
+
+
+# adds footfall information and removes the Telefonica grid id
+incidents.preprocess.addFootfall.ORIGINAL <- function (incidents, telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
 
     findFootfall <- function (g, d, t) {
         footfall[ (footfall$telefonicaGridId == g) & (footfall$day == d) & (footfall$time == t), c('footfallDensity') ]
