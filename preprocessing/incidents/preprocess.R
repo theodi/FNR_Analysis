@@ -66,7 +66,7 @@ incidents.preprocess.saveByBorough <- function (incidents, filenamePrefix = "byB
 # Telefonica 'output area' using the non-approximated longitude and latitude. 
 # Returns the enhanced incidents data frame and removes the non-approximated
 # longitude and latitude.
-incident.preprocess.addTelefonicaGrid <- function (incidents, telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
+incidents.preprocess.addTelefonicaGrid <- function (incidents, telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
 
     # returns the row number of the outputAreas data frame that correspond to
     # the closest output area to the given incident
