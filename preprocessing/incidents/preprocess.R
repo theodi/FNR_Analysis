@@ -62,11 +62,6 @@ incidents.preprocess.saveByBorough <- function (incidents, filenamePrefix = "byB
 }
 
 
-incidents.preprocess.save <- function (incidents, filename = "incidents.csv") {
-    write.table(incidents, file = filename, row.names = FALSE, sep = ',', na = 'NULL')
-}
-
-
 # Enhances the input incidents data frame by (re-)identifying its closest 
 # Telefonica 'output area' using the non-approximated longitude and latitude. 
 # Returns the enhanced incidents data frame and removes the non-approximated
