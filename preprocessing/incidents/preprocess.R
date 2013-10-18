@@ -1,5 +1,4 @@
 library(sp)
-library(plyr)
 library(data.table)
 
 incidents.preprocess.REFERENCE_DATA <- "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
@@ -77,7 +76,7 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = dat
     # returns the Telefonica grid id of the output areas that is closest 
     # to the given incident
     findClosestOutputArea <- function (long, lat) {
-            distances <- spDistsN1(data.matrix(outputAreas[, c('longitudeCentre', 'latitudeCentre')]), matrix(c(long, lat), nrow = 1, ncol = 2, byrow = TRUE), longlat = TRUE)
+            distances <- spDistsN1(data.matrix(outputAreas[, c('davetazLongitude', 'davetazLatitude')]), matrix(c(long, lat), nrow = 1, ncol = 2, byrow = TRUE), longlat = TRUE)
             # Note: if more than one output area is equally distant from the 
             # incident, the first is arbitrarily taken. We may want to change that
             outputAreas$telefonicaGridId[match(min(distances), distances)]
@@ -87,7 +86,9 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = dat
         outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
     }
     incidents <- data.table(incidents)
-    incidents[, list(date, time, incidentGroup, borough, ward, firstPumpTime, firstPumpStation, davetazLatitude, davetazLongitude, telefonicaGridId = findClosestOutputArea(davetazLongitude, davetazLatitude)), by = 'davetazLongitude,davetazLatitude' ]
+    incidents[, list(date, time, incidentGroup, borough, ward, firstPumpTime, firstPumpStation, telefonicaGridId = findClosestOutputArea(davetazLongitude, davetazLatitude)), by = 'davetazLongitude,davetazLatitude' ]
+    # TODO: should I convert back to data.frame, not to force anyone using this
+    # data component to use data.table, too?
 }
 
 
@@ -98,34 +99,21 @@ incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame()
         footfall[ (footfall$telefonicaGridId == g) & (footfall$day == d) & (footfall$time == t), c('footfallDensity') ]
     }
 
+    # I read the reference footfall data, if no data frame is specified
     if (nrow(footfall) == 0) {
         footfall <- read.csv(telefonicaFootfallCSVFile, header = TRUE, colClasses = structure(c("factor", "factor", "factor", "numeric")))
     }
+    # I drop all footfall I am not going to use
+    footfall <- footfall[ footfall$telefonicaGridId %in% incidents$telefonicaGridId, ]
+    # TODO: I need to convert to integer because R complains of "Error in 
+    # Ops.factor(footfall$time, t) : level sets of factors are different", that
+    # is absurd
+    footfall$time <- as.integer(footfall$time)
+    incidents$time <- as.integer(incidents$time)
+    # back to the useful code
+    incidents <- data.table(incidents)
     incidents$day <- weekdays(incidents$date)
-    incidents <- ddply(incidents, .(telefonicaGridId, day, time), function (df) {
-        incidents$footfall <- findFootfall(incidents$telefonicaGridId[1], incidents$day[1], incidents$time[1])
-        incidents
-    })
-    incidents[, !(names(incidents) %in% c('telefonicaGridId', 'day'))]
-}
-
-
-# adds footfall information and removes the Telefonica grid id
-incidents.preprocess.addFootfall.ORIGINAL <- function (incidents, telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
-
-    findFootfall <- function (g, d, t) {
-        footfall[ (footfall$telefonicaGridId == g) & (footfall$day == d) & (footfall$time == t), c('footfallDensity') ]
-    }
-
-    library(plyr)
-    footfall <- read.csv(telefonicaFootfallCSVFile, header = TRUE, colClasses = structure(c("factor", "factor", "factor", "numeric")))
-    print("finished reading")
-    incidents$day <- weekdays(incidents$date)
-    incidents <- ddply(incidents, .(telefonicaGridId, day, time), function (df) {
-        df$footfall <- findFootfall(df[1, ]$telefonicaGridId, df[1, ]$day, df[1, ]$time)
-        df    
-    })
-    incidents[, !(names(incidents) %in% c('telefonicaGridId', 'day'))]
+    incidents[, list(incidentGroup, borough, ward, davetazLongitude, davetazLatitude, firstPumpTime, firstPumpStation, footfall = findFootfall(telefonicaGridId, day, time)), by = "telefonicaGridId,day,time" ]
 }
 
 
