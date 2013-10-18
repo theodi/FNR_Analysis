@@ -105,6 +105,21 @@ incidents.preprocess.addFootfall <- function (incidents, telefonicaFootfallCSVFi
 }
 
 
+# TODO: not tested, and the scoring formula is provisional
+incidents.preprocess.addScore <- function (incidents) {
+    # One incident scores 100% if it had the highest footfall / attendance time
+    # ratio. The +1 is arbitrarily added not to make the function fail in case
+    # any incident had 0 response time (e.g. any non-sanitised data)
+    MAX_FOOTFALL <- max(incidents$footfall)
+    MIN_FIRST_PUMP_TIME <- min(incidents$firstPumpTime)
+    # first pass, not-normaised score 
+    incidents$score <- log(1 + incidents$footfall) / log(1 + incidents$firstPumpTime) 
+    # second pass, normalisation and rounding
+    incidents$score <- round(incidents$score / max(incidents$score), 2)
+    incidents
+}
+
+
 # Equivalent to "getStationResponseTime" in the website 'data.js' *and*
 # vectorised. 
 test.getWardResponseTime <- function (wardNames, closedStationsNames = c( )) {
