@@ -5,19 +5,19 @@ Map = (function() {
     initZoom:   10,
 
     gradeColors:
-      ['#0FDB39', '#3BDD0C', '#96DF09', '#E1CC06', '#E36C03', '#E60800'],
-	  gradeMinValues: [0, 120, 240, 360, 480],
+      ['#125a8d', '#dc4710'],
+	  gradeMinValues: [0, 360],
 
 
-    boroughOutlineWeight:     1,
+    boroughOutlineWeight:     0,
     boroughOutlineColor:      'grey',
-    boroughOutlineOpacity:    0.7,
-    boroughOutlineDashArray:  '3',
+    boroughOutlineOpacity:    0.0,
+    boroughOutlineDashArray:  '',
     boroughFillOpacity:       0.7,
 
-    hoverBoroughOutlineWeight:    5,
+    hoverBoroughOutlineWeight:    3,
     hoverBoroughOutlineColor:     '#666',
-    hoverBoroughOutlineOpacity:   0.7,
+    hoverBoroughOutlineOpacity:   0.0,
     hoverBoroughOutlineDashArray: '',
     hoverBoroughFillOpacity:      0.7,
 
@@ -39,8 +39,6 @@ Map = (function() {
     boroughDataUrlString:
       'data/boroughBoundaries/{borough}.json',
 
-     callToAction: "Hover over an area",
-
     initialize: function(container) {
       _this.container = container;
       _this.mapLayerGroups = {};
@@ -50,7 +48,6 @@ Map = (function() {
 
       _this.initMap();
       _this.initTileLayer();
-      _this.initInfoBox();
       _this.initLegend();
       _this.initBoroughBoundaries();
       _this.initStations();
@@ -67,17 +64,6 @@ Map = (function() {
         key:         _this.cloudMadeKey,
         styleId:     _this.mapStyleId,
       }).addTo(_this.map);
-    },
-
-    initInfoBox: function() {
-      _this.info = L.control();
-      _this.info.onAdd = function (map) {
-        this._div = L.DomUtil.create('div', 'info');
-        this.update();
-        return this._div;
-      };
-      _this.info.update = _this.updateInfoBox;
-      _this.info.addTo(_this.map)
     },
 
     initLegend: function() {
@@ -134,13 +120,15 @@ Map = (function() {
       });
     },
 
-    updateInfoBox: function(props) {
-      if (props) {
-        var template_name = props.borough ? "info-borough" : "info-ward"
-        this._div.innerHTML = _this.template(template_name, props);
+    updateInfo: function(props) {
+      var info;
+      if(props) {
+        var template_name = props.borough ? "info-borough" : "info-ward";
+        info = _this.template(template_name, props);
       } else {
-        this._div.innerHTML = _this.callToAction;
+        info = "";
       }
+      $("#info").html(info);
     },
 
 
@@ -158,12 +146,12 @@ Map = (function() {
       if (!L.Browser.ie && !L.Browser.opera) {
         layer.bringToFront();
       }
-      _this.info.update(layer.feature.properties);
+      _this.updateInfo(layer.feature.properties);
     },
 
     resetHighlight: function(event) {
 	    _this.boroughsGeoJson.resetStyle(event.target);
-	    _this.info.update();
+	    _this.updateInfo();
     },
 
     showBoroughDetail: function(event) {
@@ -207,8 +195,8 @@ Map = (function() {
         }
       });
       var inputs = _this.template("boroughs-selected", {"boroughs": boroughs})
-      $('boroughs').html(inputs);
-      $("boroughs input").click(_this.handleBoroughCheckboxClick)
+      $('#boroughs div').html(inputs);
+      $("#boroughs input").click(_this.handleBoroughCheckboxClick)
     },
 
     handleBoroughCheckboxClick: function(event) {
