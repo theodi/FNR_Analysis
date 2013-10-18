@@ -115,8 +115,10 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
 /* Like getBoroughScore below, but assumes that the incidents data for
    the borough has been loaded already */
 var getBoroughScoreM = _.memoize(function (borough, closedStations) {
-	// TODO: STAB ONLY
-	getBoroughResponseTimeM(borough, closedStations);
+	closedStations = [ ].concat(closedStations);
+	return mean(_.map(_.filter(incidentsData, function (i) {
+		return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
+	}), function (i) { return i.score; }));
 }, function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations)).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
@@ -128,7 +130,9 @@ var getBoroughScoreM = _.memoize(function (borough, closedStations) {
     callback(err, boroughscore) */
 var getBoroughScore = function (borough, closedStations, callback) {
 	// TODO: STAB ONLY
-	getBoroughResponseTime(borough, closedStations, callback);
+	loadIncidents(borough, function (err) {
+		err ? callback(err, undefined): callback(null, getBoroughScoreM(borough, closedStations));  
+	});
 };
 
 
@@ -185,6 +189,7 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 	// data that could not be calculated while still adding incidents
 	_.each(_.keys(boroughSquareIncidents), function (squareKey) {
 		boroughSquareIncidents[squareKey].meanFirstPumpTime = mean(_.map(boroughSquareIncidents[squareKey].incidents, function (i) { return i.firstPumpTime; }));
+		boroughSquareIncidents[squareKey].meanScore = mean(_.map(boroughSquareIncidents[squareKey].incidents, function (i) { return i.score; }));
 		// I make the station attendance object into an array of the same
 		boroughSquareIncidents[squareKey].attendingStations = _.pairs(boroughSquareIncidents[squareKey].attendingStations);
 		// I make the station attendance figures into %s of themselves
@@ -208,8 +213,7 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 		temp += '"incidents":' + square.incidents.length +',';
 		temp += '"ward":"' + borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '') + '",';
 		temp += '"response":' + square.meanFirstPumpTime + ',';
-		// TODO: BELOW IS A STAB ONLY
-		temp += '"score":' + square.meanFirstPumpTime + ',';
+		temp += '"score":' + square.meanScore + ',';
 		temp += '"attending":"' + 
 			_.reduce(square.attendingStations, function (memo, station) { 
 				return memo + station[0] + " (" + (station[1] * 100).toFixed(0) + "%) "; 
