@@ -1,5 +1,6 @@
 library(sp)
 library(plyr)
+library(data.table)
 
 incidents.preprocess.REFERENCE_DATA <- "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
 
@@ -85,11 +86,8 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = dat
     if (nrow(outputAreas) == 0) {
         outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
     }
-    ddply(incidents, .(davetazLongitude, davetazLongitude), function (df) {
-        incidents$telefonicaGridId = findClosestOutputArea(df$davetazLongitude[1], df$davetazLatitude[1])
-        incidents
-    })
-
+    incidents <- data.table(incidents)
+    incidents[, list(date, time, incidentGroup, borough, ward, firstPumpTime, firstPumpStation, davetazLatitude, davetazLongitude, telefonicaGridId = findClosestOutputArea(davetazLongitude, davetazLatitude)), by = 'davetazLongitude,davetazLatitude' ]
 }
 
 
