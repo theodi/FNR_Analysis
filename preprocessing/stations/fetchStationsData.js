@@ -12,7 +12,7 @@ var GOOGLE_THROTTLE_SECONDS = 3;
 var _ = require('underscore');
 _.mixin(require('underscore.string').exports());
 var argv = require('optimist') // https://github.com/substack/node-optimist
-    .usage('Usage: $0 -out [filename]')
+    .usage('Usage: $0 --out [filename]')
     .demand([ 'out' ])
     .alias('out', 'o')
     .argv; 
@@ -51,9 +51,9 @@ request("http://www.london-fire.gov.uk/a-zfirestations.asp",
   		var stationNames = _.map($("dl dd h2"), function (x) {
   			return _.clean($(x).html());
   		});
-		var boroughs = _.map($("dl dd p a"), function (x) {
-			return _.clean($(x).html());
-		});
+  		var boroughs = _.map($("dl dd p a"), function (x) {
+  			return _.clean($(x).html());
+  		});
   		var stationAddresses = _.map($("dl dd p"), function (x) {
   			return _.filter(_.map($(x).html().split("<br>"), _.clean),
   							function (y) {
