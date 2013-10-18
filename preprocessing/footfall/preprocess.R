@@ -23,13 +23,24 @@ outputAreas.preprocess.run <- function (relevantGridIDs) {
 
 	outputAreas <- read.csv(paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/telefonica-output-areas.csv.gz", sep = ""))
 	colnames(outputAreas) <- c("telefonicaGridId", "longitudeCentre", "latitudeCentre", "areaSqKm")
+
 	# I remove from the areas the rows referring to grid ids that are not listed
 	# in the December data
 	outputAreas <- subset(outputAreas, telefonicaGridId %in% relevantGridIDs)
+
+	# I replace longitude and latitude with the simplified grid we use for 
+	# this exercise
+    outputAreas[, c("davetazLatitude", "davetazLongitude") ] <- cbind(
+	    outputAreas$latitude %/% DAVETAZ_SQUARE_LATITUDE_SIZE * DAVETAZ_SQUARE_LATITUDE_SIZE,
+	    outputAreas$longitude %/% DAVETAZ_SQUARE_LONGITUDE_SIZE * DAVETAZ_SQUARE_LONGITUDE_SIZE
+    )    
+    outputAreas <- outputAreas[, !(names(data) %in% c("latitude", "longitude"))]
+
 	# I calculate each output area's dimensions, assuming it is squared
 	temp <- sqrt(outputAreas$areaSqKm)
 	outputAreas$width <- temp / LENGTH_OF_A_DEGREE_OF_LONGITUDE
 	outputAreas$heigth <- temp / LENGTH_OF_A_DEGREE_OF_LATITUDE
+
 	# I calculate the volume of each output areas in 'Davetaz squares': this is 
 	# necessarily to later easily calculate the 'footfall density' of a point in
 	# the map. 
@@ -37,9 +48,10 @@ outputAreas.preprocess.run <- function (relevantGridIDs) {
 	# Earth's curvature, but as we need this to calculate an 'index' rather than
 	# the actual area, we can tolerate the issue
     outputAreas$area <- outputAreas$width * outputAreas$heigth / DAVETAZ_SQUARE_LONGITUDE_SIZE /DAVETAZ_SQUARE_LATITUDE_SIZE
+
 	# I force the class of the columns and fix the formats if necessary
 	outputAreas$telefonicaGridId <- as.factor(outputAreas$telefonicaGridId)
-	outputAreas[, names(outputAreas) %in% c("telefonicaGridId", "longitudeCentre", "latitudeCentre", "area")]
+	outputAreas[, names(outputAreas) %in% c("telefonicaGridId", "davetazLongitude", "davetazLatitude", "area")]
 }
 
 
