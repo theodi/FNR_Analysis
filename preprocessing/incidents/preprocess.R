@@ -120,14 +120,6 @@ incidents.preprocess.addScore <- function (incidents) {
 }
 
 
-# Equivalent to "getStationResponseTime" in the website 'data.js' *and*
-# vectorised. 
-test.getWardResponseTime <- function (wardNames, closedStationsNames = c( )) {
-    sapply(wardNames, function (w) { 
-        mean(subset(incidents, (ward == w) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
-    })
-}
-
 # Equivalent to "getStationsInBorough in the website's "data.js".
 test.getStationsInBorough <- function (boroughName) {
     # TODO: still need to understand why I need to as.character the result
@@ -135,20 +127,11 @@ test.getStationsInBorough <- function (boroughName) {
     as.character(unique(subset(stations, borough == boroughName)$name));
 }
 
+
 # Equivalent to "getBoroughResponseTime" in the website's "data.js" *and*
 # vectorised
 test.getBoroughResponseTime <- function (boroughName, closedStationsNames = c( )) {
-
-    # Below is the old version, before Giacecco and Ulrich decided it was 
-    # to redefine borough response time. 
-    #
-    # stations <- test.getStationsInBorough(boroughName)
-    # notClosedStations <- stations[ !(stations %in% closedStationsNames) ]
-    # mean(data.frame(notClosedStations, mean = test.getWardResponseTime(notClosedStations, closedStations))$mean)
-
-    # ... and here is the new version
     sapply(boroughNames, function (b) {
         mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
     })
-
 }
