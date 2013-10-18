@@ -38,21 +38,6 @@ var hideBoroughIncidents = function (borough) {
 }
 
 
-// This updates the box outside the map, at the top right of the page, listing
-// the *closed* stations only. Open stations don't need the same.
-var updateBoroughsSelected = function () {
-	log("Updating the selected borough box.")
-	$('boroughs').html("");
-	var items = [ ];
-	_.each(BOROUGHS_NAMES, function(borough) {
-		if (_.contains(incidentLayers, borough)) {
-			items.push(borough + "<input id='sel_" + borough + "' type='checkbox' checked onClick='hideBoroughIncidents(\"" + borough + "\")'/><br/>" );
-		}
-	});
-	$('boroughs').append(items);
-}
-
-
 var updateBoroughStyle = function (boroughList) {
 	boroughList = [ ].concat(boroughList);
 	_.each(boroughList, function (borough) {
@@ -129,31 +114,6 @@ var openCandidateStations = function () {
 }
 
 
-
-
-var style = function (feature) {
-	return {
-		weight: 1,
-		opacity: 1,
-		color: getColor(feature.properties.response),
-		fillOpacity: 0.7,
-		fillColor: getColor(feature.properties.response)
-	};
-}
-
-
-var boroughStyle = function (feature) {
-}
-
-var resetHighlight = function (e) {
-
-}
-
-
-var zoomToFeature = function (e) {
-	map.fitBounds(e.target.getBounds());
-}
-
 var showMarkerDetails = function (station_name) {
 	$('station').html(station_name);
 }
@@ -180,11 +140,6 @@ var loadStations = function () {
 	});
 	showLayer("Stations");
 }
-
-/* IncidentLayers is an array listing all layers being visible. The layers
-   names are prefixed by "B:", or "I:" depending on the kind of layer
-   (borough, incidents) */
-var incidentLayers = [ ];
 
 /* stationMarkers is an array of Leaflet 'Marker' objects
    http://leafletjs.com/reference.html#marker representing the positions of the

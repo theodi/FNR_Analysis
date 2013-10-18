@@ -35,9 +35,7 @@
       <dt>Number of incidents</dt>
       <dd><%= incidents %></dd>
       <dt>Average response time</dt>
-      <dd><%= reponse %></dd>
-      <dt>Managing station</dt>
-      <dd><%= managing %></dd>
+      <dd><%= response %></dd>
       <dt>Stations responding</dt>
       <dd><%= attending %></dd>
     </dl>
@@ -52,6 +50,19 @@
         </li>
       <% }); %>
     </ol>
+  </script>
+
+  <script type="text/html" id="template-boroughs-selected">
+    <ul>
+      <% _.each(boroughs, function(borough) { %>
+        <li>
+          <input id="<%= borough.id %>" type="checkbox", checked="checked", data-borough-name="<%= borough.name %>" />
+          <label for="<%= borough.id %>">
+            <%= borough.name %>
+          </label>
+        </li>
+      <% }); %>
+    </ul>
   </script>
 
 	<script src="js/lib/underscore-1.5.2.js"></script>
