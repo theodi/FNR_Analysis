@@ -34,7 +34,7 @@ outputAreas.preprocess.run <- function (relevantGridIDs) {
 	    outputAreas$latitude %/% DAVETAZ_SQUARE_LATITUDE_SIZE * DAVETAZ_SQUARE_LATITUDE_SIZE,
 	    outputAreas$longitude %/% DAVETAZ_SQUARE_LONGITUDE_SIZE * DAVETAZ_SQUARE_LONGITUDE_SIZE
     )    
-    outputAreas <- outputAreas[, !(names(data) %in% c("latitude", "longitude"))]
+    outputAreas <- outputAreas[, !(names(outputAreas) %in% c("latitude", "longitude"))]
 
 	# I calculate each output area's dimensions, assuming it is squared
 	temp <- sqrt(outputAreas$areaSqKm)
