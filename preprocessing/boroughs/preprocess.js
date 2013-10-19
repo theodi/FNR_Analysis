@@ -32,8 +32,8 @@ parseString(result, function (err, result) {
               console.log(error.message);
             })
             .on('end', function (count) {
-                performance = mean(performance);
-                score = mean(score);
+                performance = Math.round(mean(performance));
+                score = parseFloat(mean(score).toFixed(2));
                 var polygon = _.map(d.Polygon[0].outerBoundaryIs[0].LinearRing[0].coordinates[0].split(" "), function (point) {
                     return [ parseFloat(point.split(",")[0]), parseFloat(point.split(",")[1]) ];
                 });
