@@ -102,6 +102,8 @@ incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame()
     results <- data.frame()
     # I drop all footfall I am not going to use
     footfall <- footfall[ footfall$telefonicaGridId %in% incidents$telefonicaGridId, ]
+    # I round it to the closest integer
+    footfall$footfallDensity <- round(footfall$footfallDensity, 0)
     if (showProgress) {
         noOfTelefonicaGridIds <- length(unique(incidents$telefonicaGridId))
         counter <- 0
