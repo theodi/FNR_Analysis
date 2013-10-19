@@ -6,7 +6,7 @@ outputAreas.preprocess.save <- function (outputAreas, filename = "outputAreas.cs
 }
 
 
-outputAreas.preprocess.run <- function (relevantGridIDs) {
+outputAreas.preprocess.readAndClean <- function (relevantGridIDs) {
 
     # Below is the size in latitude and longitude of the map square Davetaz
     # has experimentally identified as relevant for visualisation
