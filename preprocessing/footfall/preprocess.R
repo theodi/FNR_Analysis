@@ -78,18 +78,13 @@ footfall.preprocess.readDec2012 <- function (filenames = c("footfall-London-09-d
 }
 
 
-# Currently not maintained, as Telefonica may decide that we cannot use the 
-# May 2013 data
+# TODO: this has not been maintanied for a while
 footfall.preprocess.readMay2013 <- function (filenames = c("footfall-UK-13-may-2013-19-may-2013.csv.gz")) {
 		data = data.frame()
 		for (filename in filenames) {
 			temp <- read.csv(paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/", filename, sep = ""))			
 			temp <- temp[, c('Date', 'Time', 'Grid.ID', 'Total')]
 			colnames(temp) <- c("date", "time", "telefonicaGridId", "footfall")
-			# I remove from the May data the rows referring to grid ids that are not listed
-			# in the December data
-			if (!exists(dec2012)) dec2012 <- footfall.preprocess.readDec2012(fixMissing = FALSE)
-			temp <- subset(temp, telefonicaGridId %in% dec09$telefonicaGridId)
 			# remove any duplicates
 			temp <- temp[!duplicated(paste(temp$telefonicaGridId, temp$date, temp$time, temp$footfall)),]
 			# I force the class of the columns and fix the formats if necessary
