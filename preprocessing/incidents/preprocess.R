@@ -93,27 +93,34 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = dat
 
 
 # adds footfall information and removes the Telefonica grid id
-incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame(), telefonicaFootfallCSVFile = "../footfall/footfall.csv") {
-
-    findFootfall <- function (g, d, t) {
-        footfall[ (footfall$telefonicaGridId == g) & (footfall$day == d) & (footfall$time == t), c('footfallDensity') ]
-    }
+incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame(), telefonicaFootfallCSVFile = "../footfall/footfall.csv", showProgress = FALSE) {
 
     # I read the reference footfall data, if no data frame is specified
     if (nrow(footfall) == 0) {
         footfall <- read.csv(telefonicaFootfallCSVFile, header = TRUE, colClasses = structure(c("factor", "factor", "factor", "numeric")))
     }
+    results <- data.frame()
     # I drop all footfall I am not going to use
     footfall <- footfall[ footfall$telefonicaGridId %in% incidents$telefonicaGridId, ]
-    # TODO: I need to convert to integer because R complains of "Error in 
-    # Ops.factor(footfall$time, t) : level sets of factors are different", that
-    # is absurd
-    footfall$time <- as.integer(footfall$time)
-    incidents$time <- as.integer(incidents$time)
-    # back to the useful code
-    incidents <- data.table(incidents)
-    incidents$day <- weekdays(incidents$date)
-    incidents[, list(incidentGroup, borough, ward, davetazLongitude, davetazLatitude, firstPumpTime, firstPumpStation, footfall = findFootfall(telefonicaGridId, day, time)), by = "telefonicaGridId,day,time" ]
+    if (showProgress) {
+        noOfTelefonicaGridIds <- length(unique(incidents$telefonicaGridId))
+        counter <- 0
+    }
+    for (f in unique(incidents$telefonicaGridId)) {
+        if (showProgress) {
+            counter <- counter + 1
+            print(paste("Processing telefonicaGridId ", f, ", ", round(counter / noOfTelefonicaGridIds * 100, 1), "% complete...", sep = ""))
+        }
+        footfall2 <- subset(footfall, telefonicaGridId == f, c("day", "time", "footfallDensity"))
+        incidents2 <- subset(incidents, telefonicaGridId == f)
+        incidents2$day <- weekdays(incidents2$date)
+        # TODO: using rbind to append rows to the 'results' data frame is 
+        # inefficient; investigate better options with data.table, see 
+        # http://stackoverflow.com/a/11486400/1218376
+        results <- rbind(results, merge(x = incidents2, y = footfall2, by = c("day", "time"), all.x = TRUE))
+    }
+    setnames(results, 'footfallDensity', 'footfall')
+    results
 }
 
 
