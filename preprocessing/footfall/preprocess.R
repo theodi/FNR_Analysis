@@ -118,12 +118,7 @@ footfall.preprocess.fixMissingFootfall <- function (footfall) {
 footfall.preprocess.consolidate <- function (footfall) {
 	library(data.table)
 	footfall <- data.table(footfall)
-	footfall[, list(footfall = round(mean(footfall), 0)), by = 'telefonicaGridId,day,time']
-}
-
-
-footfall.preprocess.save <- function (footfall, filename = "footfall.csv") {
-	write.table(footfall, file = filename, row.names = FALSE, sep = ',')
+	footfall[, list(footfall = mean(footfall)), by = 'telefonicaGridId,day,time']
 }
 
 
@@ -134,4 +129,11 @@ footfall.preprocess.addFootfallDensity <- function (footfall, outputAreas) {
 	temp$footfallDensity <- temp$footfall / temp$area
 	temp[, names(temp) %in% c("telefonicaGridId", "day", "time", "footfallDensity")]
 }
+
+
+footfall.preprocess.save <- function (footfall, filename = "footfall.csv") {
+	write.table(footfall, file = filename, row.names = FALSE, sep = ',')
+}
+
+
 
