@@ -1,6 +1,3 @@
-library(sp)
-library(data.table)
-
 incidents.preprocess.REFERENCE_DATA <- "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
 
 incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.REFERENCE_DATA) {
@@ -82,13 +79,14 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = dat
             outputAreas$telefonicaGridId[match(min(distances), distances)]
         }
 
+    library(sp)
+    library(data.table)
     if (nrow(outputAreas) == 0) {
         outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
     }
     incidents <- data.table(incidents)
-    incidents[, list(date, time, incidentGroup, borough, ward, firstPumpTime, firstPumpStation, telefonicaGridId = findClosestOutputArea(simplifiedLongitude, simplifiedLatitude)), by = 'simplifiedLongitude,simplifiedLatitude' ]
-    # TODO: should I convert back to data.frame, not to force anyone using this
-    # data component to use data.table, too?
+    incidents <- incidents[, list(date, time, incidentGroup, borough, ward, firstPumpTime, firstPumpStation, telefonicaGridId = findClosestOutputArea(simplifiedLongitude, simplifiedLatitude)), by = 'simplifiedLongitude,simplifiedLatitude' ]
+    data.frame(incidents)
 }
 
 

@@ -119,11 +119,13 @@ footfall.preprocess.consolidate <- function (footfall) {
 	library(data.table)
 	footfall <- data.table(footfall)
 	footfall[, list(footfall = mean(footfall)), by = 'telefonicaGridId,day,time']
+	data.frame(footfall)
 }
 
 
 # creates a footfall data frame replacing the grid id with its
 # 'footfall density', calculated vs the area of a 'Davetaz square'
+# TODO: this is broken
 footfall.preprocess.addFootfallDensity <- function (footfall, outputAreas) {
 	temp <- merge(x = footfall, y = outputAreas, all.x = TRUE)
 	temp$footfallDensity <- temp$footfall / temp$area
