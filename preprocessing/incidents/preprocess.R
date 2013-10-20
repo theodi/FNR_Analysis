@@ -9,8 +9,8 @@ incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.R
 
     # Below is the size in latitude and longitude of the map square Davetaz
     # has experimentally identified as relevant for representation
-    DAVETAZ_SQUARE_LATITUDE_SIZE <- 0.001
-    DAVETAZ_SQUARE_LONGITUDE_SIZE <- 0.0015
+    SIMPLIFIED_SQUARE_LATITUDE_SIZE <- 0.001
+    SIMPLIFIED_SQUARE_LONGITUDE_SIZE <- 0.0015
     
     # this was prepared following the general instructions by Bloomberg School 
     # of Public Health's prof. Roger Peng, in Coursera's course "Computing for Data 
@@ -51,9 +51,9 @@ incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.R
 
     # I calculate the coordinates of Davetaz's square the incident belongs to
     # and drop the original coordinates
-    data[, c("davetazLatitude", "davetazLongitude") ] <- cbind(
-        data$latitude %/% DAVETAZ_SQUARE_LATITUDE_SIZE * DAVETAZ_SQUARE_LATITUDE_SIZE,
-        data$longitude %/% DAVETAZ_SQUARE_LONGITUDE_SIZE * DAVETAZ_SQUARE_LONGITUDE_SIZE
+    data[, c("simplifiedLatitude", "simplifiedLongitude") ] <- cbind(
+        data$latitude %/% SIMPLIFIED_SQUARE_LATITUDE_SIZE * SIMPLIFIED_SQUARE_LATITUDE_SIZE,
+        data$longitude %/% SIMPLIFIED_SQUARE_LONGITUDE_SIZE * SIMPLIFIED_SQUARE_LONGITUDE_SIZE
         )    
     data <- data[, !(names(data) %in% c("latitude", "longitude"))]
 
@@ -76,7 +76,7 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = dat
     # returns the Telefonica grid id of the output areas that is closest 
     # to the given incident
     findClosestOutputArea <- function (long, lat) {
-            distances <- spDistsN1(data.matrix(outputAreas[, c('davetazLongitude', 'davetazLatitude')]), matrix(c(long, lat), nrow = 1, ncol = 2, byrow = TRUE), longlat = TRUE)
+            distances <- spDistsN1(data.matrix(outputAreas[, c('simplifiedLongitude', 'simplifiedLatitude')]), matrix(c(long, lat), nrow = 1, ncol = 2, byrow = TRUE), longlat = TRUE)
             # Note: if more than one output area is equally distant from the 
             # incident, the first is arbitrarily taken. We may want to change that
             outputAreas$telefonicaGridId[match(min(distances), distances)]
@@ -86,7 +86,7 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = dat
         outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
     }
     incidents <- data.table(incidents)
-    incidents[, list(date, time, incidentGroup, borough, ward, firstPumpTime, firstPumpStation, telefonicaGridId = findClosestOutputArea(davetazLongitude, davetazLatitude)), by = 'davetazLongitude,davetazLatitude' ]
+    incidents[, list(date, time, incidentGroup, borough, ward, firstPumpTime, firstPumpStation, telefonicaGridId = findClosestOutputArea(simplifiedLongitude, simplifiedLatitude)), by = 'simplifiedLongitude,simplifiedLatitude' ]
     # TODO: should I convert back to data.frame, not to force anyone using this
     # data component to use data.table, too?
 }
