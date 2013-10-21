@@ -10,20 +10,6 @@ var stationIcon = L.icon({
 });
 
 
-var boroughsByFirstRespondersPromise;
-
-var impactedBoroughs = function(closed_stations, callback) {
-  if(!boroughsByFirstRespondersPromise) {
-    boroughsByFirstRespondersPromise = $.get("/data/boroughs_by_first_responders.json")
-  }
- boroughsByFirstRespondersPromise.success(function(data) {
-  callback(_.uniq(_.flatten(_.map(closed_stations, function(station) {
-    return data[station];
-  }))));
- });
-}
-
-
 // Hides one borough's incidents.
 var hideBoroughIncidents = function (borough) {
 	log("Hiding the incidents layer for " + borough + " and replacing with the overall borough view");

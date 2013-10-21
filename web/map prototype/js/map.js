@@ -15,8 +15,6 @@ Map = (function() {
     scoreLowerScale: 325,
     scoreUpperScale: 275,
 
-    gradeColors:
-      ['#06385c', '#125a8d', '#dc8310', '#dc4710'],
 	  gradeMinValues: [0, 180, 360, 540],
 
 
@@ -49,13 +47,23 @@ Map = (function() {
     boroughDataUrlString:
       'data/boroughBoundaries/{borough}.json',
 
+    stationIconClosing: L.icon({
+      iconUrl: 'images/icon_firetruck_closing.png',
+      iconSize: [20, 20]
+    }),
+
+    stationIcon: L.icon({
+      iconUrl: 'images/icon_firetruck_ok.png',
+      iconSize: [20, 20]
+    }),
+
     initialize: function(container) {
       _this.container = container;
       _this.mapLayerGroups = {};
       _this.activeIncidentLayers = [];
       _this.boroughsGeoJson = null;
       _this.closedStations = [];
-
+      _this.stationMarkers = [];
       _this.initMap();
       _this.initTileLayer();
       _this.initLegend();
@@ -98,7 +106,16 @@ Map = (function() {
     },
 
     initStations: function() {
-      console.log("TODO tim", "add the stations to the new map");
+      _this.showLayer("stations", "stations", function(lg, cont) {
+        _.each(stationsData, function (station) {
+          var markerLocation = new L.LatLng(station.latitude, station.longitude);
+          var marker = new L.Marker(markerLocation, {icon: _this.stationIcon, name: station.name});
+          _this.stationMarkers[station.name] = marker
+          marker.on('click', _this.toggleStation);
+          lg.addLayer(marker);
+          cont();
+        });
+      })
     },
 
 
@@ -136,8 +153,6 @@ Map = (function() {
 
     highlightFeature: function(event) {
       var layer = event.target;
-      console.log(layer);
-      console.log()
       layer.setStyle({
         weight:      _this.hoverBoroughOutlineWeight,
         color:       _this.hoverBoroughOutlineColor,
@@ -169,6 +184,52 @@ Map = (function() {
 	    _this.map.fitBounds(event.target.getBounds());
     },
 
+    toggleStation: function(event) {
+      var name = event.target.options.name;
+      if(_this.stationClosed(name)) {
+        _this.closeStation(name);
+      } else {
+        _this.openStation(name);
+      }
+    },
+
+    stationClosed: function(name) {
+      return !_.contains(_this.closedStations, name);
+    },
+
+    closeStation: function(name) {
+      if (!_.contains(_this.closedStations, name)) _this.closedStations.push(name);
+      _this.stationMarkers[name].setIcon(_this.stationIconClosing);
+      impactedBoroughs(_this.closedStations, function(boroughs) {
+        console.log(boroughs);
+        _.each(boroughs, function (borough) {
+          _this.updateBoroughDisplay(borough);
+        });
+      })
+    },
+
+    openStation: function(name) {
+
+    },
+
+    updateBoroughDisplay: function(borough) {
+      if(_this.incidentLayerActive(borough))  {
+        _this.updateBoroughIncidentDisplay(borough);
+      } else {
+        _this.updateBoroughOverviewDisplay(borough);
+      }
+    },
+
+
+    updateBoroughOverviewDisplay: function(borough) {
+      getBoroughResponseTime(borough, _this.closedStations, function(err, resp) {
+        var layerGroup = _this.mapLayerGroups["boroughs"][borough]
+        _.each(layerGroup.getLayers(), function(layer) {
+          layer.feature.properties.set("response", resp);
+        });
+      })
+    },
+
     showBoroughIncidentData: function(borough) {
       _this.showIncidentLayer(borough, function(lg, cont) {
         getBoroughDetailedResponse(borough, _this.closedStations, function (_, data) {
@@ -190,14 +251,13 @@ Map = (function() {
     },
 
     updateBoroughsSelected: function() {
-      log("Updating the selected borough box.");
       var boroughs = _.map(_this.activeIncidentLayers, function(borough) {
         return {
           name:       borough,
           id: "sel_" + borough.toLowerCase().replace("", "_")
         }
       });
-      var inputs = _this.template("boroughs-selected", {"boroughs": boroughs})
+      var inputs = _this.template("boroughs-selected", {"boroughs": boroughs});
       $('#boroughs div').html(inputs);
       $("#boroughs input").click(_this.handleBoroughCheckboxClick)
     },
@@ -215,12 +275,10 @@ Map = (function() {
       var s = _this.overlaySatMin + p * (_this.overlaySatMax - _this.overlaySatMin);
       var v = _this.overlayValMin + p * (_this.overlayValMax - _this.overlayValMin);
       var rgb = _this.hsvToRgb(h, s, v);
-      console.log(score, p, h, s, v, _.map(rgb, function(n) { return Math.floor(n)}))
       var str = "#" + _.map(rgb, function(n) {
         hex = Math.floor(n).toString(16);
         return Math.floor(n) < 16 ? "0" + hex : hex;
       }).join("")
-      console.log(str);
       return str;
     },
 
@@ -246,7 +304,7 @@ Map = (function() {
     },
 
     toggleIncidentLayer: function(borough, callback) {
-      if(_.contains(_this.activeIncidentLayers, borough))  {
+      if(_this.incidentLAyerActive(borough))  {
         _this.hideIncidentLayer(borough);
       } else {
         _this.showIncidentLayer(borough, callback);
@@ -257,6 +315,10 @@ Map = (function() {
       _this.activeIncidentLayers = removeArrayItem(borough, _this.activeIncidentLayers);
       _this.hideLayer("incidents", borough);
       _this.showBoroughLayer(borough);
+    },
+
+    incidentLayerActive: function(borough) {
+      return _.contains(_this.activeIncidentLayers, borough);
     },
 
     boroughStyle: function(feature) {
@@ -287,39 +349,22 @@ Map = (function() {
       return _this.boroughDataUrlString.replace("{borough}", name)
     },
 
-    boroughMapLayerGroup: function(borough) {
-      var state = _this.closedStationsKey()
-      var lg = _this.mapLayerGroups["boroughs"][borough][state];
-      if (!lg) {
-        lg = new L.layerGroup();
-        _this.mapLayerGroups["boroughs"][borough][state] = lg;
-      }
-      return lg;
-    },
-
     showLayer: function(type, key, callback) {
-      var state = _this.closedStationsKey();
       if(!_this.mapLayerGroups[type]) _this.mapLayerGroups[type] = {};
-      if(!_this.mapLayerGroups[type][key]) _this.mapLayerGroups[type][key] = {};
-      var lg = _this.mapLayerGroups[type][key][state];
+      var lg = _this.mapLayerGroups[type][key];
       if (lg) {
         _this.map.addLayer(lg);
       } else {
-        _this.mapLayerGroups[type][key][state] = lg = new L.layerGroup();
+        _this.mapLayerGroups[type][key] = lg = new L.layerGroup();
         if(callback) callback(lg, function() { _this.map.addLayer(lg); });
       }
     },
 
     hideLayer: function(type, key) {
-      var state = _this.closedStationsKey();
-      var lg = ((_this.mapLayerGroups[type] || {})[key] || {})[state];
+      var lg = (_this.mapLayerGroups[type] || {})[key];
       if (lg) {
         _this.map.removeLayer(lg);
       }
-    },
-
-    closedStationsKey: function() {
-      return _this.closedStations.join(",");
     },
 
     logistic: function(x) {
