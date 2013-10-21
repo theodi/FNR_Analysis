@@ -139,6 +139,28 @@ incidents.preprocess.addScore <- function (incidents) {
 }
 
 
+scoring.run <- function (incidents, closedStationsNames = c( )) {
+    # I aggregate the incidents in the square they belong to, using the median 
+    # of response time and footfall as the square's characteristics 
+    incidents <- data.table(incidents)
+    incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime)
+    incidents$footfall <- as.numeric(incidents$footfall)
+    boroughs <- incidents[ !(firstPumpStation %in% closedStationsNames), list(firstPumpTime = median(firstPumpTime), footfall = median(footfall)), by="borough"]
+    # I calculate the boroughs' scores
+    boroughs$ZFootfall <- scale(log(boroughs$footfall + 1), center=TRUE, scale=TRUE)
+    boroughs$ZFirstPumpTime <- scale(boroughs$firstPumpTime, center=TRUE, scale=TRUE)
+    boroughs$score <- boroughs$ZFootfall / boroughs$ZFirstPumpTime 
+    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
+}
+
+
+test.BOROUGH_NAMES <- c("Barking and Dagenham", "Barnet", "Bexley", "Brent", "Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield", "Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey", "Harrow", "Havering", "Hillingdon", "Hounslow", "Islington", "Kensington and Chelsea", "Kingston upon Thames", "Lambeth", "Lewisham", "Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark", "Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth", "Westminster")
+
+test.STATIONS_FACING_CLOSURE_NAMES <- c("Belsize", "Bow", "Clerkenwell", "Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark", "Westminster", "Woolwich")
+
+test.DAVETAZ_SELECTED_STATION_NAMES <- c("Addington", "Barnet", "Chingford", "Woodford", "Bromley", "Surbiton", "Croydon", "Richmond", "Romford", "Wandsworth")
+
+
 # Equivalent to "getStationsInBorough in the website's "data.js".
 test.getStationsInBorough <- function (boroughName) {
     # TODO: still need to understand why I need to as.character the result
@@ -149,7 +171,7 @@ test.getStationsInBorough <- function (boroughName) {
 
 # Equivalent to "getBoroughResponseTime" in the website's "data.js" *and*
 # vectorised
-test.getBoroughResponseTime <- function (boroughName, closedStationsNames = c( )) {
+test.getBoroughResponseTime <- function (boroughNames, closedStationsNames = c( )) {
     sapply(boroughNames, function (b) {
         mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
     })
