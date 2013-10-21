@@ -39,7 +39,7 @@ var loadIncidents = function (borough, callback) {
 		log("Loading " + borough + " incidents data for the first time...");
 		d3.csv("data/incidents/" + borough + ".csv", function (inputData) {
 			incidentsDataBoroughs.push(borough);
-			forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'davetazLatitude', 'davetazLongitude' ], inputData);
+			forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'simplifiedLatitude', 'simplifiedLongitude' ], inputData);
 			incidentsData = incidentsData.concat(inputData);
 			log("Borough " + borough + " incidents data loaded.");
 			if (callback) callback (null);
@@ -141,7 +141,7 @@ var getBoroughScore = function (borough, closedStations, callback) {
 var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 	close = [ ].concat(close);
 
-	// Below is Davetaz's experimental measure for the ideal square on the map
+	// Below is simplified's experimental measure for the ideal square on the map
 	LAT_LENGTH = 0.0010;
     LONG_LENGTH = 0.0015;
 
@@ -157,12 +157,12 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 	// (E) 
 	// This section creates data for each of the squares to be displayed on the 
 	// map, that is any square that contains at least one incident. 
-	// Note that the calculation of each incident's "Davetaz grid" 
+	// Note that the calculation of each incident's "simplified grid" 
 	// coordinates was moved to the pre-processing stage to make the JavaScript 
 	// lighter
 	boroughSquareIncidents = { };
 	_.each(boroughIncidents, function (i) {
-		var squareKey =  i.davetazLongitude.toFixed(4) + ',' + i.davetazLatitude.toFixed(4);
+		var squareKey =  i.simplifiedLongitude.toFixed(4) + ',' + i.simplifiedLatitude.toFixed(4);
 		if (!boroughSquareIncidents[squareKey]) {
 			// a new square!
 			var longitude = squareKey.split(",");
@@ -207,7 +207,6 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 	var leafletJsonString = '{"type":"FeatureCollection","features":[\n'; 
 	var id = 0;
 	leafletJsonString += _.map(boroughSquareIncidents, function (square) {
-		// Davetaz used a simple square count as id, is that ideal?
 		id++; 
 		var temp = '{"type":"Feature","id":"' + id + '","properties":{';
 		temp += '"incidents":' + square.incidents.length +',';
