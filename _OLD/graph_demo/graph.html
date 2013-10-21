@@ -1,0 +1,113 @@
+<html>
+<head>
+<style>
+.chart rect {
+	stroke: white;
+}
+</style>
+</head>
+<body>
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script>
+var t = -60, 
+v = 700, // start value (subscribers)
+data = d3.range(20).map(next); // starting dataset
+
+var w = 10;
+var h = 120;
+
+var x = d3.scale.linear()
+	.domain([0, 1])
+	.range([0, w]);
+
+var x2 = d3.scale.linear()
+	.domain([0, 20])
+	.range([0, 190]);
+
+var xAxis = d3.svg.axis()
+	.scale(x2)
+	.tickSize(0);
+
+var y = d3.scale.linear()
+	.domain([0,100])
+	.rangeRound([0, 100]);
+
+var chart = d3.select("body").append("svg")
+	.attr("class", "chart")
+	.attr("width", w * data.length - 1)
+	.attr("height", h + 60)
+	.style("padding","1em");
+
+chart.selectAll("rect")
+	.data(data)
+	.enter().append("rect")
+	.attr("x", function(d, i) { return x(i) - .5; })
+	.attr("y", function(d) { return h - y(d.value) - .5; })
+	.attr("fill", function(d) {
+		var b = Math.floor((d.time / 1140) * 255);
+    		return "rgb(0, 0, "+b+")";
+	 })
+	.attr("width", w)
+	.attr("height", function(d) { return y(d.value); })
+
+chart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + h + ")")
+      .style("font-size", "70%")
+      .call(xAxis);
+
+chart.append("line")
+	.attr("x1", 0)
+	.attr("x2", w * data.length)
+	.attr("y1", h - .5)
+	.attr("y2", h - .5)
+	.style("stroke", "#000");
+
+chart.append("line")
+	.attr("x1", 60)
+	.attr("x2", 60)
+	.attr("y1", 0)
+	.attr("y2", h)
+	.style("stroke","#000")
+
+chart.append("svg:text")
+	.attr("x",62)
+	.attr("y",h-110)
+	.style("font-size", "80%")
+	.text(function(d) {
+		return "Target - 6 Min"
+	});
+
+chart.append("svg:text")
+	.attr("x",70)
+	.attr("y",h+25)
+	.style("font-size", "80%")
+	.text(function(d) {
+		return "Minutes"
+	});
+ 
+function redraw() {
+	chart.selectAll("rect")
+	.data(data)
+	.transition()
+	.duration(1000)
+	.attr("y", function(d) { return h - y(d.value) - .5; })
+	.attr("height", function(d) { return y(d.value); });
+}
+
+function next() {
+	return {
+		time: t+=60,
+		value: v = Math.floor(Math.random()*101)
+	};
+}
+
+setInterval(function() {
+	data.shift();
+	data.push(next());
+	redraw();
+}, 1500);
+
+</script>
+</body>
+</html>
