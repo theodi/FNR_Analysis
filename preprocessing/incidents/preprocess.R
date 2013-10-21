@@ -149,7 +149,7 @@ scoring.run <- function (incidents, closedStationsNames = c( )) {
     # I calculate the boroughs' scores
     boroughs$ZFootfall <- scale(log(boroughs$footfall + 1), center=TRUE, scale=TRUE)
     boroughs$ZFirstPumpTime <- scale(boroughs$firstPumpTime, center=TRUE, scale=TRUE)
-    boroughs$score <- boroughs$ZFootfall / boroughs$ZFirstPumpTime 
+    boroughs$score <- .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime 
     data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
 }
 
@@ -171,10 +171,17 @@ test.getStationsInBorough <- function (boroughName) {
 
 # Equivalent to "getBoroughResponseTime" in the website's "data.js" *and*
 # vectorised
-test.getBoroughResponseTime <- function (borough, closedStationsNames = c( )) {
+test.getBoroughResponseTime <- function (b, closedStationsNames = c( )) {
     if (length(closedStationsNames) == 0) {
         mean(subset(incidents, borough == b)$firstPumpTime)
     } else {
-        max(test.getBoroughResponseTime(borough), mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime))
+        max(test.getBoroughResponseTime(b), mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime))
     }
+}
+
+
+# Equivalent to "getBoroughResponseTime" in the website's "data.js" *and*
+# vectorised
+test.getBoroughResponseTime.OLD <- function (b, closedStationsNames = c( )) {
+    mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
 }
