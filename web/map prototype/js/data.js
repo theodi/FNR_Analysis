@@ -92,9 +92,15 @@ var getStationsInBorough = _.memoize(function (borough) {
    the borough has been loaded already */
 var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
-	return Math.max(getBoroughResponseTime(borough), mean(_.map(_.filter(incidentsData, function (i) {
-		return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
-	}), function (i) { return i.firstPumpTime; })));
+	if (closedStations.length == 0) {
+		return mean(_.map(_.filter(incidentsData, function (i) {
+			return i.borough == borough;
+		}), function (i) { return i.firstPumpTime; }));
+	} else {
+		return Math.max(getBoroughResponseTime(borough), mean(_.map(_.filter(incidentsData, function (i) {
+			return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
+		}), function (i) { return i.firstPumpTime; })));
+	}
 }, function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations)).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
@@ -116,9 +122,15 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
    the borough has been loaded already */
 var getBoroughScoreM = _.memoize(function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
-	return mean(_.map(_.filter(incidentsData, function (i) {
-		return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
-	}), function (i) { return i.score; }));
+	if (closedStations.length == 0) {
+		return mean(_.map(_.filter(incidentsData, function (i) {
+			return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
+		}), function (i) { return i.score; }));
+	} else {
+		return Math.max(getBoroughScore(borough), mean(_.map(_.filter(incidentsData, function (i) {
+			return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
+		}), function (i) { return i.score; })));
+	}
 }, function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations)).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
