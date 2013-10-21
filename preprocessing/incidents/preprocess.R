@@ -171,8 +171,10 @@ test.getStationsInBorough <- function (boroughName) {
 
 # Equivalent to "getBoroughResponseTime" in the website's "data.js" *and*
 # vectorised
-test.getBoroughResponseTime <- function (boroughNames, closedStationsNames = c( )) {
-    sapply(boroughNames, function (b) {
-        mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
-    })
+test.getBoroughResponseTime <- function (borough, closedStationsNames = c( )) {
+    if (length(closedStationsNames) == 0) {
+        mean(subset(incidents, borough == b)$firstPumpTime)
+    } else {
+        max(test.getBoroughResponseTime(borough), mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime))
+    }
 }
