@@ -4,32 +4,42 @@ Map = (function() {
     initCenter: [51.511, -0.120],
     initZoom:   10,
 
+
+    overlayHueMin: 0.0,
+    overlayHueMax: 0.1,
+    overlaySatMin: 1,
+    overlaySatMax: 1,
+    overlayValMin: 0.8,
+    overlayValMax: 1.0,
+
+    scoreLowerScale: 325,
+    scoreUpperScale: 275,
+
     gradeColors:
-      ['#125a8d', '#dc4710'],
-	  gradeMinValues: [0, 360],
+      ['#06385c', '#125a8d', '#dc8310', '#dc4710'],
+	  gradeMinValues: [0, 180, 360, 540],
 
 
-    boroughOutlineWeight:     0,
-    boroughOutlineColor:      'grey',
-    boroughOutlineOpacity:    0.0,
+    boroughOutlineWeight:     1,
+    boroughOutlineColor:      '#2D0D01',
+    boroughOutlineOpacity:    0.8,
     boroughOutlineDashArray:  '',
-    boroughFillOpacity:       0.7,
+    boroughFillOpacity:       0.8,
 
-    hoverBoroughOutlineWeight:    3,
-    hoverBoroughOutlineColor:     '#666',
-    hoverBoroughOutlineOpacity:   0.0,
+    hoverBoroughOutlineWeight:    2,
+    hoverBoroughOutlineColor:     '#2D0D01',
+    hoverBoroughOutlineOpacity:   0.8,
     hoverBoroughOutlineDashArray: '',
-    hoverBoroughFillOpacity:      0.7,
+    hoverBoroughFillOpacity:      0.8,
 
     incidentOutlineWeight:      0,
-    incidentOutlineColor:       'grey',
-    incidentOutlineOpacity:     0.0,
+    incidentOutlineColor:       '#2D0D01',
+    incidentOutlineOpacity:     0.8,
     incidentOutlineDashArray:   '',
-    incidentFillOpacity:        0.7,
-
+    incidentFillOpacity:        0.8,
 
     cloudMadeKey: 'BC9A493B41014CAABB98F0471D759707',
-    mapStyleId:   22677,
+    mapStyleId:   22677, //111403,
 
     cloudMadeUrlString:
       'http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png',
@@ -67,26 +77,17 @@ Map = (function() {
     },
 
     initLegend: function() {
-      var legend = L.control({position: 'bottomright'});
+      var gradeMaxValues = _.rest(_this.gradeMinValues);
+      var gradeBounds = _.zip(_this.gradeMinValues, gradeMaxValues);
+      var grades = _.map(gradeBounds, function(grade) {
+        return {
+          from: grade[0] / 60,
+          to: grade[1] / 60,
+          color: _this.getColor(grade[0])
+        }
+      });
 
-      legend.onAdd = function (map) {
-	      var div = L.DomUtil.create('div', 'info legend');
-
-        var gradeMaxValues = _.rest(_this.gradeMinValues);
-        var gradeBounds = _.zip(_this.gradeMinValues, gradeMaxValues);
-        var grades = _.map(gradeBounds, function(grade) {
-          return {
-            from: grade[0],
-            to: grade[1],
-            color: _this.getColor(grade[0])
-          }
-        });
-
-        div.innerHTML = _this.template("legend", {"grades": grades});
-        return div;
-      }
-
-      legend.addTo(_this.map);
+      $("#legend").html(_this.template("legend", {"grades": grades}));
     },
 
     initBoroughBoundaries: function() {
@@ -135,6 +136,8 @@ Map = (function() {
 
     highlightFeature: function(event) {
       var layer = event.target;
+      console.log(layer);
+      console.log()
       layer.setStyle({
         weight:      _this.hoverBoroughOutlineWeight,
         color:       _this.hoverBoroughOutlineColor,
@@ -206,9 +209,19 @@ Map = (function() {
     },
 
     getColor: function(score) {
-      return _.last(_.filter(_.zip(_this.gradeMinValues, _this.gradeColors), function(pair) {
-        return pair[0] <= score;
-      }))[1];
+      var p = _this.logistic((score - _this.scoreLowerScale) / (_this.scoreUpperScale - _this.scoreLowerScale));
+
+      var h = _this.overlayHueMin + p * (_this.overlayHueMax - _this.overlayHueMin);
+      var s = _this.overlaySatMin + p * (_this.overlaySatMax - _this.overlaySatMin);
+      var v = _this.overlayValMin + p * (_this.overlayValMax - _this.overlayValMin);
+      var rgb = _this.hsvToRgb(h, s, v);
+      console.log(score, p, h, s, v, _.map(rgb, function(n) { return Math.floor(n)}))
+      var str = "#" + _.map(rgb, function(n) {
+        hex = Math.floor(n).toString(16);
+        return Math.floor(n) < 16 ? "0" + hex : hex;
+      }).join("")
+      console.log(str);
+      return str;
     },
 
     template: function(name, data) {
@@ -307,7 +320,32 @@ Map = (function() {
 
     closedStationsKey: function() {
       return _this.closedStations.join(",");
-    }
+    },
+
+    logistic: function(x) {
+      return 1 / (1 + Math.pow(Math.E, 0-x));
+    },
+
+    hsvToRgb: function(h, s, v){
+      var r, g, b;
+
+      var i = Math.floor(h * 6);
+      var f = h * 6 - i;
+      var p = v * (1 - s);
+      var q = v * (1 - f * s);
+      var t = v * (1 - (1 - f) * s);
+
+      switch(i % 6){
+        case 0: r = v, g = t, b = p; break;
+        case 1: r = q, g = v, b = p; break;
+        case 2: r = p, g = v, b = t; break;
+        case 3: r = p, g = q, b = v; break;
+        case 4: r = t, g = p, b = v; break;
+        case 5: r = v, g = p, b = q; break;
+      }
+
+      return [r * 255, g * 255, b * 255];
+    },
   };
   return _this;
 }());

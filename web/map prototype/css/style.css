@@ -1,39 +1,62 @@
 body {
-  background-color: #edd7bd;
+  background-color: #c6c6c6;
   color: #333;
 }
 
+body,
+.pure-g [class *= "pure-u"],
+.pure-g-r [class *= "pure-u"] {
+  font-family: 'FreeUniversal', sans-serif;
+  font-weight: normal;
+  font-style: normal;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  text-transform: uppercase;
+}
+
 #container {
-  margin: 0 auto;
-  width: 1066px;
-  height: 600px;
+  width: 960px;
+  height: 540px;
 }
 
-#switches: {
-  height: 50px;
+#switches {
+  height: 40px;
 }
 
-#legend: {
-  height: 50px;
+#metric-switch {
+  height: 15px;
+  margin-top: 12px;
+  width: 480px;
+  margin-left: 320px;
+}
+
+#legend {
+  height: 20px;
+  padding: 5px 0 5px 15px;
 }
 
 #map {
   width: 100%;
-  height: 550px;
+  height: 460px;
 }
 
-.legend i {
-	width: 18px;
-	height: 18px;
+#legend i {
+	width: 15px;
+	height: 15px;
   float: left;
 	margin-right: 8px;
-	opacity: 0.7;
+	opacity: 1;
 }
 
-.legend ol {
+#legend ol {
   list-style-type: none;
+  float: left;
+  margin: 0;
+  padding: 0;
 }
 
-.legend li {
-  clear:left;
+#legend li {
+  float: left;
+  margin-right: 1em;
 }
