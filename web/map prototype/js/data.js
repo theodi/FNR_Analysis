@@ -92,9 +92,9 @@ var getStationsInBorough = _.memoize(function (borough) {
    the borough has been loaded already */
 var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
 	closedStations = [ ].concat(closedStations);
-	return mean(_.map(_.filter(incidentsData, function (i) {
+	return Math.max(getBoroughResponseTime(borough), mean(_.map(_.filter(incidentsData, function (i) {
 		return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
-	}), function (i) { return i.firstPumpTime; }));
+	}), function (i) { return i.firstPumpTime; })));
 }, function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations)).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
