@@ -135,10 +135,12 @@ scoring.run <- function (incidents, closedStationsNames = c( )) {
     boroughs$ZFirstPumpTime <- scale(boroughs$firstPumpTime, center=TRUE, scale=TRUE)
     if (length(closedStationsNames) == 0) {
         boroughs$score <- .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime 
+        boroughs$scoreTime <- boroughs$ZFirstPumpTime 
     } else {
         boroughs$score <- pmin(scoring.run(incidents)$score, .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime) 
+        boroughs$scoreTime <- pmin(scoring.run(incidents)$scoreTime, boroughs$ZFirstPumpTime)
     }
-    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
+    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score', 'scoreTime') ]
 }
 
 
@@ -157,25 +159,13 @@ test.getStationsInBorough <- function (boroughName) {
 }
 
 
-# Equivalent to "getBoroughResponseTime" in the website's "data.js" 
-test.getBoroughResponseTime <- function (incidents, b, closedStationsNames = c( )) {
-    if (length(closedStationsNames) == 0) {
-        mean(subset(incidents, borough == b)$firstPumpTime)
-    } else {
-        max(test.getBoroughResponseTime(incidents, b), mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime))
-    }
+# Equivalent to "getBoroughResponseTime" in the website's "data.js", and vectorised 
+test.getBoroughResponseTime <- function (incidents, boroughNames, closedStationsNames = c( )) {
+    sapply(boroughNames, function (b) {
+        if (length(closedStationsNames) == 0) {
+            mean(subset(incidents, borough == b)$firstPumpTime)
+        } else {
+            max(test.getBoroughResponseTime(incidents, b), mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime))
+        }
+    })    
 }
-
-
-test.getBoroughResponseTime.OLD <- function (b, closedStationsNames = c( )) {
-    mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
-}
-
-
-test.foo <- function (incidents) {
-    results <- data.frame()
-    for (borough in unique(incidents$borough)) {
-        results <- rbind(results, c( borough = borough, responseTime = test.getBoroughResponseTime(incidents, borough) ))
-    }
-    results
-} 
