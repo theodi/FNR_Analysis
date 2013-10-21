@@ -124,21 +124,6 @@ incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame()
 }
 
 
-# TODO: not tested, and the scoring formula is provisional
-incidents.preprocess.addScore <- function (incidents) {
-    # One incident scores 100% if it had the highest footfall / attendance time
-    # ratio. The +1 is arbitrarily added not to make the function fail in case
-    # any incident had 0 response time (e.g. any non-sanitised data)
-    MAX_FOOTFALL <- max(incidents$footfall)
-    MIN_FIRST_PUMP_TIME <- min(incidents$firstPumpTime)
-    # first pass, not-normaised score 
-    incidents$score <- log(1 + incidents$footfall) / log(1 + incidents$firstPumpTime) 
-    # second pass, normalisation and rounding
-    incidents$score <- round(incidents$score / max(incidents$score), 2)
-    incidents
-}
-
-
 scoring.run <- function (incidents, closedStationsNames = c( )) {
     # I aggregate the incidents in the square they belong to, using the median 
     # of response time and footfall as the square's characteristics 
@@ -146,10 +131,13 @@ scoring.run <- function (incidents, closedStationsNames = c( )) {
     incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime)
     incidents$footfall <- as.numeric(incidents$footfall)
     boroughs <- incidents[ !(firstPumpStation %in% closedStationsNames), list(firstPumpTime = median(firstPumpTime), footfall = median(footfall)), by="borough"]
-    # I calculate the boroughs' scores
     boroughs$ZFootfall <- scale(log(boroughs$footfall + 1), center=TRUE, scale=TRUE)
     boroughs$ZFirstPumpTime <- scale(boroughs$firstPumpTime, center=TRUE, scale=TRUE)
-    boroughs$score <- .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime 
+    if (length(closedStationsNames) == 0) {
+        boroughs$score <- .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime 
+    } else {
+        boroughs$score <- pmin(scoring.run(incidents)$score, .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime) 
+    }
     data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
 }
 
@@ -169,19 +157,25 @@ test.getStationsInBorough <- function (boroughName) {
 }
 
 
-# Equivalent to "getBoroughResponseTime" in the website's "data.js" *and*
-# vectorised
-test.getBoroughResponseTime <- function (b, closedStationsNames = c( )) {
+# Equivalent to "getBoroughResponseTime" in the website's "data.js" 
+test.getBoroughResponseTime <- function (incidents, b, closedStationsNames = c( )) {
     if (length(closedStationsNames) == 0) {
         mean(subset(incidents, borough == b)$firstPumpTime)
     } else {
-        max(test.getBoroughResponseTime(b), mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime))
+        max(test.getBoroughResponseTime(incidents, b), mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime))
     }
 }
 
 
-# Equivalent to "getBoroughResponseTime" in the website's "data.js" *and*
-# vectorised
 test.getBoroughResponseTime.OLD <- function (b, closedStationsNames = c( )) {
     mean(subset(incidents, (borough == b) & !(firstPumpStation %in% closedStationsNames))$firstPumpTime)
 }
+
+
+test.foo <- function (incidents) {
+    results <- data.frame()
+    for (borough in unique(incidents$borough)) {
+        results <- rbind(results, c( borough = borough, responseTime = test.getBoroughResponseTime(incidents, borough) ))
+    }
+    results
+} 
