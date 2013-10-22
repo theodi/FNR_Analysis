@@ -1,7 +1,7 @@
 Map = (function() {
   _this = {
 
-    initCenter: [51.511, -0.120],
+    initCenter: [51.485, -0.120],
     initZoom:   10,
 
 
@@ -15,8 +15,7 @@ Map = (function() {
     scoreLowerScale: 325,
     scoreUpperScale: 275,
 
-	  gradeMinValues: [0, 180, 360, 540],
-
+    gradeMinValues: [0, 180, 360, 540],
 
     boroughOutlineWeight:     1,
     boroughOutlineColor:      '#2D0D01',
