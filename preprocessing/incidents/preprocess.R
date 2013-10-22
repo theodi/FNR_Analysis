@@ -124,7 +124,8 @@ incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame()
 }
 
 
-scoring.run <- function (incidents, closedStationsNames = c( )) {
+# Ulrich's scoring formula before the move to the 'utility function'
+scoring.run1021 <- function (incidents, closedStationsNames = c( )) {
     library(data.table)
     incidents <- data.table(incidents)
     incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime)
@@ -140,6 +141,25 @@ scoring.run <- function (incidents, closedStationsNames = c( )) {
         boroughs$scoreTime <- pmax(scoring.run(incidents)$scoreTime, boroughs$ZFirstPumpTime)
     }
     data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score', 'scoreTime') ]
+}
+
+
+# Ulrich's scoring formula before the move to the 'utility function'
+scoring.run1022 <- function (incidents, closedStationsNames = c( )) {
+    library(data.table)
+    incidents <- data.table(incidents)
+    incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime)
+    incidents$footfall <- as.numeric(incidents$footfall)
+    boroughs <- incidents[ !(firstPumpStation %in% closedStationsNames), list(firstPumpTime = median(firstPumpTime), footfall = median(footfall)), by="borough"]
+    a <- .5
+    x <- boroughs$firstPumpTime ^ .5 * log10(boroughs$footfall) ^ (1 - a)
+    if (length(closedStationsNames) == 0) {
+        boroughs$score <- x 
+    } else {
+        # aberration fix
+        boroughs$score <- pmax(scoring.run1022(incidents)$score, x) 
+    }
+    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
 }
 
 
