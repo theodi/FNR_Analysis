@@ -135,12 +135,12 @@ scoring.run <- function (incidents, closedStationsNames = c( )) {
     boroughs$ZFirstPumpTime <- scale(boroughs$firstPumpTime, center=TRUE, scale=TRUE)
     if (length(closedStationsNames) == 0) {
         boroughs$score <- .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime 
-        boroughs$scoreTime <- boroughs$ZFirstPumpTime 
+        # For Ulrich / boroughs$scoreTime <- boroughs$ZFirstPumpTime 
     } else {
         boroughs$score <- pmin(scoring.run(incidents)$score, .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime) 
-        boroughs$scoreTime <- pmin(scoring.run(incidents)$scoreTime, boroughs$ZFirstPumpTime)
+        # For Ulrich / boroughs$scoreTime <- pmin(scoring.run(incidents)$scoreTime, boroughs$ZFirstPumpTime)
     }
-    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score', 'scoreTime') ]
+    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
 }
 
 
