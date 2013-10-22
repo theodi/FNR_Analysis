@@ -206,19 +206,46 @@ Map = (function() {
       return !_.contains(_this.closedStations, name);
     },
 
+
+    closeCandidateStations: function() {
+      _this.closeStations(STATIONS_FACING_CLOSURE_NAMES);
+    },
+
     closeStation: function(name) {
-      if (!_.contains(_this.closedStations, name)) _this.closedStations.push(name);
-      _this.stationMarkers[name].setIcon(_this.stationIconClosing);
-      impactedBoroughs(_this.closedStations, function(boroughs) {
-        console.log(boroughs);
+      _this.closeStations([name]);
+    },
+
+    closeStations: function(names) {
+      _this.closedStations = _.uniq(_.union(_this.closedStations, names));
+      _.each(names, function(name) {
+        _this.stationMarkers[name].setIcon(_this.stationIconClosing);
+      });
+      _this.updateImpactedBoroughs(names);
+    },
+
+
+    openAllClosedStations: function() {
+      _this.openStations(_this.closedStations);
+    },
+
+    openStation: function(name) {
+      _this.openStations([name]);
+    },
+
+    openStations: function(names) {
+      _this.closedStations = _.difference(_this.closedStations, names);
+      _.each(names, function(name) {
+        _this.stationMarkers[name].setIcon(_this.stationIcon);
+      });
+      _this.updateImpactedBoroughs(names);
+    },
+
+    updateImpactedBoroughs: function(closedStations) {
+      impactedBoroughs(closedStations, function(boroughs) {
         _.each(boroughs, function (borough) {
           _this.updateBoroughDisplay(borough);
         });
       })
-    },
-
-    openStation: function(name) {
-
     },
 
     updateBoroughDisplay: function(borough) {
