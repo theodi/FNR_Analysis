@@ -6,14 +6,14 @@ Map = (function() {
 
 
     overlayHueMin: 0.0,
-    overlayHueMax: 0.1,
+    overlayHueMax: 0.15,
     overlaySatMin: 1,
     overlaySatMax: 1,
-    overlayValMin: 0.8,
-    overlayValMax: 1.0,
+    overlayValMin: 1.0,
+    overlayValMax: 0.8,
 
-    scoreLowerScale: 325,
-    scoreUpperScale: 275,
+    scoreLowerScale: 301,
+    scoreUpperScale: 288,
 
     gradeMinValues: [0, 180, 360, 540],
 
@@ -63,6 +63,7 @@ Map = (function() {
       _this.mapLayerGroups = {};
       _this.activeIncidentLayers = [];
       _this.boroughsGeoJson = null;
+      _this.boroughScores = {};
       _this.closedStations = [];
       _this.stationMarkers = [];
       _this.initMap();
@@ -135,6 +136,8 @@ Map = (function() {
           _this.boroughsGeoJson = L.geoJson(data, {
             style: _this.boroughStyle,
             onEachFeature: function (feature, layer) {
+              _this.boroughScores[feature.properties.borough] = feature.properties.response
+              _this.setScore();
               lg.addLayer(layer);
               layer.on({
                 mouseover: _this.highlightFeature,
@@ -158,6 +161,13 @@ Map = (function() {
       });
     },
 
+    setScore: function() {
+      var score = mean(_.values(_this.boroughScores));
+      var minutes = Math.floor(score / 60);
+      var seconds = Math.floor(score % 60);
+      $("#score .minutes").html(minutes);
+      $("#score .seconds").html(seconds);
+    },
 
     updateInfo: function(props) {
       var info;
@@ -189,8 +199,10 @@ Map = (function() {
     },
 
     resetHighlight: function(event) {
-	    _this.boroughsGeoJson.resetStyle(event.target);
-	    _this.updateInfo();
+      var borough = event.target.feature.properties.borough;
+      _this.boroughsGeoJson.resetStyle(event.target);
+      event.target.setStyle({fillColor: _this.getColor(_this.boroughScores[borough]) });
+      _this.updateInfo();
     },
 
     showBoroughDetail: function(event) {
@@ -271,10 +283,12 @@ Map = (function() {
 
     updateBoroughOverviewDisplay: function(borough) {
       getBoroughResponseTime(borough, _this.closedStations, function(err, resp) {
+        _this.boroughScores[borough] = resp;
         var layerGroup = _this.mapLayerGroups["boroughs"][borough]
         _.each(layerGroup.getLayers(), function(layer) {
           layer.setStyle({"fillColor": _this.getColor(resp) });
         });
+        _this.setScore();
       })
     },
 

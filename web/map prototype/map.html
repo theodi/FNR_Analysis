@@ -16,27 +16,31 @@
   <div id="container">
     <ul id="switches">
       <li>
-        <input type="checkbox" name="closures-switch" id="closures-switch" />
-        <label for="closures-switch"><span>Close proposed stations</span></label>
+      <input type="checkbox" name="closures-switch" id="closures-switch" />
+      <label for="closures-switch"><span>Close proposed stations</span></label>
       </li>
       <li>
-        <input type="checkbox" name="metric-switch" id="metric-switch" />
-        <label for="metric-switch"><span>Weight by footfall</span></label>
+      <input type="checkbox" name="metric-switch" id="metric-switch" />
+      <label for="metric-switch"><span>Weight by footfall</span></label>
       </li>
     </ul>
     <div id="sidebar">
+      <div id="score">
+        <h2>Average response time:</h2>
+        <span class="score">
+          <span class="minutes number">2</span>m<span class="seconds number">30</span>s
+        </span>
+      </div>
       <div id="histogram">
       </div>
       <div id="boroughs" >
-        <h2>London boroughs selected</h2>
+        <h2>Selected boroughs:</h2>
         <div>
         </div>
       </div>
     </div>
-  </div>
-  <div id="map"></div>
-  <div id="legend"></div>
-</div>
+    <div id="map"></div>
+    <div id="legend"></div>
   </div>
   <script type="text/html" id="template-info-borough">
     <dl>
