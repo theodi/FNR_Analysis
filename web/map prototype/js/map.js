@@ -71,6 +71,7 @@ Map = (function() {
       _this.initLegend();
       _this.initBoroughBoundaries();
       _this.initStations();
+      _this.initSwitches();
     },
 
     initMap: function() {
@@ -87,10 +88,10 @@ Map = (function() {
     },
 
     initInfo: function() {
-	var hoverinfo = document.createElement("div");
-	hoverinfo.setAttribute("id","info");
-	hoverinfo.innerHTML = _this.infoDefault,
-	document.getElementById("map").appendChild(hoverinfo);
+      var hoverinfo = document.createElement("div");
+      hoverinfo.setAttribute("id","info");
+      hoverinfo.innerHTML = _this.infoDefault,
+      document.getElementById("map").appendChild(hoverinfo);
     },
 
     initLegend: function() {
@@ -138,7 +139,7 @@ Map = (function() {
               layer.on({
                 mouseover: _this.highlightFeature,
                 mouseout:  _this.resetHighlight,
-                //click:     _this.showBoroughDetail
+                click:     _this.showBoroughDetail
               });
               cont();
             }
@@ -146,6 +147,17 @@ Map = (function() {
         });
       });
     },
+
+    initSwitches: function() {
+      $("#closures-switch").click(function(event)  {
+        if(!$(this).is(":checked")){
+          _this.openAllClosedStations();
+        } else {
+          _this.closeCandidateStations();
+        }
+      });
+    },
+
 
     updateInfo: function(props) {
       var info;
