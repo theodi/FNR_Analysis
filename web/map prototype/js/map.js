@@ -234,7 +234,7 @@ Map = (function() {
       getBoroughResponseTime(borough, _this.closedStations, function(err, resp) {
         var layerGroup = _this.mapLayerGroups["boroughs"][borough]
         _.each(layerGroup.getLayers(), function(layer) {
-          layer.feature.properties.set("response", resp);
+          layer.setStyle({"fillColor": _this.getColor(resp) });
         });
       })
     },
