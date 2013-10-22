@@ -42,6 +42,8 @@ Map = (function() {
       'http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png',
     mapAttribution:
       'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+    infoDefault:
+      'Hover or click an area',
 
     boroughDataUrlString:
       'data/boroughBoundaries/{borough}.json',
@@ -65,6 +67,7 @@ Map = (function() {
       _this.stationMarkers = [];
       _this.initMap();
       _this.initTileLayer();
+      _this.initInfo();
       _this.initLegend();
       _this.initBoroughBoundaries();
       _this.initStations();
@@ -81,6 +84,13 @@ Map = (function() {
         key:         _this.cloudMadeKey,
         styleId:     _this.mapStyleId,
       }).addTo(_this.map);
+    },
+
+    initInfo: function() {
+	var hoverinfo = document.createElement("div");
+	hoverinfo.setAttribute("id","info");
+	hoverinfo.innerHTML = _this.infoDefault,
+	document.getElementById("map").appendChild(hoverinfo);
     },
 
     initLegend: function() {
@@ -128,7 +138,7 @@ Map = (function() {
               layer.on({
                 mouseover: _this.highlightFeature,
                 mouseout:  _this.resetHighlight,
-                click:     _this.showBoroughDetail
+                //click:     _this.showBoroughDetail
               });
               cont();
             }
@@ -143,7 +153,7 @@ Map = (function() {
         var template_name = props.borough ? "info-borough" : "info-ward";
         info = _this.template(template_name, props);
       } else {
-        info = "";
+        info = _this.infoDefault;
       }
       $("#info").html(info);
     },

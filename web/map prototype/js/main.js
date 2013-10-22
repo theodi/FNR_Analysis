@@ -12,7 +12,7 @@ var removeArrayItem = function (item, array) {
 
 $(document).ready(function() {
 	loadData(function (err) {
-    Map.initialize('map');
+   		Map.initialize('map');
 		log("Ready");
 	});
 });
