@@ -321,7 +321,7 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 		temp += '"incidents":' + square.incidents.length +',';
 		temp += '"ward":"' + borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '') + '",';
 		temp += '"response":' + square.meanFirstPumpTime + ',';
-		temp += '"score":' + square.meanScore + ',';
+		temp += '"score":' + (isNaN(square.meanScore) ?  "0" :  square.meanScore) + ',';
 		temp += '"attending":"' +
 			_.reduce(square.attendingStations, function (memo, station) {
 				return memo + station[0] + " (" + (station[1] * 100).toFixed(0) + "%) ";
