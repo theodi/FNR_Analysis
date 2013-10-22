@@ -125,8 +125,6 @@ incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame()
 
 
 scoring.run <- function (incidents, closedStationsNames = c( )) {
-    # I aggregate the incidents in the square they belong to, using the median 
-    # of response time and footfall as the square's characteristics 
     incidents <- data.table(incidents)
     incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime)
     incidents$footfall <- as.numeric(incidents$footfall)
@@ -140,7 +138,7 @@ scoring.run <- function (incidents, closedStationsNames = c( )) {
         boroughs$score <- pmin(scoring.run(incidents)$score, .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime) 
         # For Ulrich / boroughs$scoreTime <- pmin(scoring.run(incidents)$scoreTime, boroughs$ZFirstPumpTime)
     }
-    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
+    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score'§) ]
 }
 
 
