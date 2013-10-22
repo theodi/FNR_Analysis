@@ -1,11 +1,6 @@
 body {
   background-color: #404040;
   color: #eee;
-}
-
-body,
-.pure-g [class *= "pure-u"],
-.pure-g-r [class *= "pure-u"] {
   font-family: 'FreeUniversal', sans-serif;
   font-weight: normal;
   font-style: normal;
@@ -14,6 +9,21 @@ body,
 h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
 }
+
+dt {
+  float:left;
+  clear: left;
+}
+
+dt:after {
+  content: ": ";
+  margin-right: 0.5em;
+}
+
+dd {
+  float: left;
+}
+
 
 #container {
   width: 960px;
