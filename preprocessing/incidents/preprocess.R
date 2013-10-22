@@ -144,15 +144,15 @@ scoring.run1021 <- function (incidents, closedStationsNames = c( )) {
 }
 
 
-# Ulrich's scoring formula before the move to the 'utility function'
+# Ulrich's scoring formula modelled after a 'utility function'
 scoring.run1022 <- function (incidents, closedStationsNames = c( )) {
     library(data.table)
     incidents <- data.table(incidents)
     incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime)
     incidents$footfall <- as.numeric(incidents$footfall)
     boroughs <- incidents[ !(firstPumpStation %in% closedStationsNames), list(firstPumpTime = median(firstPumpTime), footfall = median(footfall)), by="borough"]
-    a <- .5
-    x <- boroughs$firstPumpTime ^ .5 * log10(boroughs$footfall) ^ (1 - a)
+    a <- .75
+    x <- boroughs$firstPumpTime ^ a * log10(boroughs$footfall) ^ (1 - a)
     if (length(closedStationsNames) == 0) {
         boroughs$score <- x 
     } else {
