@@ -1,6 +1,6 @@
 body {
-  background-color: #c6c6c6;
-  color: #333;
+  background-color: #404040;
+  color: #eee;
 }
 
 body,
@@ -16,28 +16,47 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #container {
-/*  width: 960px;*/
+  width: 960px;
   height: 540px;
+  position: relative;
 }
 
 #switches {
-  height: 40px;
+  position: absolute;
+  top: 0;
+  left: 320px;
+  width: 640px;
+  padding-top: 10px;
+  height: 30px;
 }
 
-#metric-switch {
-  height: 15px;
-  margin-top: 12px;
-  width: 480px;
-  margin-left: 320px;
+#switches li {
+  float: left;
+  margin-right: 2em;
 }
 
 #legend {
   height: 20px;
+  position: absolute;
+  top: bottom;
+  left: 0;
+  right: 0;
   padding: 5px 0 5px 15px;
 }
 
+#sidebar {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  width: 320px;
+  height: 500px;
+}
+
 #map {
-  width: 100%;
+  position: absolute;
+  top: 40px;
+  left: 320px;
+  width: 640px;
   height: 500px;
 }
 
@@ -60,11 +79,10 @@ h1, h2, h3, h4, h5, h6 {
   float: left;
   margin-right: 1em;
 }
+
 #info {
   padding: 6px 8px;
-  font: 14px/16px Arial, Helvetica, sans-serif;
-  background: white;
-  background: rgba(255,255,255,0.8);
+  background: rgba(64,64,64,0.8);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
   border-radius: 5px;
   float: right;
