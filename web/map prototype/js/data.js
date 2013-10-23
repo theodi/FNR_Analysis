@@ -126,7 +126,6 @@ var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
 		return longitude + '_' + latitude;
 	});
 
-	closedStations = [ ].concat(closedStations);
 	var boroughIncidents = _.filter(incidentsData, function (i) { return i.borough == borough; });
 	var incidentsNotImpacted = _.filter(boroughIncidents, function (i) { return !_.contains(closedStations, i.firstPumpStation); })
 	var incidentsImpacted = _.filter(boroughIncidents, function (i) { return _.contains(closedStations, i.firstPumpStation); })
@@ -156,7 +155,6 @@ var getBoroughResponseTimes = function (borough, closedStations, callback) {
 
 var getBoroughHistM = _.memoize(function (borough, closedStations) {
 	/* [{timeMin: 0, timeMax: 30, incidents: 5},{timeMin: 30, timeMax: 60, incidents: 7}, ...] */
-	closedStations = [ ].concat(closedStations);
 	var BIN_SIZE = 30;
 	var responseTimes = getBoroughResponseTimesM(borough, closedStations);
 	var maxResponseTime = Math.max.apply(null, responseTimes);
@@ -208,7 +206,6 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
 /* Like getBoroughScore below, but assumes that the incidents data for
    the borough has been loaded already */
 var getBoroughScoreM = _.memoize(function (borough, closedStations) {
-	closedStations = [ ].concat(closedStations);
 	if (closedStations.length == 0) {
 		return mean(_.map(_.filter(incidentsData, function (i) {
 			return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
