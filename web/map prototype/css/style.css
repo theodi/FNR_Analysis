@@ -1,30 +1,126 @@
-#map {
-	width: 1000px;
-	height: 800px;
-	float: left;
+body {
+  background-color: #404040;
+  color: #eee;
+  font-family: 'FreeUniversal', sans-serif;
+  font-weight: normal;
+  font-style: normal;
 }
 
-.info {
-	padding: 6px 8px;
-	font: 14px/16px Arial, Helvetica, sans-serif;
-	background: white;
-	background: rgba(255,255,255,0.8);
-	box-shadow: 0 0 15px rgba(0,0,0,0.2);
-	border-radius: 5px;
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
 }
-.info h4 {
-	margin: 0 0 5px;
-	color: #777;
+
+dt {
+  float:left;
+  clear: left;
 }
-.legend {
-	text-align: left;
-	line-height: 18px;
-	color: #555;
+
+dt:after {
+  content: ": ";
+  margin-right: 0.5em;
 }
-.legend i {
-	width: 18px;
-	height: 18px;
-	float: left;
+
+dd {
+  float: left;
+}
+
+
+#container {
+  width: 960px;
+  height: 540px;
+  position: relative;
+}
+
+#switches {
+  position: absolute;
+  top: 0;
+  left: 320px;
+  width: 640px;
+  padding-top: 10px;
+  height: 30px;
+}
+
+#switches li {
+  float: left;
+  margin-right: 2em;
+}
+
+#score .score {
+  font-size: 2em;
+}
+
+#score .number {
+  font-size: 3em;
+}
+
+#legend {
+  height: 20px;
+  position: absolute;
+  bottom: 0;
+  left: 320px;
+  right: 0;
+  padding: 5px 0 5px 15px;
+}
+
+#sidebar {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  padding: 0 20px 0 20px;
+  width: 280px;
+  height: 460px;
+}
+
+#score {
+  margin-bottom: 2em;
+}
+
+#map {
+  position: absolute;
+  top: 40px;
+  left: 320px;
+  width: 640px;
+  height: 460px;
+}
+
+#legend i {
+	width: 15px;
+	height: 15px;
+  float: left;
 	margin-right: 8px;
-	opacity: 0.7;
+	opacity: 1;
+}
+
+#legend ol {
+  list-style-type: none;
+  float: left;
+  margin: 0;
+  padding: 0;
+}
+
+#legend li {
+  float: left;
+  margin-right: 1em;
+}
+
+#info {
+  padding: 6px 8px;
+  background: rgba(64,64,64,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
+  float: right;
+  position: relative;
+  margin: 10px;
+}
+
+.clear {
+  clear: left;
+}
+
+.clear.right {
+  clear: right;
+}
+
+.clear.both, .clear.left.right {
+  clear: both;
 }

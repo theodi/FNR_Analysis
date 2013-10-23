@@ -5,9 +5,13 @@ $long_length = 0.0015;
 $mysqli = new mysqli("localhost", "root", "", "lfb_all");
 
 $to_excludes = $_GET["close"];
-$to_exclude = explode(",",$to_excludes);
-unset($stations_excluded);
+$to_excludes = preg_replace("/[^A-Za-z,]/", '', $to_excludes);
+
 $borough = $_GET["borough"];
+$borough = preg_replace("/[^A-Za-z]/", '', $borough);
+
+unset($stations_excluded);
+$to_exclude = explode(",",$to_excludes);
 for ($i=0;$i<count($to_exclude);$i++) {
 	$stations_excluded[] = $to_exclude[$i];
 }
@@ -133,17 +137,18 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 			$global_cat[$bound]++;
 		}
 	}
-	
+
+header("Content-type: application/json");  
+
 	$global_average = $global_total / $global_count;
-	echo '{' . "\n\t" .  '"averageResponseTime":' . $global_average . ',' . "\n";
-	echo "\t" . '"distribution": [' . "\n"; 
+	$json = '{' . "\n\t" .  '"averageResponseTime":' . $global_average . ',' . "\n";
+	$json .= "\t" . '"distribution": [' . "\n"; 
 	$max_bound = 0;
 	foreach ($global_cat as $bound => $count) {
 		if ($bound > $max_bound) {
 			$max_bound = $bound;
 		}
 	}
-	$json = "";
 	for ($i=0;$i<$max_bound;$i++) {
 		$time_min = 30 * $i;
 		$time_max = $time_min + 30;
@@ -151,10 +156,13 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 	}
 	$json = substr(trim($json),0,-1);
 	$json .= "\n";
-	echo $json;
-	echo "\t]\n";
-	echo "}";
-	
+	$json .= "\t]\n";
+	$json .= "}";
+	if ($_GET['callback']) {
+		echo $_GET['callback'] . ' (' . $json . ');'; 
+	} else {
+		echo $json;
+	}
 }
 
 function getExpandedAreaRecords($new_lat,$new_long,$lat_coverage,$long_coverage,$squares) {

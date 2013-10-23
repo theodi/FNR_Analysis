@@ -1,17 +1,17 @@
-var BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent", 
-		"Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield", 
-		"Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey", "Harrow", 
-		"Havering", "Hillingdon", "Hounslow", "Islington", 
-		"Kensington and Chelsea", "Kingston upon Thames", "Lambeth", "Lewisham", 
-		"Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark", 
-		"Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth", 
+var BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
+		"Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield",
+		"Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey", "Harrow",
+		"Havering", "Hillingdon", "Hounslow", "Islington",
+		"Kensington and Chelsea", "Kingston upon Thames", "Lambeth", "Lewisham",
+		"Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark",
+		"Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth",
 		"Westminster" ],
 
-	// At the moment of writing, and according to the colour levels we are 
-	// currently using for the legend, of the statons facing closure Southwark is the 
+	// At the moment of writing, and according to the colour levels we are
+	// currently using for the legend, of the statons facing closure Southwark is the
 	// only single station closure that produces a visible effect on the map
-	STATIONS_FACING_CLOSURE_NAMES = [ "Belsize", "Bow", "Clerkenwell", 
-		"Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark", 
+	STATIONS_FACING_CLOSURE_NAMES = [ "Belsize", "Bow", "Clerkenwell",
+		"Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark",
 		"Westminster", "Woolwich" ],
 
     SIMPLIFIED_SQUARE_LATITUDE_SIZE = 0.001,
@@ -21,6 +21,19 @@ var BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
 var incidentsData = [ ];
 var incidentsDataBoroughs = [ ];
 var stationsData = undefined;
+
+var boroughsByFirstRespondersPromise;
+var impactedBoroughs = function(closed_stations, callback) {
+  if(!boroughsByFirstRespondersPromise) {
+    boroughsByFirstRespondersPromise = $.get("/data/boroughs_by_first_responders.json")
+  }
+ boroughsByFirstRespondersPromise.success(function(data) {
+  callback(_.uniq(_.flatten(_.map(closed_stations, function(station) {
+    return ds =  data[station];
+  }))));
+ });
+}
+
 
 
 // TODO: is what you see below necessary? why does d3.csv import all columns as strings?
@@ -33,7 +46,7 @@ var forceColumnsToFloat = function (columnNames, a) {
 }
 
 
-// Loads and stores permanently all incidents that happened in the specified 
+// Loads and stores permanently all incidents that happened in the specified
 // borough, then calls callback(err)
 var loadIncidents = function (borough, callback) {
 	if (_.contains(incidentsDataBoroughs, borough)) {
@@ -75,9 +88,9 @@ var loadData = function (callback) {
 }
 
 
-/* This function replaces the calls to BoroughsReload.php. Input is one station 
-   name or an array of station names. It returns an array with the list of 
-   borough names whose incidents have been attended by the stations as 
+/* This function replaces the calls to BoroughsReload.php. Input is one station
+   name or an array of station names. It returns an array with the list of
+   borough names whose incidents have been attended by the stations as
    'first pumps'. */
 var getImpactedBoroughs = _.memoize(function (stations) {
 	stations = [ ].concat(stations)
@@ -112,21 +125,21 @@ var getStationsInBorough = _.memoize(function (borough) {
 var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
 
 	// estimates the response time of a generic incident in a square; it expects
-	// incidentsNotImpacted to be an array of incidents not impacted from the 
+	// incidentsNotImpacted to be an array of incidents not impacted from the
 	// stations closure, hence relevant for calculation
 	var estimateSquareResponseTime = _.memoize(function (longitude, latitude) {
 		var MIN_NO_OF_INCIDENTS = 1;
 		var results = [ ];
 		var foundEnough = false;
 		for (var m = 0; !foundEnough; m++) {
-			results = _.filter(incidentsNotImpacted, function (i) { 
-				return (i.simplifiedLongitude >= longitude - m * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) && 
+			results = _.filter(incidentsNotImpacted, function (i) {
+				return (i.simplifiedLongitude >= longitude - m * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) &&
 				(i.simplifiedLongitude < longitude + (m + 1) * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) &&
 				(i.simplifiedLatitude <= latitude + m * SIMPLIFIED_SQUARE_LATITUDE_SIZE) &&
 				(i.simplifiedLatitude > latitude - (m + 1) * SIMPLIFIED_SQUARE_LATITUDE_SIZE);
 			});
 			foundEnough = results.length >= MIN_NO_OF_INCIDENTS;
-		}	
+		}
 		return mean(_.map(results, function (i) { return i.firstPumpTime; }));
 	}, function (longitude, latitude) {
 		return longitude + '_' + latitude;
@@ -136,12 +149,12 @@ var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
 	var incidentsNotImpacted = _.filter(boroughIncidents, function (i) { return !_.contains(closedStations, i.firstPumpStation); })
 	var incidentsImpacted = _.filter(boroughIncidents, function (i) { return _.contains(closedStations, i.firstPumpStation); })
 	var oldTimings = _.map(incidentsNotImpacted, function (i) { return i.firstPumpTime; });
-	var newTimings = _.reduce(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })), 
-		function (memo, incidentsInSameSquare) { 
+	var newTimings = _.reduce(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })),
+		function (memo, incidentsInSameSquare) {
 			var newResponseTime = estimateSquareResponseTime(incidentsInSameSquare[0].simplifiedLongitude, incidentsInSameSquare[0].simplifiedLatitude, closedStations);
 			// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
 			return memo.concat(_.map(Array(incidentsInSameSquare.length + 1).join(1).split(''), function() { return newResponseTime; }));
-		}, 
+		},
 		[ ]);
 	return oldTimings.concat(newTimings);
 }, function (borough, closedStations) {
@@ -153,9 +166,9 @@ var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
 var getBoroughResponseTimes = function (borough, closedStations, callback) {
 	closedStations = [ ].concat(closedStations);
 	// loadIncidents(borough, function (err) {
-	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimesM(borough, closedStations));  
+	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimesM(borough, closedStations));
 	// });
-	callback(null, getBoroughResponseTimesM(borough, closedStations));  
+	callback(null, getBoroughResponseTimesM(borough, closedStations));
 };
 
 
@@ -183,9 +196,9 @@ var getBoroughHistM = _.memoize(function (borough, closedStations) {
 var getBoroughHist = function (borough, closedStations, callback) {
 	closedStations = [ ].concat(closedStations);
 	// loadIncidents(borough, function (err) {
-	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimeM(borough, closedStations));  
+	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimeM(borough, closedStations));
 	// });
-	callback(null, getBoroughHistM(borough, closedStations)); 
+	callback(null, getBoroughHistM(borough, closedStations));
 };
 
 
@@ -197,15 +210,15 @@ var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
 });
 
 
-/*  The function loads the necessary detailed incident data, calculates the 
+/*  The function loads the necessary detailed incident data, calculates the
     specified borough's response time and then calls back
     callback(err, boroughResponseTime) */
 var getBoroughResponseTime = function (borough, closedStations, callback) {
 	closedStations = [ ].concat(closedStations);
 	// loadIncidents(borough, function (err) {
-	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimeM(borough, closedStations));  
+	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimeM(borough, closedStations));
 	// });
-	callback(null, getBoroughResponseTimeM(borough, closedStations)); 
+	callback(null, getBoroughResponseTimeM(borough, closedStations));
 };
 
 
@@ -219,7 +232,7 @@ var getBoroughScoreM = _.memoize(function (borough, closedStations) {
 });
 
 
-/*  The function loads the necessary detailed incident data, calculates the 
+/*  The function loads the necessary detailed incident data, calculates the
     specified borough's score vs time and population and then calls back
     callback(err, boroughscore) */
 var getBoroughScore = function (borough, closedStations, callback) {
@@ -248,11 +261,11 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 	boroughIncidents = _.filter(incidentsData, function (r) {
 		return (r.borough == borough) && !_.contains(closedStations, r.firstPumpStation);
 	})
-	// (E) 
-	// This section creates data for each of the squares to be displayed on the 
-	// map, that is any square that contains at least one incident. 
-	// Note that the calculation of each incident's "simplified grid" 
-	// coordinates was moved to the pre-processing stage to make the JavaScript 
+	// (E)
+	// This section creates data for each of the squares to be displayed on the
+	// map, that is any square that contains at least one incident.
+	// Note that the calculation of each incident's "simplified grid"
+	// coordinates was moved to the pre-processing stage to make the JavaScript
 	// lighter
 	boroughSquareIncidents = { };
 	_.each(boroughIncidents, function (i) {
@@ -272,14 +285,14 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 			boroughSquareIncidents[squareKey].attendingStations = { };
 		}
 		boroughSquareIncidents[squareKey].incidents = (boroughSquareIncidents[squareKey].incidents || [ ]).concat(i);
-		// This keeps counters for which stations attended the incidents and how 
-		// many times. 
-		boroughSquareIncidents[squareKey].attendingStations[i.firstPumpStation] = 
+		// This keeps counters for which stations attended the incidents and how
+		// many times.
+		boroughSquareIncidents[squareKey].attendingStations[i.firstPumpStation] =
 			(boroughSquareIncidents[squareKey].attendingStations[i.firstPumpStation] || 0) + 1;
 	});
 	// (F) appears not to be doing anything relevant!
 	// (G)
-	// This section enriches each square data with additional *consolidated* 
+	// This section enriches each square data with additional *consolidated*
 	// data that could not be calculated while still adding incidents
 	_.each(_.keys(boroughSquareIncidents), function (squareKey) {
 		boroughSquareIncidents[squareKey].meanFirstPumpTime = mean(_.map(boroughSquareIncidents[squareKey].incidents, function (i) { return i.firstPumpTime; }));
@@ -287,7 +300,7 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 		// I make the station attendance object into an array of the same
 		boroughSquareIncidents[squareKey].attendingStations = _.pairs(boroughSquareIncidents[squareKey].attendingStations);
 		// I make the station attendance figures into %s of themselves
-		boroughSquareIncidents[squareKey].attendingStations = _.map(boroughSquareIncidents[squareKey].attendingStations, 
+		boroughSquareIncidents[squareKey].attendingStations = _.map(boroughSquareIncidents[squareKey].attendingStations,
 			function (station) { station[1] = station[1] / boroughSquareIncidents[squareKey].incidents.length; return station; }
 		);
 		// I order the station attendances by % of attendance, highest to lowest
@@ -296,21 +309,21 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 
 	/* I know that the section below is very ugly: why am I creating this
 	   data as a string, if I am parsing it into JSON just a few lines down?
-	   This is just to introduce as little regression as possible from 
+	   This is just to introduce as little regression as possible from
 	   Davetaz's original code. */
-	var leafletJsonString = '{"type":"FeatureCollection","features":[\n'; 
+	var leafletJsonString = '{"type":"FeatureCollection","features":[\n';
 	var id = 0;
 	leafletJsonString += _.map(boroughSquareIncidents, function (square) {
-		id++; 
+		id++;
 		var temp = '{"type":"Feature","id":"' + id + '","properties":{';
 		temp += '"incidents":' + square.incidents.length +',';
 		temp += '"ward":"' + borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '') + '",';
 		temp += '"response":' + square.meanFirstPumpTime + ',';
-		temp += '"score":' + square.meanScore + ',';
-		temp += '"attending":"' + 
-			_.reduce(square.attendingStations, function (memo, station) { 
-				return memo + station[0] + " (" + (station[1] * 100).toFixed(0) + "%) "; 
-			}, "") + 
+		temp += '"score":' + (isNaN(square.meanScore) ?  "0" :  square.meanScore) + ',';
+		temp += '"attending":"' +
+			_.reduce(square.attendingStations, function (memo, station) {
+				return memo + station[0] + " (" + (station[1] * 100).toFixed(0) + "%) ";
+			}, "") +
 			'"},';
 		temp += '"geometry":{"type":"Polygon","coordinates":[[ [';
 		temp += square.polygon.join("], [");
@@ -326,13 +339,13 @@ var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
 });
 
 
-/* The function produces the GeoJSON object that is required by Leaflet 
-   to visualise the detailed incident data for the specified borough, then calls 
+/* The function produces the GeoJSON object that is required by Leaflet
+   to visualise the detailed incident data for the specified borough, then calls
    back callback(err, geoJsonObject) */
 var getBoroughDetailedResponse = function (borough, closedStations, callback) {
 	closedStations = [ ].concat(closedStations);
 	loadIncidents(borough, function (err) {
-		err ? callback(err, undefined) : callback(null, getBoroughIncidentDataM(borough, closedStations));  
+		err ? callback(err, undefined) : callback(null, getBoroughIncidentDataM(borough, closedStations));
 	});
 }
 

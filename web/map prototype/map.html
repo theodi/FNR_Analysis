@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FNR Analysis</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" media="screen" href="http://openfontlibrary.org/face/freeuniversal" rel="stylesheet" type="text/css"/>
+	<link rel="stylesheet" href="js/lib/leaflet-0.6.4.css" />
+	<!--[if lte IE 8]>
+    	<link rel="stylesheet" href="js/lib/leaflet.ie-0.6.4.css" />
+	<![endif]-->
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="container">
+    <ul id="switches">
+      <li>
+      <input type="checkbox" name="closures-switch" id="closures-switch" />
+      <label for="closures-switch"><span>Close proposed stations</span></label>
+      </li>
+      <li>
+      <input type="checkbox" name="metric-switch" id="metric-switch" />
+      <label for="metric-switch"><span>Weight by footfall</span></label>
+      </li>
+    </ul>
+    <div id="sidebar">
+      <div id="score">
+        <h2>Average response time:</h2>
+        <span class="score">
+          <span class="minutes number">2</span>m<span class="seconds number">30</span>s
+        </span>
+      </div>
+      <div id="histogram">
+      </div>
+      <div id="borough">
+
+      </div>
+      <!-- <div id="boroughs">
+        <h2>Selected boroughs:</h2>
+        <div>
+         -->
+        </div>
+      </div>
+    </div>
+    <div id="map"></div>
+    <div id="legend"></div>
+  </div>
+
+  <script type="text/html" id="template-borough-sidebar">
+    <h2><%= borough %></h2>
+    <dl>
+      <dt>Average response time</dt>
+      <dd><%= response %></dd>
+      <div class="clear left"></div>
+    </dl>
+  </script>
+
+  <script type="text/html" id="template-info-borough">
+    <dl>
+      <dt>Borough</dt>
+      <dd><%= borough %></dd>
+    </dl>
+  </script>
+
+  <script type="text/html" id="template-info-ward">
+    <dl>
+      <dt>Number of incidents</dt>
+      <dd><%= incidents %></dd>
+      <dt>Average response time</dt>
+      <dd><%= Math.floor(response) %> seconds</dd>
+      <dt>Stations responding</dt>
+      <dd><%= attending %></dd>
+    </dl>
+  </script>
+
+  <script type="text/html" id="template-legend">
+    <ol class="legend">
+      <% _.each(grades, function(grade) { %>
+        <li>
+          <i style="background-color: <%= grade.color %>;"></i>
+          <%= grade.from == 0 ? "Up" : grade.from %>
+          <%= (grade.to ? " to " + grade.to : "+") +  " minutes" %>
+        </li>
+      <% }); %>
+    </ol>
+  </script>
+
+  <script type="text/html" id="template-boroughs-selected">
+    <ul>
+      <% _.each(boroughs, function(borough) { %>
+        <li>
+          <input id="<%= borough.id %>" type="checkbox", checked="checked", data-borough-name="<%= borough.name %>" />
+          <label for="<%= borough.id %>">
+            <%= borough.name %>
+          </label>
+        </li>
+      <% }); %>
+    </ul>
+  </script>
+
+	<script src="js/lib/underscore-1.5.2.js"></script>
+	<script src="js/lib/d3-v3.js"></script>
+	<script src="js/lib/leaflet-0.6.4.js"></script>
+	<script src="js/lib/jquery-1.10.2.js"></script>
+	<script src="js/data.js"></script>
+	<script src="js/map.js"></script>
+	<script src="js/main.js"></script>
+	</script>
+</body>
+</html>
