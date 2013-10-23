@@ -243,7 +243,7 @@ Map = (function() {
         .range([0, w]);
 
       var x2 = d3.scale.linear()
-        .domain([0, 10])
+        .domain([0, 20])
         .range([0, 280]);
 
       var xAxis = d3.svg.axis()
@@ -288,14 +288,14 @@ Map = (function() {
         .style("stroke", "#eee");
 
       chart.append("line")
-        .attr("x1", 168)
-        .attr("x2", 168)
+        .attr("x1", 84)
+        .attr("x2", 84)
         .attr("y1", 0)
         .attr("y2", h)
         .style("stroke","#eee")
 
         chart.append("svg:text")
-        .attr("x",30)
+        .attr("x",90)
         .attr("y",h-110)
         .attr("fill", "#eee")
         .style("font-size", "80%")
