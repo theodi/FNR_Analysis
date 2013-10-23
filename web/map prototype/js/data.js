@@ -247,6 +247,13 @@ var getBoroughScore = function (borough, closedStations, callback) {
 };
 
 
+var getAllBoroughsScores = function () {
+	_.each(BOROUGHS_NAMES, function (borough) {
+		console.log(borough + "," + getBoroughScoreM(borough, [ ]) + "," + getBoroughScoreM(borough, STATIONS_FACING_CLOSURE_NAMES));
+	})
+}
+
+
 /* Like getBoroughDetailedResponse below, but assumes that the incidents data for
    the borough has been loaded already */
 var getBoroughIncidentDataM = _.memoize(function (borough, closedStations) {
