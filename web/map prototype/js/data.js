@@ -226,7 +226,7 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
    the borough has been loaded already */
 var getBoroughScoreM = _.memoize(function (borough, closedStations) {
 	var A = 0.75,
-		medianResponseTimes = median(getBoroughResponseTimesM(borough, closedStations)),
+		medianResponseTimes = median(_.map(getBoroughResponseTimesM(borough, closedStations), function (x) { return x / 60; })),
 		medianFootfall = median(_.map(incidentsData, function (i) { return i.footfall; }));
 	return Math.pow(medianResponseTimes, A) + 
 		Math.pow(Math.log(medianFootfall) / Math.log(10), 1 - A);
