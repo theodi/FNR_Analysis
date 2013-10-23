@@ -144,20 +144,39 @@ scoring.run1021 <- function (incidents, closedStationsNames = c( )) {
 }
 
 
-# Ulrich's scoring formula before the move to the 'utility function'
+# Ulrich's first scoring formula based on the 'utility function'
 scoring.run1022 <- function (incidents, closedStationsNames = c( )) {
     library(data.table)
     incidents <- data.table(incidents)
-    incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime)
+    incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime) / 60
     incidents$footfall <- as.numeric(incidents$footfall)
     boroughs <- incidents[ !(firstPumpStation %in% closedStationsNames), list(firstPumpTime = median(firstPumpTime), footfall = median(footfall)), by="borough"]
-    a <- .5
-    x <- boroughs$firstPumpTime ^ .5 * log10(boroughs$footfall) ^ (1 - a)
-    if (length(closedStationsNames) == 0) {
+    a <- 0.75 # response time's weight on the score
+    x <- boroughs$firstPumpTime ^ a * log10(boroughs$footfall) ^ (1 - a)
+    if ((length(closedStationsNames) == 0) ) {
         boroughs$score <- x 
     } else {
         # aberration fix
         boroughs$score <- pmax(scoring.run1022(incidents)$score, x) 
+    }
+    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
+}
+
+
+# Ulrich's second scoring formula based on the 'utility function'
+scoring.run1023 <- function (incidents, closedStationsNames = c( ), aberrationFix = TRUE) {
+    library(data.table)
+    incidents <- data.table(incidents)
+    incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime) / 60
+    incidents$footfall <- as.numeric(incidents$footfall)
+    boroughs <- incidents[ !(firstPumpStation %in% closedStationsNames), list(firstPumpTime = median(firstPumpTime), footfall = median(footfall)), by="borough"]
+    a <- 0.75 # response time's weight on the score
+    boroughs$score <- boroughs$firstPumpTime ^ a * log10(boroughs$footfall) ^ (1 - a)
+    if ((length(closedStationsNames) > 0) & aberrationFix) {
+        scoresNoClosures <- scoring.run1023(incidents)$score
+        scoreVariation <- boroughs$score - scoresNoClosures
+        print(paste("I am correcting:",  min(scoreVariation)))
+        boroughs$score <- boroughs$score + min(scoreVariation)
     }
     data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
 }
