@@ -26,8 +26,6 @@ dd {
 
 
 #container {
-  width: 960px;
-  height: 540px;
   position: relative;
 }
 
@@ -79,8 +77,8 @@ dd {
   position: absolute;
   top: 40px;
   left: 320px;
-  width: 640px;
-  height: 460px;
+  right: 0px;
+  bottom: 40px;
 }
 
 #legend i {
