@@ -59,20 +59,22 @@ Map = (function() {
     }),
 
     initialize: function(container) {
-      _this.container = container;
-      _this.mapLayerGroups = {};
-      _this.activeIncidentLayers = [];
-      _this.boroughsGeoJson = null;
-      _this.boroughScores = {};
-      _this.closedStations = [];
-      _this.stationMarkers = [];
-      _this.initMap();
-      _this.initTileLayer();
-      _this.initInfo();
-      _this.initLegend();
-      _this.initBoroughBoundaries();
-      _this.initStations();
-      _this.initSwitches();
+      loadAllIncidents(function() {
+        _this.container = container;
+        _this.mapLayerGroups = {};
+        _this.activeIncidentLayers = [];
+        _this.boroughsGeoJson = null;
+        _this.boroughScores = {};
+        _this.closedStations = [];
+        _this.stationMarkers = [];
+        _this.initMap();
+        _this.initTileLayer();
+        _this.initInfo();
+        _this.initLegend();
+        _this.initBoroughBoundaries();
+        _this.initStations();
+        _this.initSwitches();
+      });
     },
 
     initMap: function() {
@@ -179,8 +181,6 @@ Map = (function() {
       $("#info").html(info);
     },
 
-
-
     highlightFeature: function(event) {
       var layer = event.target;
       layer.setStyle({
@@ -225,23 +225,13 @@ Map = (function() {
     },
 
     updateBoroughHistogram: function(borough) {
-      /* TODO - use the real values here! */
-      var mu = 290 + Math.floor(Math.random() * 80)
-      var sigma = 40 + Math.floor(Math.random() * 40)
-      var n = 1000 + Math.floor(Math.random() * 1000)
-      var testDist = _this.gaussian(mu, sigma);
-      var data = d3.range(20).map(function(i) {
-        return {
-          time: i * 30,
-          value: Math.floor(Math.random() * 101) //testDist(i/20) * n
+      getBoroughHist(borough, _this.closedStations, function(error, bins)  {
+        if(!_this.histogram) {
+          _this.initializeBoroughHistogram(bins);
+        } else {
+          _this.redrawBoroughHistogram(bins);
         }
       });
-      /* end TODO */
-      if(!_this.histogram) {
-        _this.initializeBoroughHistogram(data);
-      } else {
-        _this.redrawBoroughHistogram(data);
-      }
     },
 
     initializeBoroughHistogram: function(data) {
@@ -260,8 +250,10 @@ Map = (function() {
         .scale(x2)
         .tickSize(0);
 
+      var maxY = _.max(_.map(data, function(d) { return d.incidents }));
+
       var y = d3.scale.linear()
-        .domain([0,100])
+        .domain([0, maxY])
         .rangeRound([0, 100]);
 
       var chart = d3.select("#histogram").append("svg")
@@ -273,12 +265,12 @@ Map = (function() {
         .data(data)
         .enter().append("rect")
         .attr("x", function(d, i) { return x(i) - .5; })
-        .attr("y", function(d) { return h - y(d.value) - .5; })
+        .attr("y", function(d) { return h - y(d.incidents) - .5; })
         .attr("fill", function(d) {
-          return _this.getColor(d.time);
+          return _this.getColor(d.timeMax);
         })
         .attr("width", w)
-        .attr("height", function(d) { return y(d.value); })
+        .attr("height", function(d) { return y(d.incidents); })
 
       chart.append("g")
         .attr("class", "x axis")
@@ -326,12 +318,14 @@ Map = (function() {
     },
 
     redrawBoroughHistogram: function(data)  {
+      var maxY = _.max(_.map(data, function(d) { return d.incidents }));
+      _this.histogramScale.domain([0, maxY]);
       _this.histogram.selectAll("rect")
         .data(data)
         .transition()
         .duration(1000)
-        .attr("y", function(d) { return _this.histogramHeight - _this.histogramScale(d.value) - .5; })
-        .attr("height", function(d) { return _this.histogramScale(d.value); });
+        .attr("y", function(d) { return _this.histogramHeight - _this.histogramScale(d.incidents) - .5; })
+        .attr("height", function(d) { return _this.histogramScale(d.incidents); });
     },
 
     zoomToIncident: function(event) {
