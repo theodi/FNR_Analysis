@@ -227,7 +227,7 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
 var getBoroughScoreM = _.memoize(function (borough, closedStations) {
 	var A = 0.75,
 		medianResponseTimes = median(_.map(getBoroughResponseTimesM(borough, closedStations), function (x) { return x / 60; })),
-		medianFootfall = median(_.map(incidentsData, function (i) { return i.footfall; }));
+		medianFootfall = median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; }));
 	return Math.pow(medianResponseTimes, A) + 
 		Math.pow(Math.log(medianFootfall) / Math.log(10), 1 - A);
 }, function (borough, closedStations) {
@@ -248,8 +248,9 @@ var getBoroughScore = function (borough, closedStations, callback) {
 
 
 var getAllBoroughsScores = function () {
+	console.log("borough,responseTimeBefore,responseTimeAfter,scoreBefore,scoreAfter");
 	_.each(BOROUGHS_NAMES, function (borough) {
-		console.log(borough + "," + getBoroughScoreM(borough, [ ]) + "," + getBoroughScoreM(borough, STATIONS_FACING_CLOSURE_NAMES));
+		console.log(borough + "," + getBoroughResponseTimeM(borough, [ ]) + "," + getBoroughResponseTimeM(borough, STATIONS_FACING_CLOSURE_NAMES) + "," + getBoroughScoreM(borough, [ ]) + "," + getBoroughScoreM(borough, STATIONS_FACING_CLOSURE_NAMES));
 	})
 }
 
