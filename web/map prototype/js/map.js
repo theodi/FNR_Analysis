@@ -12,22 +12,22 @@ Map = (function() {
     overlayValMin: 1.0,
     overlayValMax: 0.8,
 
-    scoreLowerScale: 301,
-    scoreUpperScale: 288,
+    scoreLowerScale: 330,
+    scoreUpperScale: 290,
 
     gradeMinValues: [0, 180, 360, 540],
 
     boroughOutlineWeight:     1,
     boroughOutlineColor:      '#2D0D01',
-    boroughOutlineOpacity:    0.8,
+    boroughOutlineOpacity:    0.9,
     boroughOutlineDashArray:  '',
-    boroughFillOpacity:       0.8,
+    boroughFillOpacity:       0.9,
 
     hoverBoroughOutlineWeight:    2,
     hoverBoroughOutlineColor:     '#2D0D01',
-    hoverBoroughOutlineOpacity:   0.8,
+    hoverBoroughOutlineOpacity:   0.9,
     hoverBoroughOutlineDashArray: '',
-    hoverBoroughFillOpacity:      0.8,
+    hoverBoroughFillOpacity:      0.9,
 
     incidentOutlineWeight:      0,
     incidentOutlineColor:       '#2D0D01',
@@ -163,10 +163,9 @@ Map = (function() {
 
     setScore: function() {
       var score = mean(_.values(_this.boroughScores));
-      var minutes = Math.floor(score / 60);
-      var seconds = Math.floor(score % 60);
-      $("#score .minutes").html(minutes);
-      $("#score .seconds").html(seconds);
+      var mands = _this.minutesAndSeconds(score);
+      $("#score .minutes").html(mands[0]);
+      $("#score .seconds").html(mands[1]);
     },
 
     updateInfo: function(props) {
@@ -209,8 +208,130 @@ Map = (function() {
       var target = event.target
       var props = target.feature.properties;
       var borough = props.borough;
-      _this.showBoroughIncidentData(borough);
+      //_this.showBoroughIncidentData(borough);
+      _this.selectedBorough = borough;
       _this.map.fitBounds(target.getBounds());
+      _this.updateBoroughHistogram(borough);
+      _this.updateBoroughSidebar(borough);
+    },
+
+    updateBoroughSidebar: function(borough) {
+      var mands = _this.minutesAndSeconds(_this.boroughScores[borough]);
+      var text = _this.template("borough-sidebar", {
+        'borough': borough,
+        'response': (mands[0] + " minutes, " + mands[1] + " seconds.")
+      });
+      $("#borough").html(text);
+    },
+
+    updateBoroughHistogram: function(borough) {
+      /* TODO - use the real values here! */
+      var mu = 290 + Math.floor(Math.random() * 80)
+      var sigma = 40 + Math.floor(Math.random() * 40)
+      var n = 1000 + Math.floor(Math.random() * 1000)
+      var testDist = _this.gaussian(mu, sigma);
+      var data = d3.range(20).map(function(i) {
+        return {
+          time: i * 30,
+          value: Math.floor(Math.random() * 101) //testDist(i/20) * n
+        }
+      });
+      /* end TODO */
+      if(!_this.histogram) {
+        _this.initializeBoroughHistogram(data);
+      } else {
+        _this.redrawBoroughHistogram(data);
+      }
+    },
+
+    initializeBoroughHistogram: function(data) {
+      var w = 14;
+      var h = 120;
+
+      var x = d3.scale.linear()
+        .domain([0, 1])
+        .range([0, w]);
+
+      var x2 = d3.scale.linear()
+        .domain([0, 10])
+        .range([0, 280]);
+
+      var xAxis = d3.svg.axis()
+        .scale(x2)
+        .tickSize(0);
+
+      var y = d3.scale.linear()
+        .domain([0,100])
+        .rangeRound([0, 100]);
+
+      var chart = d3.select("#histogram").append("svg")
+        .attr("class", "chart")
+        .attr("width", w * data.length - 1)
+        .attr("height", h + 60)
+
+      chart.selectAll("rect")
+        .data(data)
+        .enter().append("rect")
+        .attr("x", function(d, i) { return x(i) - .5; })
+        .attr("y", function(d) { return h - y(d.value) - .5; })
+        .attr("fill", function(d) {
+          return _this.getColor(d.time);
+        })
+        .attr("width", w)
+        .attr("height", function(d) { return y(d.value); })
+
+      chart.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + h + ")")
+        .style("font-size", "70%")
+        .attr("fill", "#eee")
+        .call(xAxis);
+
+      chart.append("line")
+        .attr("x1", 0)
+        .attr("x2", w * data.length)
+        .attr("y1", h - .5)
+        .attr("y2", h - .5)
+        .attr("fill", "#eee")
+        .style("stroke", "#eee");
+
+      chart.append("line")
+        .attr("x1", 168)
+        .attr("x2", 168)
+        .attr("y1", 0)
+        .attr("y2", h)
+        .style("stroke","#eee")
+
+        chart.append("svg:text")
+        .attr("x",30)
+        .attr("y",h-110)
+        .attr("fill", "#eee")
+        .style("font-size", "80%")
+        .text(function(d) {
+          return "Target - 6 Min"
+        });
+
+      chart.append("svg:text")
+        .attr("x",70)
+        .attr("y",h+25)
+        .attr("fill", "#eee")
+        .style("font-size", "80%")
+        .text(function(d) {
+          return "Minutes"
+        });
+
+      _this.histogram = chart;
+      _this.histogramScale = y;
+      _this.histogramHeight = h;
+    },
+
+    redrawBoroughHistogram: function(data)  {
+      _this.histogram.selectAll("rect")
+        .data(data)
+        .transition()
+        .duration(1000)
+        .attr("y", function(d) { return _this.histogramHeight - _this.histogramScale(d.value) - .5; })
+        .attr("height", function(d) { return _this.histogramScale(d.value); });
     },
 
     zoomToIncident: function(event) {
@@ -247,7 +368,6 @@ Map = (function() {
       _this.updateImpactedBoroughs(names);
     },
 
-
     openAllClosedStations: function() {
       _this.openStations(_this.closedStations);
     },
@@ -280,7 +400,6 @@ Map = (function() {
       }
     },
 
-
     updateBoroughOverviewDisplay: function(borough) {
       getBoroughResponseTime(borough, _this.closedStations, function(err, resp) {
         _this.boroughScores[borough] = resp;
@@ -288,8 +407,13 @@ Map = (function() {
         _.each(layerGroup.getLayers(), function(layer) {
           layer.setStyle({"fillColor": _this.getColor(resp) });
         });
+
+        if(_this.selectedBorough == borough) {
+          _this.updateBoroughSidebar(borough);
+          _this.updateBoroughHistogram(borough);
+        }
         _this.setScore();
-      })
+      });
     },
 
     showBoroughIncidentData: function(borough) {
@@ -428,6 +552,21 @@ Map = (function() {
         _this.map.removeLayer(lg);
       }
     },
+
+    minutesAndSeconds: function(secs) {
+      var minutes = Math.floor(secs / 60);
+      var seconds = Math.floor(secs % 60);
+      return [minutes, seconds]
+    },
+
+
+    gaussian: function(mu, sigma) {
+      var sigma2 = Math.pow(sigma, 2);
+      return function(x) {
+       return 1/Math.sqrt(2 * Math.PI * sigma2) * Math.exp(0- (Math.pow(x - mu, 2)/(2 * sigma2)));
+      }
+    },
+
 
     logistic: function(x) {
       return 1 / (1 + Math.pow(Math.E, 0-x));

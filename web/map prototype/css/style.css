@@ -71,7 +71,7 @@ dd {
   height: 460px;
 }
 
-#sidebar > div {
+#score {
   margin-bottom: 2em;
 }
 
@@ -111,4 +111,16 @@ dd {
   float: right;
   position: relative;
   margin: 10px;
+}
+
+.clear {
+  clear: left;
+}
+
+.clear.right {
+  clear: right;
+}
+
+.clear.both, .clear.left.right {
+  clear: both;
 }
