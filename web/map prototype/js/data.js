@@ -111,7 +111,7 @@ var median = function (values) {
 	// Thanks to http://caseyjustus.com/finding-the-median-of-an-array-with-javascript
     values.sort(function(a,b) {return a - b;});
     var half = Math.floor(values.length / 2);
-    return values.length % 2 ? values[half] : (values[half - 1] + values[half]) / 2.0;
+    return (values.length % 2 == 0) ? values[half] : (values[half - 1] + values[half]) / 2.0;
 }
 
 
@@ -248,11 +248,17 @@ var getBoroughScore = function (borough, closedStations, callback) {
 
 
 var getAllBoroughsScores = function () {
-	console.log("borough,responseTimeBefore,responseTimeAfter,scoreBefore,scoreAfter");
+	console.log("borough,responseTimeBefore,responseTimeAfter,scoreBefore,scoreAfter,medianFootfall");
 	_.each(BOROUGHS_NAMES, function (borough) {
-		console.log(borough + "," + getBoroughResponseTimeM(borough, [ ]) + "," + getBoroughResponseTimeM(borough, STATIONS_FACING_CLOSURE_NAMES) + "," + getBoroughScoreM(borough, [ ]) + "," + getBoroughScoreM(borough, STATIONS_FACING_CLOSURE_NAMES));
-	})
-}
+		console.log(borough + "," + 
+			getBoroughResponseTimeM(borough, [ ]) + "," + 
+			getBoroughResponseTimeM(borough, STATIONS_FACING_CLOSURE_NAMES) + "," + 
+			getBoroughScoreM(borough, [ ]) + "," + 
+			getBoroughScoreM(borough, STATIONS_FACING_CLOSURE_NAMES) + "," +
+			median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; }))
+		);
+	});
+};
 
 
 /* Like getBoroughDetailedResponse below, but assumes that the incidents data for
