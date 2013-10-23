@@ -28,17 +28,21 @@ if ($borough != "") {
 
 echo $response_time;
 
-function getStationResponseTime($station,$closed) {
+function getStationResponseTime($station,$closed,$borough) {
 	global $mysqli;
 	if ($closed) {
 		$query = 'Select count(*),sum(FirstPumpArriving_AttendanceTime) from lfb_all where IncidentStationGround="'.$station.'" and FirstPumpArriving_AttendanceTime>0 and ';
 		for ($i=0;$i<count($closed);$i++) {
 			$query .= 'FirstPumpArriving_DeployedFromStation!="'.$closed[$i].'" and '; 
 		}
-		$query = substr($query,0,-5) . ';';
 	} else {
-		$query = 'Select count(*),sum(FirstPumpArriving_AttendanceTime) from lfb_all where IncidentStationGround="'.$station.'" and FirstPumpArriving_AttendanceTime>0;';
+		$query = 'Select count(*),sum(FirstPumpArriving_AttendanceTime) from lfb_all where IncidentStationGround="'.$station.'" and FirstPumpArriving_AttendanceTime>0 and ';
 	}
+	if ($borough != "") {
+		$query = $query . 'WardName="'.$borough.'" and ';
+	}
+	$query = substr($query,0,-5) . ';';
+	echo $query;
 	$res = $mysqli->query($query) or die($mysqli->error);
 	$row = $res->fetch_row();
 	$count = $row[0];
@@ -49,25 +53,22 @@ function getStationResponseTime($station,$closed) {
 }
 
 function getBoroughResponseTime($borough,$closed) {
-	$stations = getStationsInBorough($borough);
-	$total_time = 0;
-	for($i=0;$i<count($stations);$i++) {
-		$total_time += getStationResponseTime($stations[$i],$closed);
+	global $mysqli;
+	$query = 'select count(*),sum(FirstPumpArriving_AttendanceTime) from lfb_all where FirstPumpArriving_AttendanceTime>0 and WardName="'.$borough.'"';
+	if ($closed) {
+		$query .= " and ";
+		for ($i=0;$i<count($closed);$i++) {
+			$query .= 'FirstPumpArriving_DeployedFromStation!="'.$closed[$i].'" and '; 
+		}
+		$query = substr($query,0,-5);
 	}
-	$average = $total_time / count($stations);
+	$query .= ";";
+	$res = $mysqli->query($query) or die($mysqli->error);
+	$row = $res->fetch_row();
+	$count = $row[0];
+	$total = $row[1];
+	$average = $total / $count;
 	return $average;
 }
-
-function getStationsInBorough($borough) {
-	$json_string = file_get_contents('../data/stations.json');
-	$stations = json_decode($json_string,true);
-	for ($i=0;$i<count($stations);$i++) {
-		if ($stations[$i]["borough"] == $borough) {
-			$ret[] = $stations[$i]["name"];
-		}
-	}
-	return $ret;
-}
-
 
 ?>
