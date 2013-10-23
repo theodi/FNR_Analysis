@@ -12,7 +12,10 @@ var BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
 	// only single station closure that produces a visible effect on the map
 	STATIONS_FACING_CLOSURE_NAMES = [ "Belsize", "Bow", "Clerkenwell", 
 		"Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark", 
-		"Westminster", "Woolwich" ];
+		"Westminster", "Woolwich" ],
+
+    SIMPLIFIED_SQUARE_LATITUDE_SIZE = 0.001,
+    SIMPLIFIED_SQUARE_LONGITUDE_SIZE = 0.0015;
 
 
 var incidentsData = [ ];
@@ -39,12 +42,24 @@ var loadIncidents = function (borough, callback) {
 		log("Loading " + borough + " incidents data for the first time...");
 		d3.csv("data/incidents/" + borough + ".csv", function (inputData) {
 			incidentsDataBoroughs.push(borough);
-			forceColumnsToFloat([ 'firstPumpTime', 'secondPumpTime', 'latitude', 'longitude', 'simplifiedLatitude', 'simplifiedLongitude' ], inputData);
+			forceColumnsToFloat([ 'firstPumpTime', 'simplifiedLatitude', 'simplifiedLongitude' ], inputData);
 			incidentsData = incidentsData.concat(inputData);
 			log("Borough " + borough + " incidents data loaded.");
 			if (callback) callback (null);
 		})
 	}
+}
+
+
+var loadAllIncidents = function (callback) {
+	incidentsData = [ ];
+	d3.csv("data/incidents.csv", function (inputData) {
+		incidentsDataBoroughs = BOROUGHS_NAMES;
+		forceColumnsToFloat([ 'firstPumpTime', 'simplifiedLatitude', 'simplifiedLongitude' ], inputData);
+		incidentsData = inputData;
+		log("All boroughs incidents data loaded.");
+		if (callback) callback (null);
+	})
 }
 
 
@@ -88,19 +103,43 @@ var getStationsInBorough = _.memoize(function (borough) {
 });
 
 
-/* Like getBoroughResponseTime below, but assumes that the incidents data for
-   the borough has been loaded already */
 var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
+
+	// estimates the response time of an incident in a square; it expects
+	// incidentsNotImpacted to be an array of incidents not impacted from the 
+	// stations closure, hence relevant for calculation
+	var estimateSquareResponseTime = _.memoize(function (longitude, latitude) {
+		var MIN_NO_OF_INCIDENTS = 1;
+		var results = [ ];
+		var foundEnough = false;
+		for (var m = 0; !foundEnough; m++) {
+			results = _.filter(incidentsNotImpacted, function (i) { 
+				return (i.simplifiedLongitude >= longitude - m * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) && 
+				(i.simplifiedLongitude < longitude + (m + 1) * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) &&
+				(i.simplifiedLatitude <= latitude + m * SIMPLIFIED_SQUARE_LATITUDE_SIZE) &&
+				(i.simplifiedLatitude > latitude - (m + 1) * SIMPLIFIED_SQUARE_LATITUDE_SIZE);
+			});
+			foundEnough = results.length >= MIN_NO_OF_INCIDENTS;
+		}	
+		return mean(_.map(results, function (i) { return i.firstPumpTime; }));
+	}, function (longitude, latitude) {
+		return longitude + '_' + latitude;
+	});
+
+
 	closedStations = [ ].concat(closedStations);
-	if (closedStations.length == 0) {
-		return mean(_.map(_.filter(incidentsData, function (i) {
-			return i.borough == borough;
-		}), function (i) { return i.firstPumpTime; }));
-	} else {
-		return Math.max(getBoroughResponseTime(borough), mean(_.map(_.filter(incidentsData, function (i) {
-			return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
-		}), function (i) { return i.firstPumpTime; })));
-	}
+	var boroughIncidents = _.filter(incidentsData, function (i) { return i.borough == borough; });
+	var incidentsNotImpacted = _.filter(boroughIncidents, function (i) { return !_.contains(closedStations, i.firstPumpStation); })
+	var incidentsImpacted = _.filter(boroughIncidents, function (i) { return _.contains(closedStations, i.firstPumpStation); })
+	var oldTimings = _.map(incidentsNotImpacted, function (i) { return i.firstPumpTime; });
+	var newTimings = _.reduce(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })), 
+		function (memo, incidentsInSameSquare) { 
+			var newResponseTime = estimateSquareResponseTime(incidentsInSameSquare[0].simplifiedLongitude, incidentsInSameSquare[0].simplifiedLatitude, closedStations);
+			// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
+			return memo.concat(_.map(Array(incidentsInSameSquare.length + 1).join(1).split(''), function() { return newResponseTime; }));
+		}, 
+		[ ]);
+	return mean(oldTimings.concat(newTimings));
 }, function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations)).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
