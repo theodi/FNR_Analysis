@@ -84,6 +84,20 @@ function updateBoroughsSelected() {
 }
 
 function updateBoroughStyle(borough,stations) {
+	$.getJSON( "library/GetBoroughCalculatedResponseTimes.php?borough="+borough+"&close=" + stations, function( data ) {
+		color = getColor(data);
+		console.log("New response time for " + borough + " is " + data + " color " + color);
+		layerhook = mapLayerGroups["B:" + borough]._layers;
+		for (key in layerhook) {
+			mapLayerGroups["B:" + borough]._layers[key].setStyle({fillColor:color});
+			mapLayerGroups["B:" + borough]._layers[key].feature.properties.response = data;
+		}
+	});
+}
+/*
+	Old routine
+
+function updateBoroughStyle(borough,stations) {
 	$.getJSON( "library/GetAreaResponseTime.php?borough="+borough+"&closed=" + stations, function( data ) {
 		color = getColor(data);
 		console.log("New response time for " + borough + " is " + data + " color " + color);
@@ -94,6 +108,7 @@ function updateBoroughStyle(borough,stations) {
 		}
 	});
 }
+*/
 
 function closeStation(name) {
 	// Stage one: Add this station to the array of closed stations
@@ -355,6 +370,20 @@ function hideLayer(id) {
 		lg = mapLayerGroups[id];
 		map.removeLayer(lg);   
 	}
+}
+
+function close10() {
+	setTimeout(closeStation("Belsize"),1000);
+	setTimeout(closeStation("Bow"),6000);
+	setTimeout(closeStation("Clerkenwell"),11000);
+	setTimeout(closeStation("Downham"),16000);
+	setTimeout(closeStation("Kingsland"),21000);
+	setTimeout(closeStation("Knightsbridge"),26000);
+	setTimeout(closeStation("Silvertown"),31000);
+	setTimeout(closeStation("Southwark"),36000);
+	setTimeout(closeStation("Westminster"),41000);
+	setTimeout(closeStation("Woolwich"),46000);
+
 }
 
 var map = L.map('map').setView([51.5, 0.04], 14);

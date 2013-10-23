@@ -36,7 +36,7 @@ if (count($stations_excluded) > 0) {
 } else {
 	$query = "Select distinct(WardName) from lfb_all;";
 }
-	
+
 $res = $mysqli->query($query) or die($mysqli->error);
 while ($row = $res->fetch_array(MYSQLI_ASSOC)) {
 	$ward = trim($row["WardName"]);
@@ -82,6 +82,8 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 	}
 	$query .= 'lfb_all.FirstPumpArriving_AttendanceTime>0 and WardName="'.$ward.'" order by Latitude_rounded;';
 //	$query = 'Select * from lfb_all where lfb_all.FirstPumpArriving_AttendanceTime>0 order by Latitude_rounded;';
+	echo $query;
+	echo "<br/>";
 	$res = $mysqli->query($query) or die($mysqli->error);
 	while ($row = $res->fetch_array(MYSQLI_ASSOC)) {
 		$count++;
