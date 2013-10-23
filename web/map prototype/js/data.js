@@ -89,10 +89,16 @@ var getImpactedBoroughs = _.memoize(function (stations) {
 })
 
 
-// returns the mean of an array of numerical values
-var mean = function (a) {
-	a = [ ].concat(a);
-	return _.reduce(a, function (memo, num) { return memo + num; }, 0.0) / a.length;
+var mean = function (values) {
+	return _.reduce(values, function (memo, num) { return memo + num; }, 0.0) / values.length;
+}
+
+
+var median = function (values) {
+	// Thanks to http://caseyjustus.com/finding-the-median-of-an-array-with-javascript
+    values.sort(function(a,b) {return a - b;});
+    var half = Math.floor(values.length / 2);
+    return values.length % 2 ? values[half] : (values[half - 1] + values[half]) / 2.0;
 }
 
 
@@ -206,15 +212,7 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
 /* Like getBoroughScore below, but assumes that the incidents data for
    the borough has been loaded already */
 var getBoroughScoreM = _.memoize(function (borough, closedStations) {
-	if (closedStations.length == 0) {
-		return mean(_.map(_.filter(incidentsData, function (i) {
-			return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
-		}), function (i) { return i.score; }));
-	} else {
-		return Math.max(getBoroughScore(borough), mean(_.map(_.filter(incidentsData, function (i) {
-			return (i.borough == borough) && !_.contains(closedStations, i.firstPumpStation);
-		}), function (i) { return i.score; })));
-	}
+
 }, function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations)).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
@@ -225,10 +223,10 @@ var getBoroughScoreM = _.memoize(function (borough, closedStations) {
     specified borough's score vs time and population and then calls back
     callback(err, boroughscore) */
 var getBoroughScore = function (borough, closedStations, callback) {
-	// TODO: STAB ONLY
-	loadIncidents(borough, function (err) {
-		err ? callback(err, undefined): callback(null, getBoroughScoreM(borough, closedStations));  
-	});
+	// loadIncidents(borough, function (err) {
+	// 	err ? callback(err, undefined): callback(null, getBoroughScoreM(borough, closedStations));  
+	// });
+	callback(null, getBoroughScoreM(borough, closedStations);
 };
 
 
