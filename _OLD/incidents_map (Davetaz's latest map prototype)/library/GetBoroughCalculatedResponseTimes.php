@@ -12,9 +12,6 @@ for ($i=0;$i<count($to_exclude);$i++) {
 	$stations_excluded[] = $to_exclude[$i];
 }
 
-//$borough = "Newham";
-//$stations_excluded[] = "Silvertown";
-
 getDataForWard($borough,$stations_excluded,"");
 
 function getDataForWard($ward,$stations_excluded,$filename) {
@@ -74,7 +71,8 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 
 	$global_total = 0;
 	$gloabl_count = 0;
-
+	unset($global_cat);
+	
 	foreach ($squares as $grid_square => $data) {
 		$average = 0;
 		unset($to_replace);
@@ -84,7 +82,10 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 			if (in_array($needle,$stations_excluded)) {
 				$to_replace[] = $i;
 			} else {
-				$global_total += $records[$i]["FirstPumpArriving_AttendanceTime"];
+				$time = $records[$i]["FirstPumpArriving_AttendanceTime"];
+				$bound = floor($time / 30);
+				$global_cat[$bound]++;
+				$global_total += $time;
 				$global_count++;
 			}
 		}
@@ -127,11 +128,33 @@ function getDataForWard($ward,$stations_excluded,$filename) {
 //			echo "Replacing " . $records[$to_replace[$i]]["FirstPumpArriving_AttendanceTime"] . " with " . $average . "\n";
 			$records[$to_replace[$i]]["FirstPumpArriving_AttendanceTime"] = $average;
 			$squares[$grid_square]["records"] = $records;
+			
+			$bound = floor($average / 30);
+			$global_cat[$bound]++;
 		}
 	}
 	
 	$global_average = $global_total / $global_count;
-	echo $global_average;
+	echo '{' . "\n\t" .  '"averageResponseTime":' . $global_average . ',' . "\n";
+	echo "\t" . '"distribution": [' . "\n"; 
+	$max_bound = 0;
+	foreach ($global_cat as $bound => $count) {
+		if ($bound > $max_bound) {
+			$max_bound = $bound;
+		}
+	}
+	$json = "";
+	for ($i=0;$i<$max_bound;$i++) {
+		$time_min = 30 * $i;
+		$time_max = $time_min + 30;
+		$json .=  "\t\t" . '{"timeMin": ' . $time_min . ', "timeMax": ' . $time_max . ', "incidents":' . $global_cat[$i] . '},' . "\n";
+	}
+	$json = substr(trim($json),0,-1);
+	$json .= "\n";
+	echo $json;
+	echo "\t]\n";
+	echo "}";
+	
 }
 
 function getExpandedAreaRecords($new_lat,$new_long,$lat_coverage,$long_coverage,$squares) {
