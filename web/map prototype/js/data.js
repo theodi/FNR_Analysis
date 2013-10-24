@@ -25,7 +25,7 @@ var stationsData = undefined;
 var boroughsByFirstRespondersPromise;
 var impactedBoroughs = function(closed_stations, callback) {
   if(!boroughsByFirstRespondersPromise) {
-    boroughsByFirstRespondersPromise = $.get("../data/boroughs_by_first_responders.json")
+    boroughsByFirstRespondersPromise = $.get("data/boroughs_by_first_responders.json")
   }
  boroughsByFirstRespondersPromise.success(function(data) {
   callback(_.uniq(_.flatten(_.map(closed_stations, function(station) {
