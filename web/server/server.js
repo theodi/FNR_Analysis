@@ -8,6 +8,7 @@ var _ = require('underscore'),
 		.alias('port', 'p')
 		.argv, 
 	restify = require('restify'),
+	zlib = require('zlib'),
 
 	BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
 		"Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield",
@@ -46,7 +47,7 @@ var loadAllIncidents = function (callback) {
 	log("Loading incident data...");
 	incidentsData = [ ];
     csv()
-        .from.stream(fs.createReadStream(__dirname + '/data/incidents.csv'), {
+		.from.stream(fs.createReadStream(__dirname + '/data/incidents.csv.gz').pipe(zlib.createUnzip()), {
             columns: true
         })
         .on('record', function (row, index) {
@@ -291,5 +292,6 @@ loadAllIncidents(function () {
 		getAllBoroughsScoresM();	
 		log("Caching completed.");
 	}
-	server.listen(argv.port | 8080);
+	server.listen(argv.port);
+	log("The server is listening on port " + argv.port + ".");
 });
