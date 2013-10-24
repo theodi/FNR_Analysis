@@ -247,6 +247,7 @@ var getBoroughScore = function (borough, closedStations, callback) {
 };
 
 
+// Just for testing, prints out a .csv on the JavaScript console
 var getAllBoroughsScores = function () {
 	console.log("borough,responseTimeBefore,responseTimeAfter,scoreBefore,scoreAfter,medianFootfall");
 	_.each(BOROUGHS_NAMES, function (borough) {
