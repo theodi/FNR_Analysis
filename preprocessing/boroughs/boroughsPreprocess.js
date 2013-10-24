@@ -29,7 +29,7 @@ var getBoroughScore = function (responseTimesSeries, footfallSeries) {
     var A = 0.75,
         medianResponseTimes = median(_.map(responseTimesSeries, function (x) { return x / 60; })),
         medianFootfall = median(footfallSeries);
-    return Math.pow(medianResponseTimes, A) + 
+    return Math.pow(medianResponseTimes, A) * 
         Math.pow(Math.log(medianFootfall) / Math.log(10), 1 - A);
 };
 
