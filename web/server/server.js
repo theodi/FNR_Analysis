@@ -67,6 +67,16 @@ var median = function (values) {
 }
 
 
+var getBoroughsByFirstResponderM = _.memoize(function () {
+	results = { };
+	var stations = _.unique(_.map(incidentsData, function (i) { return i.firstPumpStation; })).sort();
+	_.each(stations, function (s) {
+		results[s] = _.unique(_.map(_.filter(incidentsData, function (i) { return s == i.firstPumpStation; }), function (i) { return i.borough; })).sort();
+	})
+	return results;
+});
+
+
 var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
 
 	// Estimates the response time of a generic incident in a square; it expects
@@ -226,6 +236,12 @@ var server = restify.createServer({
 });
 
 server.use(restify.queryParser());
+
+
+server.get('/getBoroughsByFirstResponder', function (req, res, next) {
+	res.send(200, getBoroughsByFirstResponderM());
+	return next();
+});
 
 server.get('/getBoroughResponseTime', function (req, res, next) {
 	res.send(200, getBoroughResponseTimeM(req.query.borough, req.query.close));
