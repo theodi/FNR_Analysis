@@ -229,7 +229,7 @@ var getBoroughScoreM = _.memoize(function (borough, closedStations) {
 		medianResponseTimes = median(_.map(getBoroughResponseTimesM(borough, closedStations), function (x) { return x / 60; })),
 		medianFootfall = median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; }));
 	return Math.pow(medianResponseTimes, A) * 
-		Math.pow(Math.log(medianFootfall) / Math.log(10), 1 - A);
+		Math.pow(Math.log(medianFootfall + 2) / Math.log(10), 1 - A);
 }, function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations)).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
