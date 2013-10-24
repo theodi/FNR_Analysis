@@ -76,6 +76,7 @@ var loadData = function (callback) {
    'first pumps'. */
 var getImpactedBoroughs = _.memoize(function (stations) {
 	stations = [ ].concat(stations)
+	log("Calculating for the first time getImpactedBoroughs for stations " + stations.join(", "));
 	return _.unique(_.map(_.filter(incidentsData, function (r) {
 		return _.contains(stations, r.firstPumpStation);
 	}), function (r) { return r.borough; }));
@@ -98,6 +99,7 @@ var median = function (values) {
 
 
 var getStationsInBorough = _.memoize(function (borough) {
+	log("Calculating for the first time getStationsInBorough for " + borough);
 	return _.map(_.where(stationsData, { borough: borough }), function (r) {
 		return r.name;
 	})
@@ -105,8 +107,8 @@ var getStationsInBorough = _.memoize(function (borough) {
 
 
 var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
-	closedStations = ([ ].concat(closedStations));
-	// estimates the response time of a generic incident in a square; it expects
+
+	// Estimates the response time of a generic incident in a square; it expects
 	// incidentsNotImpacted to be an array of incidents not impacted from the
 	// stations closure, hence relevant for calculation
 	var estimateSquareResponseTime = _.memoize(function (longitude, latitude) {
@@ -127,17 +129,19 @@ var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
 		return longitude + '_' + latitude;
 	});
 
-	var boroughIncidents = _.filter(incidentsData, function (i) { return i.borough == borough; });
-	var incidentsNotImpacted = _.filter(boroughIncidents, function (i) { return !_.contains(closedStations, i.firstPumpStation); })
-	var incidentsImpacted = _.filter(boroughIncidents, function (i) { return _.contains(closedStations, i.firstPumpStation); })
-	var oldTimings = _.map(incidentsNotImpacted, function (i) { return i.firstPumpTime; });
-	var newTimings = _.reduce(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })),
-		function (memo, incidentsInSameSquare) {
-			var newResponseTime = estimateSquareResponseTime(incidentsInSameSquare[0].simplifiedLongitude, incidentsInSameSquare[0].simplifiedLatitude, closedStations);
-			// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
-			return memo.concat(_.map(Array(incidentsInSameSquare.length + 1).join(1).split(''), function() { return newResponseTime; }));
-		},
-		[ ]);
+	closedStations = ([ ].concat(closedStations));
+	log("Calculating for the first time getBoroughResponseTimesM for " + borough + " with closed stations: " + closedStations.join(", "));
+	var boroughIncidents = _.filter(incidentsData, function (i) { return i.borough == borough; }),
+		incidentsNotImpacted = _.filter(boroughIncidents, function (i) { return !_.contains(closedStations, i.firstPumpStation); }),
+		incidentsImpacted = _.filter(boroughIncidents, function (i) { return _.contains(closedStations, i.firstPumpStation); }),
+		oldTimings = _.map(incidentsNotImpacted, function (i) { return i.firstPumpTime; }),
+		newTimings = _.reduce(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })), 
+			function (memo, incidentsInSameSquare) {
+				var newResponseTime = estimateSquareResponseTime(incidentsInSameSquare[0].simplifiedLongitude, incidentsInSameSquare[0].simplifiedLatitude, closedStations);
+				// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
+				return memo.concat(_.map(Array(incidentsInSameSquare.length + 1).join(1).split(''), function() { return newResponseTime; }));
+			},
+			[ ]);
 	return oldTimings.concat(newTimings);
 }, function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations)).sort();
@@ -146,10 +150,6 @@ var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
 
 
 var getBoroughResponseTimes = function (borough, closedStations, callback) {
-	closedStations = ([ ].concat(closedStations));
-	// loadIncidents(borough, function (err) {
-	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimesM(borough, closedStations));
-	// });
 	callback(null, getBoroughResponseTimesM(borough, closedStations));
 };
 
@@ -157,10 +157,11 @@ var getBoroughResponseTimes = function (borough, closedStations, callback) {
 var getBoroughHistM = _.memoize(function (borough, closedStations) {
 	/* [{timeMin: 0, timeMax: 30, incidents: 5},{timeMin: 30, timeMax: 60, incidents: 7}, ...] */
 	closedStations = ([ ].concat(closedStations));
-	var BIN_SIZE = 60; // seconds
-	var responseTimes = getBoroughResponseTimesM(borough, closedStations);
-	var maxResponseTime = Math.max.apply(null, responseTimes);
-	var results = [ ];
+	log("Calculating for the first time getBoroughHistM for " + borough + " with closed stations: " + closedStations.join(", "));
+	var BIN_SIZE = 60, // seconds
+		responseTimes = getBoroughResponseTimesM(borough, closedStations),
+		maxResponseTime = Math.max.apply(null, responseTimes),
+		results = [ ];
 	for (var timeMin = 0; timeMin <= maxResponseTime; timeMin += BIN_SIZE) {
 		var timeMax = timeMin + BIN_SIZE;
 		results.push({
@@ -177,10 +178,6 @@ var getBoroughHistM = _.memoize(function (borough, closedStations) {
 
 
 var getBoroughHist = function (borough, closedStations, callback) {
-	closedStations = ([ ].concat(closedStations));
-	// loadIncidents(borough, function (err) {
-	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimeM(borough, closedStations));
-	// });
 	callback(null, getBoroughHistM(borough, closedStations));
 };
 
@@ -198,10 +195,6 @@ var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
     specified borough's response time and then calls back
     callback(err, boroughResponseTime) */
 var getBoroughResponseTime = function (borough, closedStations, callback) {
-	closedStations = ([ ].concat(closedStations));
-	// loadIncidents(borough, function (err) {
-	// 	err ? callback(err, undefined): callback(null, getBoroughResponseTimeM(borough, closedStations));
-	// });
 	callback(null, getBoroughResponseTimeM(borough, closedStations));
 };
 
@@ -210,6 +203,7 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
    the borough has been loaded already */
 var getBoroughScoreM = _.memoize(function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations));
+	log("Calculating for the first time getBoroughScoreM for " + borough + " with closed stations: " + closedStations.join(", "));
 	var A = 0.75,
 		medianResponseTimes = median(_.map(getBoroughResponseTimesM(borough, closedStations), function (x) { return x / 60; })),
 		medianFootfall = median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; }));
@@ -225,10 +219,6 @@ var getBoroughScoreM = _.memoize(function (borough, closedStations) {
     specified borough's score vs time and population and then calls back
     callback(err, boroughscore) */
 var getBoroughScore = function (borough, closedStations, callback) {
-	closedStations = ([ ].concat(closedStations));
-	// loadIncidents(borough, function (err) {
-	// 	err ? callback(err, undefined): callback(null, getBoroughScoreM(borough, closedStations));  
-	// });
 	callback(null, getBoroughScoreM(borough, closedStations));
 };
 
@@ -255,15 +245,13 @@ var getAllBoroughsScoresM = _.memoize(function (closedStations) {
 
 
 var getAllBoroughsScores = function (closedStations, callback) {
-	// loadIncidents(borough, function (err) {
-	// 	err ? callback(err, undefined): callback(null, getBoroughScoreM(borough, closedStations));  
-	// });
 	callback(null, getAllBoroughsScoresM(closedStations));
 };
 
 
 // Just for testing, prints out a .csv on the JavaScript console
 var getAllBoroughsScoresCSV = function (closedStations) {
+	log("It can take a while when calculated for the first time...");
 	var results = getAllBoroughsScoresM(closedStations);
 	console.log(_.keys(results[0]).join(","));
 	_.each(results, function (r) {
