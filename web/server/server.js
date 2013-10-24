@@ -1,6 +1,12 @@
 var _ = require('underscore'),
 	csv = require('csv'),
 	fs = require('fs'),
+    argv = require('optimist') 
+		.usage('Usage: $0 --port portNumber [--cache]')
+		.demand([ 'port' ])
+		.alias('cache', 'c')
+		.alias('port', 'p')
+		.argv, 
 	restify = require('restify'),
 
 	BOROUGHS_NAMES = [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
@@ -25,7 +31,8 @@ var _ = require('underscore'),
     incidentsData = [ ];
 
 
-// TODO: is what you see below necessary? why does d3.csv import all columns as strings?
+// TODO: what you see below necessary is necessary with D3, as all columns are
+// imported as string for some reason not yet investigated 
 var forceColumnsToFloat = function (columnNames, a) {
 	_.each(a, function (record) {
 		_.each(columnNames, function (columnName) {
@@ -265,5 +272,24 @@ server.get('/getBoroughHist', function (req, res, next) {
 
 
 loadAllIncidents(function () {
-	server.listen(8080);
+	if (argv.cache) {
+		log("Caching getBoroughsByFirstResponderM()...");
+		getBoroughsByFirstResponderM()	
+		log("Caching getBoroughResponseTimeM(borough) for all boroughs...");
+		_.each(BOROUGHS_NAMES, function (b) { getBoroughResponseTimeM(b) });	
+		log("Caching getBoroughResponseTimeM(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+		_.each(BOROUGHS_NAMES, function (b) { getBoroughResponseTimeM(b, STATIONS_FACING_CLOSURE_NAMES) });	
+		log("Caching getBoroughScoreM(borough) for all boroughs...");
+		_.each(BOROUGHS_NAMES, function (b) { getBoroughScoreM(b) });	
+		log("Caching getBoroughScoreM(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+		_.each(BOROUGHS_NAMES, function (b) { getBoroughScoreM(b, STATIONS_FACING_CLOSURE_NAMES) });	
+		log("Caching getBoroughHistM(borough) for all boroughs...");
+		_.each(BOROUGHS_NAMES, function (b) { getBoroughHistM(b) });	
+		log("Caching getBoroughHistM(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+		_.each(BOROUGHS_NAMES, function (b) { getBoroughHistM(b, STATIONS_FACING_CLOSURE_NAMES) });	
+		log("Caching getAllBoroughsScoresM()...");
+		getAllBoroughsScoresM();	
+		log("Caching completed.");
+	}
+	server.listen(argv.port | 8080);
 });
