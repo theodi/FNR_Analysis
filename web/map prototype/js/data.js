@@ -46,29 +46,11 @@ var forceColumnsToFloat = function (columnNames, a) {
 }
 
 
-// Loads and stores permanently all incidents that happened in the specified
-// borough, then calls callback(err)
-var loadIncidents = function (borough, callback) {
-	if (_.contains(incidentsDataBoroughs, borough)) {
-		if (callback) callback (null);
-	} else {
-		log("Loading " + borough + " incidents data for the first time...");
-		d3.csv("data/incidents/" + borough + ".csv", function (inputData) {
-			incidentsDataBoroughs.push(borough);
-			forceColumnsToFloat([ 'firstPumpTime', 'simplifiedLatitude', 'simplifiedLongitude' ], inputData);
-			incidentsData = incidentsData.concat(inputData);
-			log("Borough " + borough + " incidents data loaded.");
-			if (callback) callback (null);
-		})
-	}
-}
-
-
 var loadAllIncidents = function (callback) {
 	incidentsData = [ ];
 	d3.csv("data/incidents.csv", function (inputData) {
 		incidentsDataBoroughs = BOROUGHS_NAMES;
-		forceColumnsToFloat([ 'firstPumpTime', 'simplifiedLatitude', 'simplifiedLongitude' ], inputData);
+		forceColumnsToFloat([ 'firstPumpTime', 'simplifiedLatitude', 'simplifiedLongitude', 'footfall' ], inputData);
 		incidentsData = inputData;
 		log("All boroughs incidents data loaded.");
 		if (callback) callback (null);
@@ -109,7 +91,7 @@ var mean = function (values) {
 
 var median = function (values) {
 	// Thanks to http://caseyjustus.com/finding-the-median-of-an-array-with-javascript
-    values.sort(function(a,b) {return a - b;});
+    values.sort(function(a,b) { return a - b; });
     var half = Math.floor(values.length / 2);
     return (values.length % 2 == 0) ? values[half] : (values[half - 1] + values[half]) / 2.0;
 }
@@ -249,15 +231,17 @@ var getBoroughScore = function (borough, closedStations, callback) {
 
 // Just for testing, prints out a .csv on the JavaScript console
 var getAllBoroughsScores = function () {
-	console.log("borough,responseTimeBefore,responseTimeAfter,scoreBefore,scoreAfter,medianFootfall");
+	console.log("borough,responseTimeBefore,responseTimeAfter,scoreBefore,scoreAfter,medianFootfall,meanFootfall");
 	_.each(BOROUGHS_NAMES, function (borough) {
+		var footfallSeries = _.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; });
+		// console.log(footfallSeries);
 		console.log(borough + "," + 
 			getBoroughResponseTimeM(borough, [ ]) + "," + 
 			getBoroughResponseTimeM(borough, STATIONS_FACING_CLOSURE_NAMES) + "," + 
 			getBoroughScoreM(borough, [ ]) + "," + 
 			getBoroughScoreM(borough, STATIONS_FACING_CLOSURE_NAMES) + "," +
-			median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; }))
+			median(footfallSeries) + "," +
+			mean(footfallSeries)
 		);
 	});
 };
-
