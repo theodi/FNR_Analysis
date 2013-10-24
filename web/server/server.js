@@ -244,6 +244,7 @@ var server = restify.createServer({
 });
 
 server.use(restify.queryParser());
+server.use(restify.jsonp());
 
 
 server.get('/getBoroughsByFirstResponder', function (req, res, next) {
