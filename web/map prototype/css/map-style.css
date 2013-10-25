@@ -1,4 +1,4 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -12,8 +12,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
 	margin: 0;
@@ -24,7 +24,7 @@ time, mark, audio, video {
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
@@ -45,7 +45,9 @@ q:before, q:after {
 table {
 	border-collapse: collapse;
 	border-spacing: 0;
-}body {
+}
+
+body {
   background-color: #404040;
   color: #eee;
   font-family: 'FreeUniversal', sans-serif;
@@ -155,7 +157,29 @@ dd {
   border-radius: 5px;
   float: right;
   position: relative;
-  margin: 10px;
+  margin: 0px 10px 0 0;
+}
+
+.leaflet-container .leaflet-control-attribution {
+  padding: 3px 4px;
+  background: rgba(64,64,64,0.8) !important;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2) !important;
+  border-radius: 5px 0 0 0;
+  color: #eee;
+}
+
+.leaflet-container .leaflet-control-attribution a {
+  color: #eee;
+}
+
+  .leaflet-container .leaflet-control-zoom-in, .leaflet-container .leaflet-control-zoom-out {
+  background-color: #404040 !important;
+  color: #eee;
+}
+
+.leaflet-container .leaflet-control-zoom-in:hover, .leaflet-container .leaflet-control-zoom-out:hover {
+  background-color: #606060 !important;
+  color: #eee;
 }
 
 .clear {
@@ -169,3 +193,4 @@ dd {
 .clear.both, .clear.left.right {
   clear: both;
 }
+

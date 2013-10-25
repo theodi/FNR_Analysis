@@ -248,7 +248,7 @@ Map = (function() {
     updateBoroughHistogram: function(borough) {
       _this.blockUI();
       Data.getBoroughHist(borough, _this.closedStations, function(bins)  {
-        _this.unBlockUI();
+        _this.unblockUI();
         if(!_this.histogram) {
           _this.initializeBoroughHistogram(bins);
         } else {
