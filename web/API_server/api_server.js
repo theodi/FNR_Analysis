@@ -50,6 +50,12 @@ var _ = require('underscore'),
 
     SIMPLIFIED_SQUARE_LATITUDE_SIZE = 0.001,
     SIMPLIFIED_SQUARE_LONGITUDE_SIZE = 0.0015,
+    LENGTH_OF_A_DEGREE_OF_LATITUDE = 111.25826132219737, // km
+	LENGTH_OF_A_DEGREE_OF_LONGITUDE = 69.4032968251825, //km
+	AREA_OF_ONE_SIMPLIFIED_SQUARE = SIMPLIFIED_SQUARE_LATITUDE_SIZE * 
+		LENGTH_OF_A_DEGREE_OF_LATITUDE * 
+		SIMPLIFIED_SQUARE_LONGITUDE_SIZE * 
+		LENGTH_OF_A_DEGREE_OF_LONGITUDE, // sqkm
 
     incidentsData = [ ];
     censusData = [ ];
@@ -247,13 +253,13 @@ var getBoroughScore = function (borough, closedStations, callback) {
 // Just for testing, prints out a .csv on the JavaScript console
 var getAllBoroughsScoresM = _.memoize(function (closedStations) {
 	closedStations = [ ].concat(closedStations || [ ]);
-
 	var results = [ ];
 	_.each(BOROUGHS_NAMES, function (borough) {
 		results.push({
 			borough: borough,
 			responseTime: getBoroughResponseTimeM(borough, closedStations),
 			score: getBoroughScoreM(borough, closedStations),
+			footfallDensity: median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall / AREA_OF_ONE_SIMPLIFIED_SQUARE; })),
 			totalPopulation: censusData[borough].totalPopulation,
 			areaSqKm: censusData[borough].areaSqKm,
 			populationDensity: censusData[borough].populationDensity,
