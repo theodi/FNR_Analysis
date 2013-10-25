@@ -259,7 +259,7 @@ var getAllBoroughsScoresM = _.memoize(function (closedStations) {
 			borough: borough,
 			responseTime: getBoroughResponseTimeM(borough, closedStations),
 			score: getBoroughScoreM(borough, closedStations),
-			footfallDensity: median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall / AREA_OF_ONE_SIMPLIFIED_SQUARE; })),
+			footfallDensity: Math.round(median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall / AREA_OF_ONE_SIMPLIFIED_SQUARE; })), 0),
 			totalPopulation: censusData[borough].totalPopulation,
 			areaSqKm: censusData[borough].areaSqKm,
 			populationDensity: censusData[borough].populationDensity,
