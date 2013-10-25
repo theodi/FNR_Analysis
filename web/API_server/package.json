@@ -1,0 +1,42 @@
+{
+  "name": "FNRServicesServer",
+  "version": "0.0.1",
+  "author": "Gianfranco Cecconi <gianfranco.cecconi@digitalcontraptionsimaginarium.co.uk>",
+  "description": "Server version of the original data.js .",
+  "contributors": [ 
+    {
+      "name": "David Tarrant",
+      "email": "davetaz@theodi.org"
+    }, 
+    {
+      "name": "Gianfranco Cecconi",
+      "email": "gianfranco.cecconi@digitalcontraptionsimaginarium.co.uk"
+    }, 
+    {
+      "name": "Tim Cowlishaw",
+      "email": "tim@timcowlishaw.co.uk"
+    }, 
+    {
+      "name": "Ulrich Atz",
+      "email": "ulrich.atz@theodi.org"
+    } 
+  ],
+  "keywords": [
+    "London Fire Brigade",
+    "ODI",
+    "Open Data Institute",
+    "Open Data",
+    "Telefonica"
+  ],
+  "dependencies" : {
+    "csv": ">=0.3.6",
+    "optimist": ">=0.6.0",
+    "restify": ">=2.6.0",    
+    "underscore": ">=1.5.2",
+    "zlib": ">=1.0.5"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.10.20"
+  }
+}
