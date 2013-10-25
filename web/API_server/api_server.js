@@ -48,6 +48,20 @@ var _ = require('underscore'),
 		"Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark",
 		"Westminster", "Woolwich" ],
 
+	// Source http://data.london.gov.uk/datastorefiles/documents/2011-census-first-results.pdf
+	CENSUS_2011 = { "City of London": 7400, "Barking and Dagenham": 185900, 
+		"Barnet": 356400, "Bexley": 232000, "Brent": 311200, "Bromley": 309400,
+		"Camden": 220300, "Croydon": 363400, "Ealing": 338400, 
+		"Enfield": 312500, "Greenwich": 254600, "Hackney": 246300, 
+		"Hammersmith and Fulham": 182500, "Haringey": 254900, "Harrow": 239100,
+		"Havering": 237200, "Hillingdon": 273900, "Hounslow": 254000, 
+		"Islington": 206100, "Kensington and Chelsea": 158700,  
+		"Kingston upon Thames": 160100, "Lambeth": 303100, "Lewisham": 275900,
+		"Merton": 199700, "Newham": 308000, "Redbridge": 279000,  
+		"Richmond upon Thames": 187000, "Southwark": 288300, "Sutton": 190100, 
+		"Tower Hamlets": 254100, "Waltham Forest": 258200, "Wandsworth": 307000, 
+		"Westminster": 219400 },
+
     SIMPLIFIED_SQUARE_LATITUDE_SIZE = 0.001,
     SIMPLIFIED_SQUARE_LONGITUDE_SIZE = 0.0015,
 
@@ -232,6 +246,7 @@ var getAllBoroughsScoresM = _.memoize(function (closedStations) {
 			borough: borough,
 			responseTime: getBoroughResponseTimeM(borough, closedStations),
 			score: getBoroughScoreM(borough, closedStations),
+			census2011: CENSUS_2011[borough],
 		});
 	});
 	return results;
