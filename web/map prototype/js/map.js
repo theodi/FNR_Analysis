@@ -619,13 +619,14 @@ Map = (function() {
     },
 
     boroughStyle: function(feature) {
-      var response = feature.properties.response;
+      var name = feature.properties.borough;
+      var resp = _this.boroughScores[name] ? _this.boroughScores[name] : feature.properties.response;
       return {
         weight:       _this.boroughOutlineWeight,
           color:        _this.boroughOutlineColor,
           dashArray:    _this.hoverBoroughDashArray,
           fillOpacity:  _this.boroughFillOpacity,
-          fillColor:    _this.getColor(response),
+          fillColor:    _this.getColor(resp),
           opacity:      _this.boroughOutlineOpacity,
       };
     },
