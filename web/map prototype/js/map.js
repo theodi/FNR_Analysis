@@ -171,14 +171,14 @@ Map = (function() {
       }
 
       var margin = {top: 19.5, right: 19.5, bottom: 19.5, left: 39.5},
-          width = 280 - margin.right,
+          width = 280 - margin.right - margin.left,
           height = 300 - margin.top - margin.bottom;
 
       var xScale = d3.scale.linear().domain([3, 5]).range([0, width]),
           yScale = d3.scale.linear().domain([250, 450]).range([height, 0])
 
       var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(2);
-      var yAxis = d3.svg.axis().scale(yScale).orient("left");
+      var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(6);
 
       var svg = d3.select("#scattergraph").append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -241,6 +241,11 @@ Map = (function() {
         function order(a, b) {
           return radius(b) - radius(a);
         }
+
+        d3.selectAll(".domain")
+          .attr("stroke-width", "1")
+          .attr("stroke", "#eee")
+          .attr("fill", "none");
 
         _this.scatterGraph = svg;
         _this.scatterGraphXScale = xScale;
