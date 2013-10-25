@@ -313,8 +313,15 @@ server.get('/getBoroughHist', function (req, res, next) {
 	return next();
 });
 
-loadAllIncidents(function () {
-	if (argv.cache) {
+server.get('/cacheAll', function (req, res, next) {
+	cacheAll(function (err) {
+		res.send(200, { response: true });
+		return next();
+	});
+});
+
+var cacheAll = function (callback) {
+	loadAllIncidents(function () {
 		log("Caching getBoroughsByFirstResponderM()...");
 		getBoroughsByFirstResponderM()	
 		log("Caching getBoroughResponseTimeM(borough)...");
@@ -332,7 +339,10 @@ loadAllIncidents(function () {
 		log("Caching getAllBoroughsScoresM()...");
 		getAllBoroughsScoresM();	
 		log("Caching completed.");
-	}
-	server.listen(argv.port);
-	log("The server is listening on port " + argv.port + ".");
-});
+		if (callback) callback(null);
+	});;
+};
+
+if (argv.cache) cacheAll();
+server.listen(argv.port);
+log("The server is listening on port " + argv.port + ".");
