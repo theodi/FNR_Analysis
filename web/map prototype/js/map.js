@@ -12,8 +12,11 @@ Map = (function() {
     overlayValMin: 1.0,
     overlayValMax: 0.8,
 
-    scoreLowerScale: 330,
-    scoreUpperScale: 290,
+    responseTimeLowerScale: 330,
+    responseTimeUpperScale: 290,
+
+    scoreLowerScale: 4.05,
+    scoreUpperScale: 3.80,
 
     gradeMinValues: [0, 180, 360, 540],
 
@@ -29,11 +32,11 @@ Map = (function() {
     hoverBoroughOutlineDashArray: '',
     hoverBoroughFillOpacity:      0.9,
 
-    incidentOutlineWeight:      0,
-    incidentOutlineColor:       '#2D0D01',
-    incidentOutlineOpacity:     0.8,
-    incidentOutlineDashArray:   '',
-    incidentFillOpacity:        0.8,
+    selectedBoroughOutlineWeight:    2,
+    selectedBoroughOutlineColor:     '#2D0D01',
+    selectedBoroughOutlineOpacity:   0.9,
+    selectedBoroughOutlineDashArray: '',
+    selectedBoroughFillOpacity:      0.9,
 
     cloudMadeKey: 'BC9A493B41014CAABB98F0471D759707',
     mapStyleId:   22677, //111403,
@@ -66,6 +69,7 @@ Map = (function() {
       _this.boroughScores = {};
       _this.closedStations = [];
       _this.stationMarkers = [];
+      _this.currentMetric = "responseTime",
       _this.initMap();
       _this.initTileLayer();
       _this.initInfo();
@@ -130,7 +134,6 @@ Map = (function() {
       })
     },
 
-
     initBoroughBoundary: function(borough) {
       _this.showBoroughLayer(borough, function(lg, cont) {
         $.getJSON(_this.boroughDataUrl(borough), function(data) {
@@ -160,6 +163,23 @@ Map = (function() {
           _this.closeCandidateStations();
         }
       });
+      $("#metric-switch").click(function(event)  {
+        if(!$(this).is(":checked")){
+          _this.setResponseTimeMetric();
+        } else {
+          _this.setScoreMetric();
+        }
+      });
+    },
+
+    setScoreMetric: function() {
+      _this.currentMetric = "score";
+      _this.refreshAllBoroughs();
+    },
+
+    setResponseTimeMetric: function() {
+      _this.currentMetric = "responseTime";
+      _This.refreshAllBoroughs();
     },
 
     setScore: function() {
@@ -207,7 +227,6 @@ Map = (function() {
       var target = event.target
       var props = target.feature.properties;
       var borough = props.borough;
-      //_this.showBoroughIncidentData(borough);
       _this.selectedBorough = borough;
       _this.map.fitBounds(target.getBounds());
       _this.updateBoroughHistogram(borough);
@@ -381,16 +400,13 @@ Map = (function() {
       })
     },
 
-    updateBoroughDisplay: function(borough) {
-      if(_this.incidentLayerActive(borough))  {
-        _this.updateBoroughIncidentDisplay(borough);
-      } else {
-        _this.updateBoroughOverviewDisplay(borough);
-      }
+    refreshAllBoroughs: function() {
+      _.each(Data.boroughs, function (borough) {
+        _this.updateBoroughDisplay(borough);
+      });
     },
-
-    updateBoroughOverviewDisplay: function(borough) {
-      Data.getBoroughResponseTime(borough, _this.closedStations, function(resp) {
+    updateBoroughDisplay: function(borough) {
+      Data.getBoroughMetric(_this.currentMetric, borough, _this.closedStations, function(resp) {
         _this.boroughScores[borough] = resp;
         var layerGroup = _this.mapLayerGroups["boroughs"][borough]
         _.each(layerGroup.getLayers(), function(layer) {
@@ -444,7 +460,7 @@ Map = (function() {
     },
 
     getColor: function(score) {
-      var p = Util.logistic((score - _this.scoreLowerScale) / (_this.scoreUpperScale - _this.scoreLowerScale));
+      var p = Util.logistic((score - _this.currentMetricLowerScale()) / (_this.currentMetricUpperScale() - _this.currentMetricLowerScale()));
 
       var h = _this.overlayHueMin + p * (_this.overlayHueMax - _this.overlayHueMin);
       var s = _this.overlaySatMin + p * (_this.overlaySatMax - _this.overlaySatMin);
@@ -457,38 +473,28 @@ Map = (function() {
       return str;
     },
 
+    currentMetricLowerScale: function() {
+     if(_this.currentMetric == "responseTime")  {
+      return _this.responseTimeLowerScale;
+     } else if(_this.currentMetric == "score")  {
+      return _this.scoreLowerScale;
+     }
+    },
+
+    currentMetricUpperScale: function() {
+     if(_this.currentMetric == "responseTime")  {
+      return _this.responseTimeUpperScale;
+     } else if(_this.currentMetric == "score")  {
+      return _this.scoreUpperScale;
+     }
+    },
+
     showBoroughLayer: function(borough, callback) {
       _this.showLayer("boroughs", borough, callback);
     },
 
     hideBoroughLayer: function(borough) {
       _this.hideLayer("boroughs", borough);
-    },
-
-    showIncidentLayer: function(borough, callback) {
-      _this.showLayer("incidents", borough, callback);
-      _this.hideBoroughLayer(borough);
-      if (!_.contains(_this.activeIncidentLayers, borough)) {
-        _this.activeIncidentLayers.push(borough);
-      }
-    },
-
-    toggleIncidentLayer: function(borough, callback) {
-      if(_this.incidentLAyerActive(borough))  {
-        _this.hideIncidentLayer(borough);
-      } else {
-        _this.showIncidentLayer(borough, callback);
-      }
-    },
-
-    hideIncidentLayer: function(borough) {
-      _this.activeIncidentLayers = removeArrayItem(borough, _this.activeIncidentLayers);
-      _this.hideLayer("incidents", borough);
-      _this.showBoroughLayer(borough);
-    },
-
-    incidentLayerActive: function(borough) {
-      return _.contains(_this.activeIncidentLayers, borough);
     },
 
     boroughStyle: function(feature) {
@@ -501,18 +507,6 @@ Map = (function() {
         fillColor:    _this.getColor(response),
         opacity:      _this.boroughOutlineOpacity,
       };
-    },
-
-    incidentStyle: function(feature) {
-      var response = feature.properties.response;
-      return {
-        weight:       _this.incidentOutlineWeight,
-        opacity:      _this.incidentOutlineOpacity,
-        color:        _this.incidentOutlineColor,
-        dashArray:    _this.incidentOutlineDashArray,
-        fillOpacity:  _this.incidentFillOpacity,
-        fillColor:    _this.getColor(response)
-	    };
     },
 
     boroughDataUrl: function(name) {

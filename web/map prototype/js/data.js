@@ -3,6 +3,7 @@ Data = (function() {
 
     histogramUrl: "http://5.79.6.135:8080/getBoroughHist",
     boroughResponseTimeUrl: "http://5.79.6.135:8080/getBoroughResponseTime",
+    boroughScoreUrl: "http://5.79.6.135:8080/getBoroughScore",
 
     boroughs: [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
      "Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield",
@@ -53,6 +54,21 @@ Data = (function() {
          'close': closedStations,
        }, callback);
      },
+
+    getBoroughMetric: function(metric, borough, closedStations, callback) {
+      if(metric == "responseTime") {
+        _this.getBoroughResponseTime(borough, closedStations, callback);
+      } else if (metric == "score") {
+        _this.getBoroughScore(borough, closedStations, callback);
+      }
+    },
+
+    getBoroughScore: function(borough, closedStations, callback) {
+      _this.getJSONP(_this.boroughScoreUrl, {
+        'borough': borough,
+        'close': closedStations,
+      }, callback);
+    },
 
     getBoroughResponseTime: function(borough, closedStations, callback) {
       _this.getJSONP(_this.boroughResponseTimeUrl, {
