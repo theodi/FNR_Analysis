@@ -1,12 +1,12 @@
 var _ = require('underscore'),
-	csv = require('csv'),
-	fs = require('fs'),
-    argv = require('optimist') 
+	argv = require('optimist') 
 		.usage('Usage: $0 --port portNumber [--cache]')
 		.demand([ 'port' ])
 		.alias('cache', 'c')
 		.alias('port', 'p')
-		.argv, 
+		.argv,
+	csv = require('csv'),
+	fs = require('fs'),
 	restify = require('restify'),
 	zlib = require('zlib'),
 
@@ -18,6 +18,29 @@ var _ = require('underscore'),
 		"Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark",
 		"Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth",
 		"Westminster" ],
+
+	STATIONS_NAMES = [ 'Acton', 'Addington', 'Barking', 'Barnet', 'Battersea', 
+		'Beckenham', 'Belsize', 'Bethnal Green', 'Bexley', 'Biggin Hill',
+		'Bow', 'Brixton', 'Bromley', 'Chelsea', 'Chingford', 'Chiswick',
+  		'Clapham', 'Clerkenwell', 'Croydon', 'Dagenham', 'Deptford',
+  		'Dockhead', 'Dowgate', 'Downham', 'Ealing', 'East Greenwich',
+  		'East Ham', 'Edmonton', 'Eltham', 'Enfield', 'Erith', 'Euston',
+  		'Feltham', 'Finchley', 'Forest Hill', 'Fulham', 'Greenwich',
+  		'Hainault', 'Hammersmith', 'Harold Hill', 'Harrow', 'Hayes', 'Heathrow',
+  		'Hendon', 'Heston', 'Hillingdon', 'Holloway', 'Homerton', 'Hornchurch',
+  		'Hornsey', 'Ilford', 'Islington', 'Kensington', 'Kentish Town',
+  		'Kingsland', 'Kingston', 'Knightsbridge', 'Lambeth', 'Lee Green',
+  		'Lewisham', 'Leyton', 'Leytonstone', 'Mill Hill', 'Millwall',
+  		'Mitcham', 'New Cross', 'New Malden', 'Norbury', 'North Kensington',
+  		'Northolt', 'Old Kent Road', 'Orpington', 'Paddington', 'Park Royal',
+  		'Peckham', 'Plaistow', 'Plumstead', 'Poplar', 'Purley', 'Richmond',
+  		'Romford', 'Ruislip', 'Shadwell', 'Shoreditch', 'Sidcup', 'Silvertown',
+  		'Soho', 'Southall', 'Southgate', 'Southwark', 'Stanmore',
+  		'Stoke Newington', 'Stratford', 'Surbiton', 'Sutton', 'Tooting',
+  		'Tottenham', 'Twickenham', 'Wallington', 'Walthamstow', 'Wandsworth',
+  		'Wembley', 'Wennington', 'West Hampstead', 'West Norwood', 
+  		'Westminster', 'Whitechapel', 'Willesden', 'Wimbledon', 'Woodford',
+ 		'Woodside', 'Woolwich' ],
 
 	// At the moment of writing, and according to the colour levels we are
 	// currently using for the legend, of the statons facing closure Southwark is the
@@ -77,8 +100,7 @@ var median = function (values) {
 
 var getBoroughsByFirstResponderM = _.memoize(function () {
 	results = { };
-	var stations = _.unique(_.map(incidentsData, function (i) { return i.firstPumpStation; })).sort();
-	_.each(stations, function (s) {
+	_.each(STATIONS_NAMES, function (s) {
 		results[s] = _.unique(_.map(_.filter(incidentsData, function (i) { return s == i.firstPumpStation; }), function (i) { return i.borough; })).sort();
 	})
 	return results;
@@ -135,7 +157,7 @@ var getBoroughResponseTimes = function (borough, closedStations, callback) {
 
 var getBoroughHistM = _.memoize(function (borough, closedStations) {
 	/* [{timeMin: 0, timeMax: 30, incidents: 5},{timeMin: 30, timeMax: 60, incidents: 7}, ...] */
-	closedStations = ([ ].concat(closedStations));
+	closedStations = [ ].concat(closedStations);
 	log("Calculating for the first time getBoroughHistM for " + borough + " with closed stations: " + closedStations.join(", "));
 	var BIN_SIZE = 60, // seconds
 		responseTimes = getBoroughResponseTimesM(borough, closedStations),
@@ -239,45 +261,63 @@ var log = function (s) {
 	console.log(entryDate.getFullYear() + "/" + (entryDate.getMonth() < 9 ? '0' : '') + (entryDate.getMonth() + 1) + "/" + (entryDate.getDate() < 10 ? '0' : '') + entryDate.getDate() + " " + (entryDate.getHours() < 10 ? '0' : '') + entryDate.getHours() + ":" + (entryDate.getMinutes() < 10 ? '0' : '') + entryDate.getMinutes() + ":" + (entryDate.getSeconds() < 10 ? '0' : '') + entryDate.getSeconds() + " - " + s);
 }
 
+
 var server = restify.createServer({
   name: 'ODI - FNR Analysis server',
 });
-
 server.use(restify.queryParser());
 server.use(restify.jsonp());
 
-
+// TODO: check if this is redundant, as the same information may be
+// statically distributed with the client-side code
 server.get('/getBoroughsByFirstResponder', function (req, res, next) {
-	res.send(200, getBoroughsByFirstResponderM());
+	res.send(200, { response: getBoroughsByFirstResponderM() });
 	return next();
 });
 
 server.get('/getBoroughResponseTime', function (req, res, next) {
-	res.send(200, getBoroughResponseTimeM(req.query.borough, req.query.close));
+	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
+	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
+		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
+	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
+		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
+	res.send(200, { response: getBoroughResponseTimeM(req.query.borough, req.query.close) });
 	return next();
 });
 
 server.get('/getBoroughScore', function (req, res, next) {
-	res.send(200, getBoroughScoreM(req.query.borough, req.query.close));
+	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
+	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
+		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
+	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
+		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
+	res.send(200, { response: getBoroughScoreM(req.query.borough, req.query.close) });
 	return next();
 });
 
 server.get('/getAllBoroughsScores', function (req, res, next) {
-	res.send(200, getAllBoroughsScoresM(req.query.close));
+	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
+	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
+		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
+	res.send(200, { response: getAllBoroughsScoresM(req.query.close) });
 	return next();
 });
 
 server.get('/getBoroughHist', function (req, res, next) {
-	res.send(200, getBoroughHistM(req.query.borough, req.query.close));
+	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
+	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
+		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
+	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
+		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
+	res.send(200, { response: getBoroughHistM(req.query.borough, req.query.close) });
 	return next();
 });
-
 
 loadAllIncidents(function () {
 	if (argv.cache) {
 		log("Caching getBoroughsByFirstResponderM()...");
 		getBoroughsByFirstResponderM()	
-		log("Caching getBoroughResponseTimeM(borough) for all boroughs...");
+		log("Caching getBoroughResponseTimeM(borough)...");
 		_.each(BOROUGHS_NAMES, function (b) { getBoroughResponseTimeM(b) });	
 		log("Caching getBoroughResponseTimeM(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
 		_.each(BOROUGHS_NAMES, function (b) { getBoroughResponseTimeM(b, STATIONS_FACING_CLOSURE_NAMES) });	
