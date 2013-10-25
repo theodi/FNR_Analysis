@@ -48,9 +48,6 @@ Map = (function() {
     infoDefault:
       'Hover or click an area',
 
-    boroughDataUrlString:
-      'data/boroughBoundaries/{borough}.json',
-
     stationIconClosing: L.icon({
       iconUrl: 'img/icon_firetruck_closing.png',
       iconSize: [20, 20]
@@ -62,6 +59,7 @@ Map = (function() {
     }),
 
     initialize: function(container) {
+      _this.blockingProcessesCount = 0;
       _this.container = container;
       _this.mapLayerGroups = {};
       _this.activeIncidentLayers = [];
@@ -121,7 +119,9 @@ Map = (function() {
 
     initStations: function() {
       _this.showLayer("stations", "stations", function(lg, cont) {
+        _this.blockUI();
         Data.loadStations(function(stationsData) {
+          _this.unblockUI();
           _.each(stationsData, function (station) {
             var markerLocation = new L.LatLng(station.latitude, station.longitude);
             var marker = new L.Marker(markerLocation, {icon: _this.stationIcon, name: station.name});
@@ -136,7 +136,9 @@ Map = (function() {
 
     initBoroughBoundary: function(borough) {
       _this.showBoroughLayer(borough, function(lg, cont) {
-        $.getJSON(_this.boroughDataUrl(borough), function(data) {
+        _this.blockUI();
+        Data.getBoroughData(borough, function(data) {
+          _this.unblockUI();
           _this.boroughsGeoJson = L.geoJson(data, {
             style: _this.boroughStyle,
             onEachFeature: function (feature, layer) {
@@ -244,7 +246,9 @@ Map = (function() {
     },
 
     updateBoroughHistogram: function(borough) {
+      _this.blockUI();
       Data.getBoroughHist(borough, _this.closedStations, function(bins)  {
+        _this.unBlockUI();
         if(!_this.histogram) {
           _this.initializeBoroughHistogram(bins);
         } else {
@@ -394,7 +398,9 @@ Map = (function() {
     },
 
     updateImpactedBoroughs: function(closedStations) {
+      _this.blockUI();
       Data.impactedBoroughs(closedStations, function(boroughs) {
+        _this.unblockUI();
         _.each(boroughs, function (borough) {
           _this.updateBoroughDisplay(borough);
         });
@@ -407,7 +413,9 @@ Map = (function() {
       });
     },
     updateBoroughDisplay: function(borough) {
+      _this.blockUI();
       Data.getBoroughMetric(_this.currentMetric, borough, _this.closedStations, function(resp) {
+        _this.unblockUI();
         _this.boroughScores[borough] = resp;
         var layerGroup = _this.mapLayerGroups["boroughs"][borough]
         _.each(layerGroup.getLayers(), function(layer) {
@@ -490,10 +498,6 @@ Map = (function() {
       };
     },
 
-    boroughDataUrl: function(name) {
-      return _this.boroughDataUrlString.replace("{borough}", name)
-    },
-
     showLayer: function(type, key, callback) {
       if(!_this.mapLayerGroups[type]) _this.mapLayerGroups[type] = {};
       var lg = _this.mapLayerGroups[type][key];
@@ -510,6 +514,16 @@ Map = (function() {
       if (lg) {
         _this.map.removeLayer(lg);
       }
+    },
+
+    blockUI: function() {
+      if(_this.blockingProcessesCount == 0) $.blockUI({message : "<img src='img/loading.gif' alt='Loading' />", css: {backgroundColor: "transparent", border: "none"}});
+      _this.blockingProcessesCount++;
+    },
+
+    unblockUI: function() {
+      if(_this.blockingProcessesCount > 0) _this.blockingProcessesCount--;
+      if(_this.blockingProcessesCount == 0) $.unblockUI();
     },
 
   };

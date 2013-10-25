@@ -5,20 +5,27 @@ Data = (function() {
     boroughResponseTimeUrl: "http://5.79.6.135:8080/getBoroughResponseTime",
     boroughScoreUrl: "http://5.79.6.135:8080/getBoroughScore",
 
+    boroughDataUrlString:
+      'data/boroughBoundaries/{borough}.json',
+
     boroughs: [ "Barking and Dagenham", "Barnet", "Bexley", "Brent",
-     "Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield",
-     "Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey", "Harrow",
-     "Havering", "Hillingdon", "Hounslow", "Islington",
-     "Kensington and Chelsea", "Kingston upon Thames", "Lambeth", "Lewisham",
-     "Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark",
-     "Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth",
-     "Westminster" ],
+      "Bromley", "Camden", "City of London", "Croydon", "Ealing", "Enfield",
+      "Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey", "Harrow",
+      "Havering", "Hillingdon", "Hounslow", "Islington",
+      "Kensington and Chelsea", "Kingston upon Thames", "Lambeth", "Lewisham",
+      "Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark",
+      "Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth",
+      "Westminster" ],
 
      stations_facing_closure: [ "Belsize", "Bow", "Clerkenwell",
-     "Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark",
-     "Westminster", "Woolwich" ],
+      "Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark",
+      "Westminster", "Woolwich" ],
 
      boroughsByFirstRespondersPromise: null,
+
+     boroughDataUrl: function(name) {
+       return _this.boroughDataUrlString.replace("{borough}", name)
+     },
 
      forceColumnsToFloat: function (columnNames, a) {
        _.each(a, function (record) {
@@ -47,6 +54,10 @@ Data = (function() {
          }))));
        });
      },
+
+    getBoroughData: function(borough, callback) {
+      $.getJSON(_this.boroughDataUrl(borough), callback)
+    },
 
      getBoroughHist: function(borough, closedStations, callback) {
        _this.getJSONP(_this.histogramUrl, {
