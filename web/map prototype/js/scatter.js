@@ -2,7 +2,7 @@ initializeScatter = function() {
 	
 	function x(d) { return d.score; }
 	function y(d) { return d.responseTime; }
-	function radius(d) { return getRadius(Math.floor((Math.random()*1000)+1)); }
+	function radius(d) { return getRadius(d.areaSqKm); }
 	function color(d) { return "#0000FF"; }
 	function key(d) { return d.borough; }
 
@@ -60,7 +60,7 @@ initializeScatter = function() {
 		.attr("transform", "rotate(-90)")
 		.text("Response Time (s)");
 
-	d3.json("data/scores-scatter.json", function(data) {
+	d3.json("http://api.london-fire.labs.theodi.org:8080/getAllBoroughScores", function(data) {
 		// Add a dot per nation. Initialize the data at 1800, and set the colors.
 		var dot = svg.append("g")
 			.attr("class", "dots")
