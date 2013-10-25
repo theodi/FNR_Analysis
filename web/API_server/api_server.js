@@ -226,16 +226,13 @@ var getBoroughScore = function (borough, closedStations, callback) {
 
 // Just for testing, prints out a .csv on the JavaScript console
 var getAllBoroughsScoresM = _.memoize(function (closedStations) {
-	if (!closedStations) closedStations = STATIONS_FACING_CLOSURE_NAMES;
+	closedStations = ([ ].concat(closedStations));
 	var results = [ ];
 	_.each(BOROUGHS_NAMES, function (borough) {
 		results.push({
 			borough: borough,
-			responseTimeOpen: getBoroughResponseTimeM(borough),
-			responseTimeClosed: getBoroughResponseTimeM(borough, closedStations),
-			scoreOpen: getBoroughScoreM(borough),
-			scoreClosed: getBoroughScoreM(borough, closedStations),
-			medianFootfall: median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; })),
+			responseTime: getBoroughResponseTimeM(borough, closedStations),
+			score: getBoroughScoreM(borough, closedStations),
 		});
 	});
 	return results;
