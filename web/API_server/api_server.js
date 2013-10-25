@@ -156,8 +156,7 @@ var getBoroughResponseTimes = function (borough, closedStations, callback) {
 
 
 var getBoroughHistM = _.memoize(function (borough, closedStations) {
-	/* [{timeMin: 0, timeMax: 30, incidents: 5},{timeMin: 30, timeMax: 60, incidents: 7}, ...] */
-	closedStations = [ ].concat(closedStations);
+	closedStations = [ ].concat(closedStations || [ ]);
 	log("Calculating for the first time getBoroughHistM for " + borough + " with closed stations: " + closedStations.join(", "));
 	var BIN_SIZE = 60, // seconds
 		responseTimes = getBoroughResponseTimesM(borough, closedStations),
@@ -173,7 +172,7 @@ var getBoroughHistM = _.memoize(function (borough, closedStations) {
 	}
 	return results;
 }, function (borough, closedStations) {
-	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
+	closedStations = [ ].concat(closedStations || [ ]);
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -184,10 +183,10 @@ var getBoroughHist = function (borough, closedStations, callback) {
 
 
 var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
-	closedStations = ([ ].concat(closedStations));
+	closedStations = [ ].concat(closedStations || [ ]);
 	return mean(getBoroughResponseTimesM(borough, closedStations));
 }, function (borough, closedStations) {
-	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
+	closedStations = [ ].concat(closedStations || [ ]);
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -203,7 +202,7 @@ var getBoroughResponseTime = function (borough, closedStations, callback) {
 /* Like getBoroughScore below, but assumes that the incidents data for
    the borough has been loaded already */
 var getBoroughScoreM = _.memoize(function (borough, closedStations) {
-	closedStations = ([ ].concat(closedStations));
+	closedStations = [ ].concat(closedStations || [ ]);
 	log("Calculating for the first time getBoroughScoreM for " + borough + " with closed stations: " + closedStations.join(", "));
 	var A = 0.75,
 		medianResponseTimes = median(_.map(getBoroughResponseTimesM(borough, closedStations), function (x) { return x / 60; })),
@@ -211,7 +210,7 @@ var getBoroughScoreM = _.memoize(function (borough, closedStations) {
 	return Math.pow(medianResponseTimes, A) * 
 		Math.pow(Math.log(medianFootfall + 2) / Math.log(10), 1 - A);
 }, function (borough, closedStations) {
-	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
+	closedStations = [ ].concat(closedStations || [ ]);
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -226,7 +225,7 @@ var getBoroughScore = function (borough, closedStations, callback) {
 
 // Just for testing, prints out a .csv on the JavaScript console
 var getAllBoroughsScoresM = _.memoize(function (closedStations) {
-	closedStations = ([ ].concat(closedStations));
+	closedStations = [ ].concat(closedStations || [ ]);
 	var results = [ ];
 	_.each(BOROUGHS_NAMES, function (borough) {
 		results.push({
@@ -237,7 +236,7 @@ var getAllBoroughsScoresM = _.memoize(function (closedStations) {
 	});
 	return results;
 }, function (closedStations) {
-	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
+	closedStations = [ ].concat(closedStations || [ ]);
 	return closedStations.join('_');
 });
 
@@ -275,7 +274,7 @@ server.get('/getBoroughsByFirstResponder', function (req, res, next) {
 
 server.get('/getBoroughResponseTime', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
-	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
+	req.query.close = [ ].concat(req.query.close || [ ]);
 	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
 	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
@@ -286,7 +285,7 @@ server.get('/getBoroughResponseTime', function (req, res, next) {
 
 server.get('/getBoroughScore', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
-	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
+	req.query.close = [ ].concat(req.query.close || [ ]);
 	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
 	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
@@ -297,7 +296,7 @@ server.get('/getBoroughScore', function (req, res, next) {
 
 server.get('/getAllBoroughsScores', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
-	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
+	req.query.close = [ ].concat(req.query.close || [ ]);
 	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	res.send(200, { response: getAllBoroughsScoresM(req.query.close) });
@@ -306,7 +305,7 @@ server.get('/getAllBoroughsScores', function (req, res, next) {
 
 server.get('/getBoroughHist', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
-	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
+	req.query.close = [ ].concat(req.query.close || [ ]);
 	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
 	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
