@@ -1,9 +1,8 @@
 var _ = require('underscore'),
 	argv = require('optimist') 
-		.usage('Usage: $0 --port portNumber')
-		.demand([ 'port' ])
-		// .alias('nocache', 'nc')
-		.alias('port', 'p')
+		.usage('Usage: $0 [--testPort portNumber]')
+		// .demand([ 'port' ])
+		.alias('testPort', 'tp')
 		.argv,
 	csv = require('csv'),
 	fs = require('fs'),
@@ -345,5 +344,6 @@ var cacheAll = function (callback) {
 };
 
 cacheAll();
-server.listen(argv.port);
-log("The server is listening on port " + argv.port + ".");
+var port = argv.testPort || process.env.PORT || 8080;
+server.listen(port);
+log("The server is listening on port " + port + ".");
