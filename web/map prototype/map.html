@@ -4,13 +4,12 @@
 	<title>FNR Analysis</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" href="css/reset.css" />
+	<link rel="stylesheet" href="css/map-style.css" />
   <link rel="stylesheet" media="screen" href="http://openfontlibrary.org/face/freeuniversal" rel="stylesheet" type="text/css"/>
 	<link rel="stylesheet" href="js/lib/leaflet-0.6.4.css" />
 	<!--[if lte IE 8]>
     	<link rel="stylesheet" href="js/lib/leaflet.ie-0.6.4.css" />
 	<![endif]-->
-	<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <div id="container">
@@ -101,6 +100,15 @@
     </ul>
   </script>
 
+  <script>
+	var params = window.location.search.replace( "?", "" );
+	if (params == "sidebar=no") {
+		window.document.getElementById("sidebar").style.display = "none";
+		window.document.getElementById("map").style.left = 0;
+		window.document.getElementById("legend").style.left = 0;
+		window.document.getElementById("switches").style.left = 0;
+	}
+  </script>
 	<script src="js/lib/underscore-1.5.2.js"></script>
 	<script src="js/lib/d3-v3.js"></script>
 	<script src="js/lib/leaflet-0.6.4.js"></script>
