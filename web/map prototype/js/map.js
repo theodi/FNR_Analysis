@@ -179,7 +179,7 @@ Map = (function() {
 
     setResponseTimeMetric: function() {
       _this.currentMetric = "responseTime";
-      _This.refreshAllBoroughs();
+      _this.refreshAllBoroughs();
     },
 
     setScore: function() {
