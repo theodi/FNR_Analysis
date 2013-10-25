@@ -17,7 +17,7 @@ outputAreas.preprocess.readAndClean <- function (relevantGridIDs) {
 	# We use that to approximate the length of a degree of latitude and 
 	# longitude across the whole of London. The result is below. The calculation 
 	# is courtesy of http://www.csgnetwork.com/degreelenllavcalc.html 
-	# TODO: double-check results with alternative source
+	# TODO: double-check results with alternative source -- DONE!
 	LENGTH_OF_A_DEGREE_OF_LATITUDE <- 111.25826132219737 # km
 	LENGTH_OF_A_DEGREE_OF_LONGITUDE <- 69.4032968251825 # km
 
