@@ -1,8 +1,8 @@
 var _ = require('underscore'),
 	argv = require('optimist') 
-		.usage('Usage: $0 --port portNumber [--cache]')
+		.usage('Usage: $0 --port portNumber')
 		.demand([ 'port' ])
-		.alias('cache', 'c')
+		// .alias('nocache', 'nc')
 		.alias('port', 'p')
 		.argv,
 	csv = require('csv'),
@@ -53,6 +53,7 @@ var _ = require('underscore'),
     SIMPLIFIED_SQUARE_LONGITUDE_SIZE = 0.0015,
 
     incidentsData = [ ];
+    serverReady = false;
 
 
 // TODO: what you see below necessary is necessary with D3, as all columns are
@@ -271,11 +272,13 @@ server.use(restify.jsonp());
 // TODO: check if this is redundant, as the same information may be
 // statically distributed with the client-side code
 server.get('/getBoroughsByFirstResponder', function (req, res, next) {
-	res.send(200, { response: getBoroughsByFirstResponderM() });
+	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
+	res.send(200, { response: getBoroughsByFirstResponderM() })
 	return next();
 });
 
 server.get('/getBoroughResponseTime', function (req, res, next) {
+	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
 	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
 	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
@@ -286,6 +289,7 @@ server.get('/getBoroughResponseTime', function (req, res, next) {
 });
 
 server.get('/getBoroughScore', function (req, res, next) {
+	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
 	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
 	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
@@ -296,6 +300,7 @@ server.get('/getBoroughScore', function (req, res, next) {
 });
 
 server.get('/getAllBoroughsScores', function (req, res, next) {
+	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
 	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
 	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
@@ -304,6 +309,7 @@ server.get('/getAllBoroughsScores', function (req, res, next) {
 });
 
 server.get('/getBoroughHist', function (req, res, next) {
+	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
 	req.query.close = !req.query.close ? [ ] : [ ].concat(req.query.close);
 	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
@@ -313,14 +319,8 @@ server.get('/getBoroughHist', function (req, res, next) {
 	return next();
 });
 
-server.get('/cacheAll', function (req, res, next) {
-	cacheAll(function (err) {
-		res.send(200, { response: true });
-		return next();
-	});
-});
-
 var cacheAll = function (callback) {
+	log("Loading the incidents data...");
 	loadAllIncidents(function () {
 		log("Caching getBoroughsByFirstResponderM()...");
 		getBoroughsByFirstResponderM()	
@@ -339,10 +339,11 @@ var cacheAll = function (callback) {
 		log("Caching getAllBoroughsScoresM()...");
 		getAllBoroughsScoresM();	
 		log("Caching completed.");
+		serverReady = true;
 		if (callback) callback(null);
 	});;
 };
 
-if (argv.cache) cacheAll();
+cacheAll();
 server.listen(argv.port);
 log("The server is listening on port " + argv.port + ".");
