@@ -145,7 +145,7 @@ var getBoroughResponseTimesM = _.memoize(function (borough, closedStations) {
 			[ ]);
 	return oldTimings.concat(newTimings);
 }, function (borough, closedStations) {
-	closedStations = ([ ].concat(closedStations)).sort();
+	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -173,7 +173,7 @@ var getBoroughHistM = _.memoize(function (borough, closedStations) {
 	}
 	return results;
 }, function (borough, closedStations) {
-	closedStations = ([ ].concat(closedStations)).sort();
+	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -187,7 +187,7 @@ var getBoroughResponseTimeM = _.memoize(function (borough, closedStations) {
 	closedStations = ([ ].concat(closedStations));
 	return mean(getBoroughResponseTimesM(borough, closedStations));
 }, function (borough, closedStations) {
-	closedStations = ([ ].concat(closedStations)).sort();
+	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -211,7 +211,7 @@ var getBoroughScoreM = _.memoize(function (borough, closedStations) {
 	return Math.pow(medianResponseTimes, A) * 
 		Math.pow(Math.log(medianFootfall + 2) / Math.log(10), 1 - A);
 }, function (borough, closedStations) {
-	closedStations = ([ ].concat(closedStations)).sort();
+	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -240,7 +240,7 @@ var getAllBoroughsScoresM = _.memoize(function (closedStations) {
 	});
 	return results;
 }, function (closedStations) {
-	closedStations = ([ ].concat(closedStations)).sort();
+	closedStations = !closedStations ? [ ] : [ ].concat(closedStations).sort();
 	return closedStations.join('_');
 });
 
