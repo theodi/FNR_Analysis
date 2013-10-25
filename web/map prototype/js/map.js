@@ -279,6 +279,10 @@ Map = (function() {
           _this.setScoreMetric();
         }
       });
+      $("#detail .close").click(function(event) {
+        event.preventDefault();
+        _this.closeBoroughSidebar();
+      });
     },
 
     setScoreMetric: function() {
@@ -344,17 +348,25 @@ Map = (function() {
       if(_this.selectedBoroughLayer) _this.boroughsGeoJson.resetStyle(_this.selectedBoroughLayer);
       _this.selectedBoroughLayer = target
         _this.selectedBorough = borough;
-      _this.updateBoroughHistogram(borough);
       _this.updateBoroughSidebar(borough);
     },
 
     updateBoroughSidebar: function(borough) {
+      $("#scattergraph").hide()
+      $("#detail").show()
       var mands = Util.minutesAndSeconds(_this.boroughScores[borough]);
       var text = Util.template("borough-sidebar", {
         'borough': borough,
           'response': (mands[0] + " minutes, " + mands[1] + " seconds.")
       });
       $("#borough").html(text);
+      _this.updateBoroughHistogram(borough);
+    },
+
+    closeBoroughSidebar: function() {
+      $("#detail").hide();
+      $("#scattergraph").show()
+      _this.selectedBorough = null;
     },
 
     updateBoroughHistogram: function(borough) {
@@ -491,7 +503,7 @@ Map = (function() {
         _this.stationMarkers[name].setIcon(_this.stationIconClosing);
       });
       _this.updateImpactedBoroughs(names);
-      _this.redrawScattergraph();
+      if (!_this.selectedBorough) _this.redrawScattergraph();
     },
 
     openAllClosedStations: function() {
@@ -508,7 +520,7 @@ Map = (function() {
         _this.stationMarkers[name].setIcon(_this.stationIcon);
       });
       _this.updateImpactedBoroughs(names);
-      _this.redrawScattergraph();
+      if (!_this.selectedBorough) _this.redrawScattergraph();
     },
 
     updateImpactedBoroughs: function(closedStations) {
@@ -538,7 +550,6 @@ Map = (function() {
 
       if(_this.selectedBorough == borough) {
         _this.updateBoroughSidebar(borough);
-        _this.updateBoroughHistogram(borough);
       }
       _this.setScore();
       });

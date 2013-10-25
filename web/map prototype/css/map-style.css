@@ -134,13 +134,16 @@ dd {
 }
 
 #borough h2 {
-  font-size: 2.4em;
+  font-size: 1.8em;
   line-height: 1.2em;
   margin-bottom: 0.5em;
 }
 
 #histogram {
+  height: 150px;
+  overflow: hidden;
   margin-top: 1em;
+  margin-bottom: 0;
 }
 
 #score {
@@ -193,9 +196,13 @@ dd {
   color: #eee;
 }
 
-.leaflet-container .leaflet-control-attribution a {
+ a {
   color: #eee;
 }
+
+ a.close {
+  font-size: 0.8em;
+ }
 
   .leaflet-container .leaflet-control-zoom-in, .leaflet-container .leaflet-control-zoom-out {
   background-color: #404040 !important;
