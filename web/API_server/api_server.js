@@ -48,24 +48,11 @@ var _ = require('underscore'),
 		"Downham", "Kingsland", "Knightsbridge", "Silvertown", "Southwark",
 		"Westminster", "Woolwich" ],
 
-	// Source http://data.london.gov.uk/datastorefiles/documents/2011-census-first-results.pdf
-	CENSUS_2011 = { "City of London": 7400, "Barking and Dagenham": 185900, 
-		"Barnet": 356400, "Bexley": 232000, "Brent": 311200, "Bromley": 309400,
-		"Camden": 220300, "Croydon": 363400, "Ealing": 338400, 
-		"Enfield": 312500, "Greenwich": 254600, "Hackney": 246300, 
-		"Hammersmith and Fulham": 182500, "Haringey": 254900, "Harrow": 239100,
-		"Havering": 237200, "Hillingdon": 273900, "Hounslow": 254000, 
-		"Islington": 206100, "Kensington and Chelsea": 158700,  
-		"Kingston upon Thames": 160100, "Lambeth": 303100, "Lewisham": 275900,
-		"Merton": 199700, "Newham": 308000, "Redbridge": 279000,  
-		"Richmond upon Thames": 187000, "Southwark": 288300, "Sutton": 190100, 
-		"Tower Hamlets": 254100, "Waltham Forest": 258200, "Wandsworth": 307000, 
-		"Westminster": 219400 },
-
     SIMPLIFIED_SQUARE_LATITUDE_SIZE = 0.001,
     SIMPLIFIED_SQUARE_LONGITUDE_SIZE = 0.0015,
 
     incidentsData = [ ];
+    censusData = [ ];
     serverReady = false;
 
 
@@ -91,10 +78,30 @@ var loadAllIncidents = function (callback) {
         	incidentsData.push(row);
         })
         .on('end', function (count) {
-			incidentsDataBoroughs = BOROUGHS_NAMES;
 			forceColumnsToFloat([ 'firstPumpTime', 'simplifiedLatitude', 'simplifiedLongitude', 'footfall' ], incidentsData);
-			log("Completed loading incident data.");
-			if (callback) callback (null);
+        	log("Loading census data...");
+			censusData = [ ];
+		    csv()
+		    	// Source: http://www.ons.gov.uk/ons/rel/regional-trends/region-and-country-profiles/key-statistics-and-profiles---august-2012/key-statistics---london--august-2012.html
+				.from.stream(fs.createReadStream(__dirname + '/census.csv.gz').pipe(zlib.createUnzip()), {
+		            columns: true
+		        })
+		        .on('record', function (row, index) {
+		        	censusData.push(row);
+		        })
+		        .on('end', function (count) {
+					forceColumnsToFloat([ 'Total Population (Thousands)', 'Area (Square km)', 'Population per Sq/Km' ], censusData);
+					censusData = _.reduce(censusData, function (memo, row) { 
+						memo[row['Borough']] = {
+							totalPopulation: row['Total Population (Thousands)'] * 1000,
+							areaSqKm: row['Area (Square km)'],
+							populationDensity: row['Population per Sq/Km'] * 1000,
+						};
+						return memo;
+					} , { });
+					log("Completed loading census data.");
+					if (callback) callback (null);
+				});
         });
 };
 
@@ -240,13 +247,16 @@ var getBoroughScore = function (borough, closedStations, callback) {
 // Just for testing, prints out a .csv on the JavaScript console
 var getAllBoroughsScoresM = _.memoize(function (closedStations) {
 	closedStations = [ ].concat(closedStations || [ ]);
+
 	var results = [ ];
 	_.each(BOROUGHS_NAMES, function (borough) {
 		results.push({
 			borough: borough,
 			responseTime: getBoroughResponseTimeM(borough, closedStations),
 			score: getBoroughScoreM(borough, closedStations),
-			census2011: CENSUS_2011[borough],
+			totalPopulation: censusData[borough].totalPopulation,
+			areaSqKm: censusData[borough].areaSqKm,
+			populationDensity: censusData[borough].populationDensity,
 		});
 	});
 	return results;
