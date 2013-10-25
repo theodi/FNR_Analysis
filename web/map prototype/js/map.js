@@ -71,7 +71,7 @@ Map = (function() {
       _this.initMap();
       _this.initTileLayer();
       _this.initInfo();
-      _this.initLegend();
+      //_this.initLegend();
       _this.initBoroughBoundaries();
       _this.initStations();
       _this.initSwitches();

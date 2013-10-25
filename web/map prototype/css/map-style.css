@@ -1,3 +1,5 @@
+/* BEGIN reset.css */
+
 /* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
@@ -47,12 +49,16 @@ table {
 	border-spacing: 0;
 }
 
+/* END reset.css */
+
+
 body {
   background-color: #404040;
   color: #eee;
   font-family: 'FreeUniversal', sans-serif;
   font-weight: normal;
   font-style: normal;
+  line-height: 1.6em;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -92,6 +98,10 @@ dd {
   margin-right: 2em;
 }
 
+#score h2 {
+  margin-bottom: 2.4em;
+}
+
 #score .score {
   font-size: 2em;
 }
@@ -118,8 +128,23 @@ dd {
   height: 460px;
 }
 
+#borough {
+  border-top: 1px solid #606060;
+  padding-top: 0.5em;
+}
+
+#borough h2 {
+  font-size: 2.4em;
+  line-height: 1.2em;
+  margin-bottom: 0.5em;
+}
+
+#histogram {
+  margin-top: 1em;
+}
+
 #score {
-  margin-bottom: 2em;
+  margin-bottom: 1em;
 }
 
 #map {
@@ -127,7 +152,7 @@ dd {
   top: 40px;
   left: 320px;
   right: 0px;
-  bottom: 40px;
+  bottom: 0px;
 }
 
 #legend i {
