@@ -49,32 +49,30 @@ Map = (function() {
       'data/boroughBoundaries/{borough}.json',
 
     stationIconClosing: L.icon({
-      iconUrl: 'images/icon_firetruck_closing.png',
+      iconUrl: 'img/icon_firetruck_closing.png',
       iconSize: [20, 20]
     }),
 
     stationIcon: L.icon({
-      iconUrl: 'images/icon_firetruck_ok.png',
+      iconUrl: 'img/icon_firetruck_ok.png',
       iconSize: [20, 20]
     }),
 
     initialize: function(container) {
-      loadAllIncidents(function() {
-        _this.container = container;
-        _this.mapLayerGroups = {};
-        _this.activeIncidentLayers = [];
-        _this.boroughsGeoJson = null;
-        _this.boroughScores = {};
-        _this.closedStations = [];
-        _this.stationMarkers = [];
-        _this.initMap();
-        _this.initTileLayer();
-        _this.initInfo();
-        _this.initLegend();
-        _this.initBoroughBoundaries();
-        _this.initStations();
-        _this.initSwitches();
-      });
+      _this.container = container;
+      _this.mapLayerGroups = {};
+      _this.activeIncidentLayers = [];
+      _this.boroughsGeoJson = null;
+      _this.boroughScores = {};
+      _this.closedStations = [];
+      _this.stationMarkers = [];
+      _this.initMap();
+      _this.initTileLayer();
+      _this.initInfo();
+      _this.initLegend();
+      _this.initBoroughBoundaries();
+      _this.initStations();
+      _this.initSwitches();
     },
 
     initMap: function() {
@@ -108,25 +106,26 @@ Map = (function() {
         }
       });
 
-      $("#legend").html(_this.template("legend", {"grades": grades}));
+      $("#legend").html(Util.template("legend", {"grades": grades}));
     },
 
     initBoroughBoundaries: function() {
-      log("Loading and displaying London boroughs' boundaries.");
-      _.each(BOROUGHS_NAMES, function (borough) {
+      _.each(Data.boroughs, function (borough) {
         _this.initBoroughBoundary(borough);
       });
     },
 
     initStations: function() {
       _this.showLayer("stations", "stations", function(lg, cont) {
-        _.each(stationsData, function (station) {
-          var markerLocation = new L.LatLng(station.latitude, station.longitude);
-          var marker = new L.Marker(markerLocation, {icon: _this.stationIcon, name: station.name});
-          _this.stationMarkers[station.name] = marker
-          marker.on('click', _this.toggleStation);
-          lg.addLayer(marker);
-          cont();
+        Data.loadStations(function(stationsData) {
+          _.each(stationsData, function (station) {
+            var markerLocation = new L.LatLng(station.latitude, station.longitude);
+            var marker = new L.Marker(markerLocation, {icon: _this.stationIcon, name: station.name});
+            _this.stationMarkers[station.name] = marker
+            marker.on('click', _this.toggleStation);
+            lg.addLayer(marker);
+            cont();
+          });
         });
       })
     },
@@ -164,8 +163,8 @@ Map = (function() {
     },
 
     setScore: function() {
-      var score = mean(_.values(_this.boroughScores));
-      var mands = _this.minutesAndSeconds(score);
+      var score = Util.mean(_.values(_this.boroughScores));
+      var mands = Util.minutesAndSeconds(score);
       $("#score .minutes").html(mands[0]);
       $("#score .seconds").html(mands[1]);
     },
@@ -174,7 +173,7 @@ Map = (function() {
       var info;
       if(props) {
         var template_name = props.borough ? "info-borough" : "info-ward";
-        info = _this.template(template_name, props);
+        info = Util.template(template_name, props);
       } else {
         info = _this.infoDefault;
       }
@@ -216,8 +215,8 @@ Map = (function() {
     },
 
     updateBoroughSidebar: function(borough) {
-      var mands = _this.minutesAndSeconds(_this.boroughScores[borough]);
-      var text = _this.template("borough-sidebar", {
+      var mands = Util.minutesAndSeconds(_this.boroughScores[borough]);
+      var text = Util.template("borough-sidebar", {
         'borough': borough,
         'response': (mands[0] + " minutes, " + mands[1] + " seconds.")
       });
@@ -225,7 +224,7 @@ Map = (function() {
     },
 
     updateBoroughHistogram: function(borough) {
-      getBoroughHist(borough, _this.closedStations, function(error, bins)  {
+      Data.getBoroughHist(borough, _this.closedStations, function(bins)  {
         if(!_this.histogram) {
           _this.initializeBoroughHistogram(bins);
         } else {
@@ -328,10 +327,6 @@ Map = (function() {
         .attr("height", function(d) { return _this.histogramScale(d.incidents); });
     },
 
-    zoomToIncident: function(event) {
-	    _this.map.fitBounds(event.target.getBounds());
-    },
-
     toggleStation: function(event) {
       var name = event.target.options.name;
       if(_this.stationClosed(name)) {
@@ -347,7 +342,7 @@ Map = (function() {
 
 
     closeCandidateStations: function() {
-      _this.closeStations(STATIONS_FACING_CLOSURE_NAMES);
+      _this.closeStations(Data.stations_facing_closure);
     },
 
     closeStation: function(name) {
@@ -379,7 +374,7 @@ Map = (function() {
     },
 
     updateImpactedBoroughs: function(closedStations) {
-      impactedBoroughs(closedStations, function(boroughs) {
+      Data.impactedBoroughs(closedStations, function(boroughs) {
         _.each(boroughs, function (borough) {
           _this.updateBoroughDisplay(borough);
         });
@@ -395,7 +390,7 @@ Map = (function() {
     },
 
     updateBoroughOverviewDisplay: function(borough) {
-      getBoroughResponseTime(borough, _this.closedStations, function(err, resp) {
+      Data.getBoroughResponseTime(borough, _this.closedStations, function(resp) {
         _this.boroughScores[borough] = resp;
         var layerGroup = _this.mapLayerGroups["boroughs"][borough]
         _.each(layerGroup.getLayers(), function(layer) {
@@ -437,7 +432,7 @@ Map = (function() {
           id: "sel_" + borough.toLowerCase().replace("", "_")
         }
       });
-      var inputs = _this.template("boroughs-selected", {"boroughs": boroughs});
+      var inputs = Util.template("boroughs-selected", {"boroughs": boroughs});
       $('#boroughs div').html(inputs);
       $("#boroughs input").click(_this.handleBoroughCheckboxClick)
     },
@@ -449,22 +444,17 @@ Map = (function() {
     },
 
     getColor: function(score) {
-      var p = _this.logistic((score - _this.scoreLowerScale) / (_this.scoreUpperScale - _this.scoreLowerScale));
+      var p = Util.logistic((score - _this.scoreLowerScale) / (_this.scoreUpperScale - _this.scoreLowerScale));
 
       var h = _this.overlayHueMin + p * (_this.overlayHueMax - _this.overlayHueMin);
       var s = _this.overlaySatMin + p * (_this.overlaySatMax - _this.overlaySatMin);
       var v = _this.overlayValMin + p * (_this.overlayValMax - _this.overlayValMin);
-      var rgb = _this.hsvToRgb(h, s, v);
+      var rgb = Util.hsvToRgb(h, s, v);
       var str = "#" + _.map(rgb, function(n) {
         hex = Math.floor(n).toString(16);
         return Math.floor(n) < 16 ? "0" + hex : hex;
       }).join("")
       return str;
-    },
-
-    template: function(name, data) {
-     var template_string = $("#template-"+name).html();
-     return _.template(template_string, data);
     },
 
     showBoroughLayer: function(borough, callback) {
@@ -547,45 +537,6 @@ Map = (function() {
       }
     },
 
-    minutesAndSeconds: function(secs) {
-      var minutes = Math.floor(secs / 60);
-      var seconds = Math.floor(secs % 60);
-      return [minutes, seconds]
-    },
-
-
-    gaussian: function(mu, sigma) {
-      var sigma2 = Math.pow(sigma, 2);
-      return function(x) {
-       return 1/Math.sqrt(2 * Math.PI * sigma2) * Math.exp(0- (Math.pow(x - mu, 2)/(2 * sigma2)));
-      }
-    },
-
-
-    logistic: function(x) {
-      return 1 / (1 + Math.pow(Math.E, 0-x));
-    },
-
-    hsvToRgb: function(h, s, v){
-      var r, g, b;
-
-      var i = Math.floor(h * 6);
-      var f = h * 6 - i;
-      var p = v * (1 - s);
-      var q = v * (1 - f * s);
-      var t = v * (1 - (1 - f) * s);
-
-      switch(i % 6){
-        case 0: r = v, g = t, b = p; break;
-        case 1: r = q, g = v, b = p; break;
-        case 2: r = p, g = v, b = t; break;
-        case 3: r = p, g = q, b = v; break;
-        case 4: r = t, g = p, b = v; break;
-        case 5: r = v, g = p, b = q; break;
-      }
-
-      return [r * 255, g * 255, b * 255];
-    },
   };
   return _this;
 }());

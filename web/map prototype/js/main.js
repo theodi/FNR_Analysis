@@ -11,8 +11,5 @@ var removeArrayItem = function (item, array) {
 
 
 $(document).ready(function() {
-	loadData(function (err) {
-   		Map.initialize('map');
-		log("Ready");
-	});
+  Map.initialize('map');
 });
