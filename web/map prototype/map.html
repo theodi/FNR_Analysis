@@ -30,10 +30,14 @@
           <span class="minutes number">2</span>m<span class="seconds number">30</span>s
         </span>
       </div>
-      <div id="borough">
-
+      <div id="scattergraph">
       </div>
-      <div id="histogram">
+      <div id="detail" style="display:none;">
+        <div id="borough">
+
+        </div>
+        <div id="histogram">
+        </div>
       </div>
     </div>
   </div>
@@ -57,14 +61,10 @@
     </dl>
   </script>
 
-  <script type="text/html" id="template-info-ward">
+  <script type="text/html" id="template-info-station">
     <dl>
-      <dt>Number of incidents</dt>
-      <dd><%= incidents %></dd>
-      <dt>Average response time</dt>
-      <dd><%= Math.floor(response) %> seconds</dd>
-      <dt>Stations responding</dt>
-      <dd><%= attending %></dd>
+      <dt>Station</dt>
+      <dd><%= name %></dd>
     </dl>
   </script>
 

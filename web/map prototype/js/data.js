@@ -1,9 +1,11 @@
 Data = (function() {
+  var  host = "http://api.london-fire.labs.theodi.org:8080"
   var _this = {
 
-    histogramUrl: "http://5.79.6.135:8080/getBoroughHist",
-    boroughResponseTimeUrl: "http://5.79.6.135:8080/getBoroughResponseTime",
-    boroughScoreUrl: "http://5.79.6.135:8080/getBoroughScore",
+    histogramUrl:           host + "/getBoroughHist",
+    boroughResponseTimeUrl: host + "/getBoroughResponseTime",
+    boroughScoreUrl:        host + "/getBoroughScore",
+    allBoroughsScoresUrl:   host + "/getAllBoroughsScores",
 
     boroughDataUrlString:
       'data/boroughBoundaries/{borough}.json',
@@ -86,6 +88,12 @@ Data = (function() {
         'borough': borough,
         'close': closedStations,
       }, callback);
+    },
+
+    getAllBoroughsScores: function(closedStations, callback) {
+      _this.getJSONP(_this.allBoroughsScoresUrl, {
+        'close': closedStations,
+      }, callback)
     },
 
     getJSONP: function(url, data, callback) {

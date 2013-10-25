@@ -74,6 +74,7 @@ Map = (function() {
       //_this.initLegend();
       _this.initBoroughBoundaries();
       _this.initStations();
+      _this.initScattergraph();
       _this.initSwitches();
     },
 
@@ -127,6 +128,7 @@ Map = (function() {
             var marker = new L.Marker(markerLocation, {icon: _this.stationIcon, name: station.name});
             _this.stationMarkers[station.name] = marker
             marker.on('click', _this.toggleStation);
+            marker.on('mouseover', _this.hoverStation);
             lg.addLayer(marker);
             cont();
           });
@@ -154,6 +156,111 @@ Map = (function() {
             }
           });
         });
+      });
+    },
+
+    initScattergraph: function() {
+      function x(d) { return d.score; }
+      function y(d) { return d.responseTime; }
+      function radius(d) { return getRadius(d.areaSqKm); }
+      function key(d) { return d.borough; }
+
+      function getRadius(num) {
+        var tmp = num / Math.PI;
+        return Math.sqrt(tmp);
+      }
+
+      var margin = {top: 19.5, right: 19.5, bottom: 19.5, left: 39.5},
+          width = 280 - margin.right,
+          height = 300 - margin.top - margin.bottom;
+
+      var xScale = d3.scale.linear().domain([3, 5]).range([0, width]),
+          yScale = d3.scale.linear().domain([250, 450]).range([height, 0])
+
+      var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(2);
+      var yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+      var svg = d3.select("#scattergraph").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      svg.append("g")
+        .attr("class", "x axis")
+        .attr("fill", "#eee")
+        .attr("font-size", "80%")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+      svg.append("g")
+        .attr("fill", "#eee")
+        .attr("font-size", "80%")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+      svg.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("font-size", "70%")
+        .attr("x", width)
+        .attr("y", height - 6)
+        .attr("fill", "#eee")
+        .text("Response Time / Footfall Score");
+
+      svg.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "end")
+        .attr("y", 6)
+        .attr("font-size", "70%")
+        .attr("dy", ".75em")
+        .attr("transform", "rotate(-90)")
+        .attr("fill", "#eee")
+        .text("Response Time (s)");
+
+      Data.getAllBoroughsScores(_this.closedStations, function(data) {
+        var dot = svg.append("g")
+          .attr("class", "dots")
+          .selectAll(".dot")
+          .data(data)
+          .enter().append("circle")
+          .attr("class", "dot")
+          .style("fill", function(d) { return _this.getColor(d.responseTime, "responseTime"); })
+          .call(position)
+
+        dot.append("title")
+          .text(function(d) { return d.borough; });
+      });
+
+        function position(dot) {
+          dot.attr("cx", function(d) { return xScale(x(d)); })
+            .attr("cy", function(d) { return yScale(y(d)); })
+            .attr("r", function(d) { return radius(d); });
+        }
+
+        function order(a, b) {
+          return radius(b) - radius(a);
+        }
+
+        _this.scatterGraph = svg;
+        _this.scatterGraphXScale = xScale;
+        _this.scatterGraphYScale = yScale;
+    },
+
+    redrawScattergraph: function() {
+        function position(dot) {
+          dot.attr("cx", function(d) { return _this.scatterGraphXScale(d.score); })
+             .attr("cy", function(d) { return _this.scatterGraphYScale(d.responseTime); })
+        }
+
+      Data.getAllBoroughsScores(_this.closedStations, function(data) {
+        _this.scatterGraph.selectAll(".dot")
+          .data(data)
+          .transition()
+          .duration(1000)
+          .call(position)
+          .style("fill", function(d) { return _this.getColor(d.responseTime, "responseTime"); })
+
       });
     },
 
@@ -194,12 +301,17 @@ Map = (function() {
     updateInfo: function(props) {
       var info;
       if(props) {
-        var template_name = props.borough ? "info-borough" : "info-ward";
+        var template_name = props.borough ? "info-borough" : "info-station";
         info = Util.template(template_name, props);
       } else {
         info = _this.infoDefault;
       }
       $("#info").html(info);
+    },
+
+    hoverStation: function(event) {
+      var layer = event.target.options
+      _this.updateInfo(layer);
     },
 
     highlightFeature: function(event) {
@@ -227,11 +339,11 @@ Map = (function() {
 
     showBoroughDetail: function(event) {
       var target = event.target
-      var props = target.feature.properties;
+        var props = target.feature.properties;
       var borough = props.borough;
       if(_this.selectedBoroughLayer) _this.boroughsGeoJson.resetStyle(_this.selectedBoroughLayer);
       _this.selectedBoroughLayer = target
-      _this.selectedBorough = borough;
+        _this.selectedBorough = borough;
       _this.updateBoroughHistogram(borough);
       _this.updateBoroughSidebar(borough);
     },
@@ -240,7 +352,7 @@ Map = (function() {
       var mands = Util.minutesAndSeconds(_this.boroughScores[borough]);
       var text = Util.template("borough-sidebar", {
         'borough': borough,
-        'response': (mands[0] + " minutes, " + mands[1] + " seconds.")
+          'response': (mands[0] + " minutes, " + mands[1] + " seconds.")
       });
       $("#borough").html(text);
     },
@@ -284,18 +396,18 @@ Map = (function() {
         .attr("width", w * data.length - 1)
         .attr("height", h + 60)
 
-      chart.selectAll("rect")
+        chart.selectAll("rect")
         .data(data)
         .enter().append("rect")
         .attr("x", function(d, i) { return x(i) - .5; })
         .attr("y", function(d) { return h - y(d.incidents) - .5; })
         .attr("fill", function(d) {
-          return _this.getColor(d.timeMax);
+          return _this.getColor(d.timeMax, "responseTime");
         })
-        .attr("width", w)
+      .attr("width", w)
         .attr("height", function(d) { return y(d.incidents); })
 
-      chart.append("g")
+        chart.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(6," + h + ")")
         .style("font-size", "70%")
@@ -379,6 +491,7 @@ Map = (function() {
         _this.stationMarkers[name].setIcon(_this.stationIconClosing);
       });
       _this.updateImpactedBoroughs(names);
+      _this.redrawScattergraph();
     },
 
     openAllClosedStations: function() {
@@ -395,6 +508,7 @@ Map = (function() {
         _this.stationMarkers[name].setIcon(_this.stationIcon);
       });
       _this.updateImpactedBoroughs(names);
+      _this.redrawScattergraph();
     },
 
     updateImpactedBoroughs: function(closedStations) {
@@ -422,11 +536,11 @@ Map = (function() {
           layer.setStyle({"fillColor": _this.getColor(resp) });
         });
 
-        if(_this.selectedBorough == borough) {
-          _this.updateBoroughSidebar(borough);
-          _this.updateBoroughHistogram(borough);
-        }
-        _this.setScore();
+      if(_this.selectedBorough == borough) {
+        _this.updateBoroughSidebar(borough);
+        _this.updateBoroughHistogram(borough);
+      }
+      _this.setScore();
       });
     },
 
@@ -434,7 +548,7 @@ Map = (function() {
       var boroughs = _.map(_this.activeIncidentLayers, function(borough) {
         return {
           name:       borough,
-          id: "sel_" + borough.toLowerCase().replace("", "_")
+      id: "sel_" + borough.toLowerCase().replace("", "_")
         }
       });
       var inputs = Util.template("boroughs-selected", {"boroughs": boroughs});
@@ -448,8 +562,8 @@ Map = (function() {
       _this.toggleIncidentLayer(borough);
     },
 
-    getColor: function(score) {
-      var p = Util.logistic((score - _this.currentMetricLowerScale()) / (_this.currentMetricUpperScale() - _this.currentMetricLowerScale()));
+    getColor: function(score, metric) {
+      var p = Util.logistic((score - _this.currentMetricLowerScale(metric)) / (_this.currentMetricUpperScale(metric) - _this.currentMetricLowerScale(metric)));
 
       var h = _this.overlayHueMin + p * (_this.overlayHueMax - _this.overlayHueMin);
       var s = _this.overlaySatMin + p * (_this.overlaySatMax - _this.overlaySatMin);
@@ -462,20 +576,22 @@ Map = (function() {
       return str;
     },
 
-    currentMetricLowerScale: function() {
-     if(_this.currentMetric == "responseTime")  {
-      return _this.responseTimeLowerScale;
-     } else if(_this.currentMetric == "score")  {
-      return _this.scoreLowerScale;
-     }
+    currentMetricLowerScale: function(metric) {
+      if(!metric) metric = _this.currentMetric;
+      if(metric == "responseTime")  {
+        return _this.responseTimeLowerScale;
+      } else if(metric == "score")  {
+        return _this.scoreLowerScale;
+      }
     },
 
-    currentMetricUpperScale: function() {
-     if(_this.currentMetric == "responseTime")  {
-      return _this.responseTimeUpperScale;
-     } else if(_this.currentMetric == "score")  {
-      return _this.scoreUpperScale;
-     }
+    currentMetricUpperScale: function(metric) {
+      if(!metric) metric = _this.currentMetric;
+      if(metric == "responseTime")  {
+        return _this.responseTimeUpperScale;
+      } else if(metric == "score")  {
+        return _this.scoreUpperScale;
+      }
     },
 
     showBoroughLayer: function(borough, callback) {
@@ -490,11 +606,11 @@ Map = (function() {
       var response = feature.properties.response;
       return {
         weight:       _this.boroughOutlineWeight,
-        color:        _this.boroughOutlineColor,
-        dashArray:    _this.hoverBoroughDashArray,
-        fillOpacity:  _this.boroughFillOpacity,
-        fillColor:    _this.getColor(response),
-        opacity:      _this.boroughOutlineOpacity,
+          color:        _this.boroughOutlineColor,
+          dashArray:    _this.hoverBoroughDashArray,
+          fillOpacity:  _this.boroughFillOpacity,
+          fillColor:    _this.getColor(response),
+          opacity:      _this.boroughOutlineOpacity,
       };
     },
 
