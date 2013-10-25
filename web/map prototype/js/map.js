@@ -218,7 +218,7 @@ Map = (function() {
 
     resetHighlight: function(event) {
       var borough = event.target.feature.properties.borough;
-      _this.boroughsGeoJson.resetStyle(event.target);
+      if(borough != _this.selectedBorough) _this.boroughsGeoJson.resetStyle(event.target);
       event.target.setStyle({fillColor: _this.getColor(_this.boroughScores[borough]) });
       _this.updateInfo();
     },
@@ -227,8 +227,9 @@ Map = (function() {
       var target = event.target
       var props = target.feature.properties;
       var borough = props.borough;
+      if(_this.selectedBoroughLayer) _this.boroughsGeoJson.resetStyle(_this.selectedBoroughLayer);
+      _this.selectedBoroughLayer = target
       _this.selectedBorough = borough;
-      _this.map.fitBounds(target.getBounds());
       _this.updateBoroughHistogram(borough);
       _this.updateBoroughSidebar(borough);
     },
@@ -418,26 +419,6 @@ Map = (function() {
           _this.updateBoroughHistogram(borough);
         }
         _this.setScore();
-      });
-    },
-
-    showBoroughIncidentData: function(borough) {
-      _this.showIncidentLayer(borough, function(lg, cont) {
-        getBoroughDetailedResponse(borough, _this.closedStations, function (_, data) {
-          var incidentGeoJSON = L.geoJson(data, {
-            style: _this.incidentStyle,
-            onEachFeature: function(feature, layer) {
-              lg.addLayer(layer);
-              layer.on({
-                mouseover:  _this.highlightFeature,
-                mouseout:   _this.resetHighlight,
-                click:      _this.zoomToIncident,
-              });
-            }
-          });
-          cont();
-          _this.updateBoroughsSelected();
-        });
       });
     },
 
