@@ -297,7 +297,7 @@ Map = (function() {
 
       chart.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + h + ")")
+        .attr("transform", "translate(6," + h + ")")
         .style("font-size", "70%")
         .attr("fill", "#eee")
         .call(xAxis);
@@ -327,7 +327,7 @@ Map = (function() {
         });
 
       chart.append("svg:text")
-        .attr("x",70)
+        .attr("x",w*20-62)
         .attr("y",h+25)
         .attr("fill", "#eee")
         .style("font-size", "80%")
