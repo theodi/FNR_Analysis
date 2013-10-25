@@ -101,7 +101,7 @@ var loadAllIncidents = function (callback) {
 						memo[row['Borough']] = {
 							totalPopulation: row['Total Population (Thousands)'] * 1000,
 							areaSqKm: row['Area (Square km)'],
-							populationDensity: row['Population per Sq/Km'] * 1000,
+							populationDensity: row['Population per Sq/Km'],
 						};
 						return memo;
 					} , { });
