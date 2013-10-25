@@ -47,7 +47,7 @@ var loadAllIncidents = function (callback) {
 	log("Loading incident data...");
 	incidentsData = [ ];
     csv()
-		.from.stream(fs.createReadStream(__dirname + '/data/incidents.csv.gz').pipe(zlib.createUnzip()), {
+		.from.stream(fs.createReadStream(__dirname + '/data.csv.gz').pipe(zlib.createUnzip()), {
             columns: true
         })
         .on('record', function (row, index) {
