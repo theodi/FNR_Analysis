@@ -88,7 +88,6 @@ var loadAllIncidents = function (callback) {
         	log("Loading census data...");
 			censusData = [ ];
 		    csv()
-		    	// Source: http://www.ons.gov.uk/ons/rel/regional-trends/region-and-country-profiles/key-statistics-and-profiles---august-2012/key-statistics---london--august-2012.html
 				.from.stream(fs.createReadStream(__dirname + '/census.csv.gz').pipe(zlib.createUnzip()), {
 		            columns: true
 		        })
@@ -98,10 +97,10 @@ var loadAllIncidents = function (callback) {
 		        .on('end', function (count) {
 					forceColumnsToFloat([ 'Total Population (Thousands)', 'Area (Square km)', 'Population per Sq/Km' ], censusData);
 					censusData = _.reduce(censusData, function (memo, row) { 
-						memo[row['Borough']] = {
-							totalPopulation: row['Total Population (Thousands)'] * 1000,
-							areaSqKm: row['Area (Square km)'],
-							populationDensity: row['Population per Sq/Km'],
+						memo[row.borough] = {
+							totalPopulation: row.populationThousands * 1000,
+							areaSqKm: row.areaSqKm,
+							populationDensity: row.populationDensity,
 						};
 						return memo;
 					} , { });
