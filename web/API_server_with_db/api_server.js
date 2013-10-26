@@ -73,43 +73,6 @@ var median = function (values) {
 }
 
 
-// Estimates the response time of a generic incident in a square; it expects
-// incidentsNotImpacted to be an array of incidents not impacted from the
-// stations closure, hence relevant for calculation
-var estimateSquareResponseTime = async.memoize(function (longitude, latitude, closedStations, callback) {
-	var MIN_NO_OF_INCIDENTS = 1,
-		results = [ ],
-		foundEnough = false,
-		m = 0;
-	async.whilst(
-		function () { return !foundEnough; }, 
-		function (whilstCallback) {
-			mongo.collection('incidentsData')
-				.find({ $and: [
-							{ simplifiedLongitude: { $gte: longitude - m * SIMPLIFIED_SQUARE_LONGITUDE_SIZE } },
-							{ simplifiedLongitude: { $lt: longitude + (m + 1) * SIMPLIFIED_SQUARE_LONGITUDE_SIZE } },
-							{ simplifiedLatitude: { $lte: latitude + m * SIMPLIFIED_SQUARE_LATITUDE_SIZE } },
-							{ simplifiedLatitude: { $gt: latitude - (m + 1) * SIMPLIFIED_SQUARE_LATITUDE_SIZE } },
-							{ firstPumpStation: { $nin: closedStations } }, 
-						] }, 
-					{ firstPumpTime: 1 })
-				.toArray(function (err, queryResults) {
-					results = queryResults;
-					foundEnough = results.length >= MIN_NO_OF_INCIDENTS;
-					m++;
-					whilstCallback(null);
-				});
-		}, 
-		function (err) {
-			console.log("found with m = " + --m);
-			callback(null, mean(_.map(results, function (i) { return i.firstPumpTime; })));
-		}
-	);
-}, function (longitude, latitude, closedStations) {
-	return longitude + '_' + latitude + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
-});
-
-
 var getBoroughResponseTimes = async.memoize(function (borough, closedStations, callback) {
 
 	// Estimates the response time of a generic incident in a square; it expects
