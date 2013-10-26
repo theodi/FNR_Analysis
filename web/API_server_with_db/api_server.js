@@ -358,19 +358,3 @@ var port = argv.port || process.env.PORT || 8080;
 server.listen(port);
 log("The server is listening on port " + port + ".");
 cacheAll();
-
-/*
-mongo.collection("incidentsData").find({ }, { limit: 1 }).toArray(function (err, items) {
-	var i = items[0];
-	console.log(i);
-	estimateSquareResponseTime(i.simplifiedLongitude, i.simplifiedLatitude, [ ], function (err, result) {
-		console.log("The new response time is: " + result);		
-	});
-});
-*/
-
-// getBoroughResponseTime("Harrow", [ "Harrow" ], function (err, result) { console.log(result); });
-
-// http://localhost:8080/getAllBoroughsScores?close=Harrow
-// - memory only 14s
-// - db 36s
