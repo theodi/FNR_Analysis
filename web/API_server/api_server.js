@@ -213,13 +213,18 @@ var getBoroughResponseTime = _.memoize(function (borough, closedStations) {
 });
 
 
+var getFootfallMedian = _.memoize(function (borough) {
+	return median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; }));
+});
+
+
 /* Like getBoroughScore below, but assumes that the incidents data for
    the borough has been loaded already */
 var getBoroughScore = _.memoize(function (borough, closedStations) {
 	log("Calculating for the first time getBoroughScore for " + borough + " with closed stations: " + closedStations.join(", "));
 	var A = 0.75,
 		medianResponseTimes = median(_.map(getBoroughResponseTimes(borough, closedStations), function (x) { return x / 60; })),
-		medianFootfall = median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall; }));
+		medianFootfall = getFootfallMedian(borough);
 	return Math.pow(medianResponseTimes, A) * 
 		Math.pow(Math.log(medianFootfall + 2) / Math.log(10), 1 - A);
 }, function (borough, closedStations) {
@@ -236,7 +241,7 @@ var getAllBoroughsScores = _.memoize(function (closedStations) {
 			borough: borough,
 			responseTime: getBoroughResponseTime(borough, closedStations),
 			score: getBoroughScore(borough, closedStations),
-			footfallDensity: Math.round(median(_.map(_.filter(incidentsData, function (i) { return i.borough == borough; }), function (i) { return i.footfall / AREA_OF_ONE_SIMPLIFIED_SQUARE; })), 0),
+			footfallDensity: Math.round(getFootfallMedian(borough) / AREA_OF_ONE_SIMPLIFIED_SQUARE, 0),
 			totalPopulation: censusData[borough].totalPopulation,
 			areaSqKm: censusData[borough].areaSqKm,
 			populationDensity: censusData[borough].populationDensity,

@@ -168,6 +168,13 @@ var getBoroughResponseTime = async.memoize(function (borough, closedStations, ca
 });
 
 
+var getFootfallMedian = async.memoize(function (borough, callback) {
+	mongo.collection('incidentsData').find({ borough: borough }, { footfall: 1 }).toArray(function (err, items) {
+		callback(null, median(_.map(items, function (i) { return i.footfall; })));
+	});
+});
+
+
 /*  The function loads the necessary detailed incident data, calculates the
     specified borough's score vs time and population and then calls back
     callback(err, boroughscore) */
@@ -175,13 +182,10 @@ var getBoroughScore = async.memoize(function (borough, closedStations, callback)
 	log("Calculating for the first time getBoroughScore for " + borough + " with closed stations: " + closedStations.join(", "));
 	var A = 0.75;
 	getBoroughResponseTimes(borough, closedStations, function (err, responseTimes) {
-		mongo.collection('incidentsData')
-			.find({ borough: borough })
-			.toArray(function (err, incidentsData) {
-				var medianResponseTimes = median(_.map(responseTimes, function (x) { return x / 60; })),
-					medianFootfall = median(_.map(incidentsData, function (i) { return i.footfall; }));
-				callback(null, Math.pow(medianResponseTimes, A) * 
-					Math.pow(Math.log(medianFootfall + 2) / Math.log(10), 1 - A));
+		getFootfallMedian(borough, function (err, medianFootfall) {
+			var medianResponseTimes = median(_.map(responseTimes, function (x) { return x / 60; }));
+			callback(null, Math.pow(medianResponseTimes, A) * 
+				Math.pow(Math.log(medianFootfall + 2) / Math.log(10), 1 - A));
 		});
 	});
 }, function (borough, closedStations) {
@@ -193,16 +197,16 @@ var getAllBoroughsScores = async.memoize(function (closedStations, callback) {
 	log("Calculating for the first time getAllBoroughsScores for closed stations: " + closedStations.join(", "));
 	var results = [ ];
 	async.eachSeries(BOROUGHS_NAMES, function (borough, seriesCallback) {
-		var footfallDensity = 0;
-		var census = { };
-		var responseTime = 0;
-		var score = 0;
+		var footfallDensity = 0,
+			census = { },
+			responseTime = 0,
+			score = 0;
 		async.parallel([
 			function (callback) {
-				mongo.collection('incidentsData').find({ borough: borough }, { footfall: 1 }).toArray(function (err, items) {
-					footfallDensity = Math.round(median(_.map(items, function (i) { return i.footfall / AREA_OF_ONE_SIMPLIFIED_SQUARE; })), 0);
+				getFootfallMedian(borough, function (err, medianFootfall) {
+					footfallDensity = Math.round(medianFootfall / AREA_OF_ONE_SIMPLIFIED_SQUARE, 0);
 					callback(null);
-				});
+				})
 			},
 			function (callback) {
 				mongo.collection('censusData').find({ borough: borough }).toArray(function (err, items) {
