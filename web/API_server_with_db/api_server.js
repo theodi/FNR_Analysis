@@ -111,26 +111,46 @@ var estimateSquareResponseTime = async.memoize(function (longitude, latitude, cl
 
 
 var getBoroughResponseTimes = async.memoize(function (borough, closedStations, callback) {
+
+	// Estimates the response time of a generic incident in a square; it expects
+	// incidentsNotImpacted to be an array of incidents not impacted from the
+	// stations closure, hence relevant for calculation
+	var estimateSquareResponseTime = _.memoize(function (longitude, latitude) {
+		var MIN_NO_OF_INCIDENTS = 1;
+		var results = [ ];
+		var foundEnough = false;
+		for (var m = 0; !foundEnough; m++) {
+			results = _.filter(incidentsNotImpacted, function (i) {
+				return (i.simplifiedLongitude >= longitude - m * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) &&
+				(i.simplifiedLongitude < longitude + (m + 1) * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) &&
+				(i.simplifiedLatitude <= latitude + m * SIMPLIFIED_SQUARE_LATITUDE_SIZE) &&
+				(i.simplifiedLatitude > latitude - (m + 1) * SIMPLIFIED_SQUARE_LATITUDE_SIZE);
+			});
+			foundEnough = results.length >= MIN_NO_OF_INCIDENTS;
+		}
+		return mean(_.map(results, function (i) { return i.firstPumpTime; }));
+	}, function (longitude, latitude) {
+		return longitude + '_' + latitude;
+	});
+
+	var incidentsNotImpacted = [ ];
 	log("Calculating for the first time getBoroughResponseTimes for " + borough + " with closed stations: " + closedStations.join(", "));
 	mongo.collection('incidentsData')
 		.find({ $and: [ { borough: borough } , { firstPumpStation: { $nin: closedStations } } ]}, { firstPumpTime: 1 , simplifiedLongitude: 1, simplifiedLatitude: 1 })
-		.toArray(function (err, incidentsNotImpacted) {
+		.toArray(function (err, items) {
+			incidentsNotImpacted = items;
 			mongo.collection('incidentsData')
 				.find({ $and: [ { borough: borough } , { firstPumpStation: { $in: closedStations } } ]}, { simplifiedLongitude: 1, simplifiedLatitude: 1 })
 				.toArray(function (err, incidentsImpacted) {
-					var oldTimings = _.map(incidentsNotImpacted, function (i) { return i.firstPumpTime; });
-					async.reduce(
-						_.map(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })), function (incidents) { return { noOfIncidents: incidents.length, longitude: incidents[0].simplifiedLongitude, latitude: incidents[0].simplifiedLatitude }; }),
-						[ ],
-						function (memo, coordinates, callback) {
-							estimateSquareResponseTime(coordinates.longitude, coordinates.latitude, closedStations, function (err, newResponseTime) {
-								callback(null, memo.concat(_.map(Array(coordinates.noOfIncidents + 1).join(1).split(''), function() { return newResponseTime; })));
-							});
+					oldTimings = _.map(incidentsNotImpacted, function (i) { return i.firstPumpTime; }),
+					newTimings = _.reduce(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })), 
+						function (memo, incidentsInSameSquare) {
+							var newResponseTime = estimateSquareResponseTime(incidentsInSameSquare[0].simplifiedLongitude, incidentsInSameSquare[0].simplifiedLatitude, closedStations);
+							// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
+							return memo.concat(_.map(Array(incidentsInSameSquare.length + 1).join(1).split(''), function() { return newResponseTime; }));
 						},
-						function (err, newTimings) {
-							callback(null, oldTimings.concat(newTimings));
-						}
-					);
+						[ ]);
+					callback(null, oldTimings.concat(newTimings));
 			});	
 	});
 }, function (borough, closedStations) {
