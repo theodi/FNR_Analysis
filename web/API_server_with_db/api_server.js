@@ -106,13 +106,29 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 				.find({ $and: [ { borough: borough }, { firstPumpStation: { $in: closedStations } } ]}, { simplifiedLongitude: 1, simplifiedLatitude: 1 })
 				.toArray(function (err, boroughIncidentsImpacted) {
 					oldTimings = _.map(boroughIncidentsNotImpacted, function (i) { return i.firstPumpTime; }),
-					newTimings = _.reduce(_.values(_.groupBy(boroughIncidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })), 
-						function (memo, incidentsInSameSquare) {
-							var newResponseTime = estimateSquareResponseTime(incidentsInSameSquare[0].simplifiedLongitude, incidentsInSameSquare[0].simplifiedLatitude, closedStations);
-							// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
-							return memo.concat(_.map(Array(incidentsInSameSquare.length + 1).join(1).split(''), function() { return newResponseTime; }));
-						},
-						[ ]);
+					newTimings = _.reduce(
+									_.map(
+										_.values(
+											_.groupBy(
+												boroughIncidentsImpacted, 
+												function (i) { 
+													return i.simplifiedLongitude + '_' + i.simplifiedLatitude; 
+												}
+									  		)
+										), 
+										function (incidentsInSameSquare) { 
+											return { 
+												noOfIncidents: incidentsInSameSquare.length, 
+												longitude: incidentsInSameSquare[0].simplifiedLongitude, 
+												latitude: incidentsInSameSquare[0].simplifiedLatitude 
+											}; 
+										}), 
+									function (memo, coordinates) {
+										var newResponseTime = estimateSquareResponseTime(coordinates.longitude, coordinates.latitude);
+										// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
+										return memo.concat(_.map(Array(coordinates.noOfIncidents + 1).join(1).split(''), function() { return newResponseTime; }));
+									},
+									[ ]);
 					callback(null, oldTimings.concat(newTimings));
 			});	
 	});
