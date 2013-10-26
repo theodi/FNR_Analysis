@@ -258,7 +258,7 @@ var cacheAll = function (callback) {
 			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughResponseTime(b, [ ], callback); }, seriesCallback);
 		},
 		function (seriesCallback) {
-			log("Caching getBoroughResponseTime(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+			log("Caching getBoroughResponseTime(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
 			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughResponseTime(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);	
 		},
 		function (seriesCallback) {
@@ -266,7 +266,7 @@ var cacheAll = function (callback) {
 			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughScore(b, [ ], callback) }, seriesCallback);	
 		},
 		function (seriesCallback) {
-			log("Caching getBoroughScore(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+			log("Caching getBoroughScore(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
 			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughScore(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);	
 		},
 		function (seriesCallback) {
@@ -274,15 +274,15 @@ var cacheAll = function (callback) {
 			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughHist(b, [ ], callback) }, seriesCallback);	
 		},
 		function (seriesCallback) {
-			log("Caching getBoroughHist(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+			log("Caching getBoroughHist(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
 			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughHist(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);	
 		},
 		function (seriesCallback) {
-			log("Caching getAllBoroughsScores()...");
+			log("Caching getAllBoroughsScores([ ])...");
 			getAllBoroughsScores([ ], seriesCallback);	
 		},
 		function (seriesCallback) {
-			log("Caching getAllBoroughsScores() for the stations selected by the Mayor......");
+			log("Caching getAllBoroughsScores(closedStations) for the stations selected by the Mayor......");
 			getAllBoroughsScores(STATIONS_FACING_CLOSURE_NAMES, seriesCallback);	
 		},
 	], function (err, results) {

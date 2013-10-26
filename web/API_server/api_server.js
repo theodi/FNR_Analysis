@@ -218,8 +218,6 @@ var getFootfallMedian = _.memoize(function (borough) {
 });
 
 
-/* Like getBoroughScore below, but assumes that the incidents data for
-   the borough has been loaded already */
 var getBoroughScore = _.memoize(function (borough, closedStations) {
 	log("Calculating for the first time getBoroughScore for " + borough + " with closed stations: " + closedStations.join(", "));
 	var A = 0.75,
@@ -266,13 +264,6 @@ var server = restify.createServer({
 server.use(restify.queryParser());
 server.use(restify.jsonp());
 
-// TODO: check if this is redundant, as the same information may be
-// statically distributed with the client-side code
-server.get('/getBoroughsByFirstResponder', function (req, res, next) {
-	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
-	res.send(200, { response: getBoroughsByFirstResponderM() })
-	return next();
-});
 
 server.get('/getBoroughResponseTime', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
@@ -320,19 +311,19 @@ var cacheAll = function (callback) {
 	loadAllIncidents(function () {
 		log("Caching getBoroughResponseTime(borough)...");
 		_.each(BOROUGHS_NAMES, function (b) { getBoroughResponseTime(b, [ ]) });	
-		log("Caching getBoroughResponseTime(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+		log("Caching getBoroughResponseTime(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
 		_.each(BOROUGHS_NAMES, function (b) { getBoroughResponseTime(b, STATIONS_FACING_CLOSURE_NAMES) });	
 		log("Caching getBoroughScore(borough) for all boroughs...");
 		_.each(BOROUGHS_NAMES, function (b) { getBoroughScore(b, [ ]) });	
-		log("Caching getBoroughScore(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+		log("Caching getBoroughScore(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
 		_.each(BOROUGHS_NAMES, function (b) { getBoroughScore(b, STATIONS_FACING_CLOSURE_NAMES) });	
 		log("Caching getBoroughHist(borough) for all boroughs...");
 		_.each(BOROUGHS_NAMES, function (b) { getBoroughHist(b, [ ]) });	
-		log("Caching getBoroughHist(borough, closed stations) for all boroughs and the stations selected by the Mayor...");
+		log("Caching getBoroughHist(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
 		_.each(BOROUGHS_NAMES, function (b) { getBoroughHist(b, STATIONS_FACING_CLOSURE_NAMES) });	
-		log("Caching getAllBoroughsScores()...");
+		log("Caching getAllBoroughsScores([ ])...");
 		getAllBoroughsScores([ ]);	
-		log("Caching getAllBoroughsScores() for all boroughs and the stations selected by the Mayor...");
+		log("Caching getAllBoroughsScores(closedStations) for all boroughs and the stations selected by the Mayor...");
 		getAllBoroughsScores(STATIONS_FACING_CLOSURE_NAMES);	
 		log("Caching completed.");
 		serverReady = true;
