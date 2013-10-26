@@ -309,8 +309,8 @@ server.get('/getBoroughResponseTime', function (req, res, next) {
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	getBoroughResponseTime(req.query.borough, req.query.close, function (err, result) {
 		res.send(200, { response: result });
-		return next();
 	});
+	return next();
 });
 
 
@@ -323,8 +323,8 @@ server.get('/getBoroughScore', function (req, res, next) {
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	getBoroughScore(req.query.borough, req.query.close, function (err, result) {
 		res.send(200, { response: result });
-		return next();
 	});
+	return next();
 });
 
 
@@ -337,8 +337,8 @@ server.get('/getBoroughHist', function (req, res, next) {
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	getBoroughHist(req.query.borough, req.query.close, function (err, result) {
 		res.send(200, { response: result });
-		return next();
 	});
+	return next();
 });
 
 
@@ -349,8 +349,8 @@ server.get('/getAllBoroughsScores', function (req, res, next) {
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	getAllBoroughsScores(req.query.close, function (err, result) {
 		res.send(200, { response: result });
-		return next();
 	});
+	return next();
 });
 
 
