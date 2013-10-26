@@ -249,9 +249,9 @@ var getAllBoroughsScores = async.memoize(function (closedStations, callback) {
 				responseTime: responseTime,
 				score: score,
 				footfallDensity: footfallDensity,
-				totalPopulation: census.totalPopulation,
+				totalPopulation: census.populationThousands * 1000,
 				areaSqKm: census.areaSqKm,
-				populationDensity: census.populationDensity,
+				populationDensity: census.populationDensity
 			});
 			seriesCallback(null);
 		});
