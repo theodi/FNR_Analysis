@@ -133,6 +133,7 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 			});	
 	});
 }, function (borough, closedStations) {
+	closedStations = closedStations.sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -154,6 +155,7 @@ var getBoroughHist = async.memoize(function (borough, closedStations, callback) 
 		callback(null, results);
 	});
 }, function (borough, closedStations) {
+	closedStations = closedStations.sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -164,6 +166,7 @@ var getBoroughResponseTime = async.memoize(function (borough, closedStations, ca
 		callback(err, mean(result));
 	});
 }, function (borough, closedStations) {
+	closedStations = closedStations.sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -189,6 +192,7 @@ var getBoroughScore = async.memoize(function (borough, closedStations, callback)
 		});
 	});
 }, function (borough, closedStations) {
+	closedStations = closedStations.sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
 });
 
@@ -242,6 +246,7 @@ var getAllBoroughsScores = async.memoize(function (closedStations, callback) {
 		callback(null, results);
 	});
 }, function (closedStations) {
+	closedStations = closedStations.sort();
 	return closedStations.join('_');
 });
 
