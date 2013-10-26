@@ -12,8 +12,11 @@ Map = (function() {
     overlayValMin: 1.0,
     overlayValMax: 0.8,
 
-    scoreLowerScale: 330,
-    scoreUpperScale: 290,
+    responseTimeLowerScale: 330,
+    responseTimeUpperScale: 290,
+
+    scoreLowerScale: 4.05,
+    scoreUpperScale: 3.80,
 
     gradeMinValues: [0, 180, 360, 540],
 
@@ -29,11 +32,11 @@ Map = (function() {
     hoverBoroughOutlineDashArray: '',
     hoverBoroughFillOpacity:      0.9,
 
-    incidentOutlineWeight:      0,
-    incidentOutlineColor:       '#2D0D01',
-    incidentOutlineOpacity:     0.8,
-    incidentOutlineDashArray:   '',
-    incidentFillOpacity:        0.8,
+    selectedBoroughOutlineWeight:    2,
+    selectedBoroughOutlineColor:     '#2D0D01',
+    selectedBoroughOutlineOpacity:   0.9,
+    selectedBoroughOutlineDashArray: '',
+    selectedBoroughFillOpacity:      0.9,
 
     cloudMadeKey: 'BC9A493B41014CAABB98F0471D759707',
     mapStyleId:   22677, //111403,
@@ -44,9 +47,6 @@ Map = (function() {
       'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
     infoDefault:
       'Hover or click an area',
-
-    boroughDataUrlString:
-      'data/boroughBoundaries/{borough}.json',
 
     stationIconClosing: L.icon({
       iconUrl: 'img/icon_firetruck_closing.png',
@@ -59,22 +59,23 @@ Map = (function() {
     }),
 
     initialize: function(container) {
-      loadAllIncidents(function() {
-        _this.container = container;
-        _this.mapLayerGroups = {};
-        _this.activeIncidentLayers = [];
-        _this.boroughsGeoJson = null;
-        _this.boroughScores = {};
-        _this.closedStations = [];
-        _this.stationMarkers = [];
-        _this.initMap();
-        _this.initTileLayer();
-        _this.initInfo();
-        _this.initLegend();
-        _this.initBoroughBoundaries();
-        _this.initStations();
-        _this.initSwitches();
-      });
+      _this.blockingProcessesCount = 0;
+      _this.container = container;
+      _this.mapLayerGroups = {};
+      _this.activeIncidentLayers = [];
+      _this.boroughsGeoJson = null;
+      _this.boroughScores = {};
+      _this.closedStations = [];
+      _this.stationMarkers = [];
+      _this.currentMetric = "responseTime",
+      _this.initMap();
+      _this.initTileLayer();
+      _this.initInfo();
+      //_this.initLegend();
+      _this.initBoroughBoundaries();
+      _this.initStations();
+      _this.initScattergraph();
+      _this.initSwitches();
     },
 
     initMap: function() {
@@ -108,33 +109,38 @@ Map = (function() {
         }
       });
 
-      $("#legend").html(_this.template("legend", {"grades": grades}));
+      $("#legend").html(Util.template("legend", {"grades": grades}));
     },
 
     initBoroughBoundaries: function() {
-      log("Loading and displaying London boroughs' boundaries.");
-      _.each(BOROUGHS_NAMES, function (borough) {
+      _.each(Data.boroughs, function (borough) {
         _this.initBoroughBoundary(borough);
       });
     },
 
     initStations: function() {
       _this.showLayer("stations", "stations", function(lg, cont) {
-        _.each(stationsData, function (station) {
-          var markerLocation = new L.LatLng(station.latitude, station.longitude);
-          var marker = new L.Marker(markerLocation, {icon: _this.stationIcon, name: station.name});
-          _this.stationMarkers[station.name] = marker
-          marker.on('click', _this.toggleStation);
-          lg.addLayer(marker);
-          cont();
+        _this.blockUI();
+        Data.loadStations(function(stationsData) {
+          _this.unblockUI();
+          _.each(stationsData, function (station) {
+            var markerLocation = new L.LatLng(station.latitude, station.longitude);
+            var marker = new L.Marker(markerLocation, {icon: _this.stationIcon, name: station.name});
+            _this.stationMarkers[station.name] = marker
+            marker.on('click', _this.toggleStation);
+            marker.on('mouseover', _this.hoverStation);
+            lg.addLayer(marker);
+            cont();
+          });
         });
       })
     },
 
-
     initBoroughBoundary: function(borough) {
       _this.showBoroughLayer(borough, function(lg, cont) {
-        $.getJSON(_this.boroughDataUrl(borough), function(data) {
+        _this.blockUI();
+        Data.getBoroughData(borough, function(data) {
+          _this.unblockUI();
           _this.boroughsGeoJson = L.geoJson(data, {
             style: _this.boroughStyle,
             onEachFeature: function (feature, layer) {
@@ -153,6 +159,116 @@ Map = (function() {
       });
     },
 
+    initScattergraph: function() {
+      function x(d) { return d.score; }
+      function y(d) { return d.responseTime; }
+      function radius(d) { return getRadius(d.areaSqKm); }
+      function key(d) { return d.borough; }
+
+      function getRadius(num) {
+        var tmp = num / Math.PI;
+        return Math.sqrt(tmp);
+      }
+
+      var margin = {top: 19.5, right: 19.5, bottom: 19.5, left: 39.5},
+          width = 280 - margin.right - margin.left,
+          height = 300 - margin.top - margin.bottom;
+
+      var xScale = d3.scale.linear().domain([3, 5]).range([0, width]),
+          yScale = d3.scale.linear().domain([250, 450]).range([height, 0])
+
+      var xAxis = d3.svg.axis().scale(xScale).orient("bottom").ticks(2);
+      var yAxis = d3.svg.axis().scale(yScale).orient("left").ticks(6);
+
+      var svg = d3.select("#scattergraph").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      svg.append("g")
+        .attr("class", "x axis")
+        .attr("fill", "#eee")
+        .attr("font-size", "80%")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+      svg.append("g")
+        .attr("fill", "#eee")
+        .attr("font-size", "80%")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+      svg.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("font-size", "70%")
+        .attr("x", width)
+        .attr("y", height - 6)
+        .attr("fill", "#eee")
+        .text("Response Time / Footfall Score");
+
+      svg.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "end")
+        .attr("y", 6)
+        .attr("font-size", "70%")
+        .attr("dy", ".75em")
+        .attr("transform", "rotate(-90)")
+        .attr("fill", "#eee")
+        .text("Response Time (s)");
+
+      Data.getAllBoroughsScores(_this.closedStations, function(data) {
+        var dot = svg.append("g")
+          .attr("class", "dots")
+          .selectAll(".dot")
+          .data(data)
+          .enter().append("circle")
+          .attr("class", "dot")
+          .style("fill", function(d) { return _this.getColor(d.responseTime, "responseTime"); })
+          .call(position)
+
+        dot.append("title")
+          .text(function(d) { return d.borough; });
+      });
+
+        function position(dot) {
+          dot.attr("cx", function(d) { return xScale(x(d)); })
+            .attr("cy", function(d) { return yScale(y(d)); })
+            .attr("r", function(d) { return radius(d); });
+        }
+
+        function order(a, b) {
+          return radius(b) - radius(a);
+        }
+
+        d3.selectAll(".domain")
+          .attr("stroke-width", "1")
+          .attr("stroke", "#eee")
+          .attr("fill", "none");
+
+        _this.scatterGraph = svg;
+        _this.scatterGraphXScale = xScale;
+        _this.scatterGraphYScale = yScale;
+    },
+
+    redrawScattergraph: function() {
+        function position(dot) {
+          dot.attr("cx", function(d) { return _this.scatterGraphXScale(d.score); })
+             .attr("cy", function(d) { return _this.scatterGraphYScale(d.responseTime); })
+        }
+
+      Data.getAllBoroughsScores(_this.closedStations, function(data) {
+        _this.scatterGraph.selectAll(".dot")
+          .data(data)
+          .transition()
+          .duration(1000)
+          .call(position)
+          .style("fill", function(d) { return _this.getColor(d.responseTime, "responseTime"); })
+
+      });
+    },
+
     initSwitches: function() {
       $("#closures-switch").click(function(event)  {
         if(!$(this).is(":checked")){
@@ -161,11 +277,32 @@ Map = (function() {
           _this.closeCandidateStations();
         }
       });
+      $("#metric-switch").click(function(event)  {
+        if(!$(this).is(":checked")){
+          _this.setResponseTimeMetric();
+        } else {
+          _this.setScoreMetric();
+        }
+      });
+      $("#detail .close").click(function(event) {
+        event.preventDefault();
+        _this.closeBoroughSidebar();
+      });
+    },
+
+    setScoreMetric: function() {
+      _this.currentMetric = "score";
+      _this.refreshAllBoroughs();
+    },
+
+    setResponseTimeMetric: function() {
+      _this.currentMetric = "responseTime";
+      _this.refreshAllBoroughs();
     },
 
     setScore: function() {
-      var score = mean(_.values(_this.boroughScores));
-      var mands = _this.minutesAndSeconds(score);
+      var score = Util.mean(_.values(_this.boroughScores));
+      var mands = Util.minutesAndSeconds(score);
       $("#score .minutes").html(mands[0]);
       $("#score .seconds").html(mands[1]);
     },
@@ -173,12 +310,17 @@ Map = (function() {
     updateInfo: function(props) {
       var info;
       if(props) {
-        var template_name = props.borough ? "info-borough" : "info-ward";
-        info = _this.template(template_name, props);
+        var template_name = props.borough ? "info-borough" : "info-station";
+        info = Util.template(template_name, props);
       } else {
         info = _this.infoDefault;
       }
       $("#info").html(info);
+    },
+
+    hoverStation: function(event) {
+      var layer = event.target.options
+      _this.updateInfo(layer);
     },
 
     highlightFeature: function(event) {
@@ -199,33 +341,43 @@ Map = (function() {
 
     resetHighlight: function(event) {
       var borough = event.target.feature.properties.borough;
-      _this.boroughsGeoJson.resetStyle(event.target);
+      if(borough != _this.selectedBorough) _this.boroughsGeoJson.resetStyle(event.target);
       event.target.setStyle({fillColor: _this.getColor(_this.boroughScores[borough]) });
       _this.updateInfo();
     },
 
     showBoroughDetail: function(event) {
       var target = event.target
-      var props = target.feature.properties;
+        var props = target.feature.properties;
       var borough = props.borough;
-      //_this.showBoroughIncidentData(borough);
-      _this.selectedBorough = borough;
-      _this.map.fitBounds(target.getBounds());
-      _this.updateBoroughHistogram(borough);
+      if(_this.selectedBoroughLayer) _this.boroughsGeoJson.resetStyle(_this.selectedBoroughLayer);
+      _this.selectedBoroughLayer = target
+        _this.selectedBorough = borough;
       _this.updateBoroughSidebar(borough);
     },
 
     updateBoroughSidebar: function(borough) {
-      var mands = _this.minutesAndSeconds(_this.boroughScores[borough]);
-      var text = _this.template("borough-sidebar", {
+      $("#scattergraph").hide()
+      $("#detail").show()
+      var mands = Util.minutesAndSeconds(_this.boroughScores[borough]);
+      var text = Util.template("borough-sidebar", {
         'borough': borough,
-        'response': (mands[0] + " minutes, " + mands[1] + " seconds.")
+          'response': (mands[0] + " minutes, " + mands[1] + " seconds.")
       });
       $("#borough").html(text);
+      _this.updateBoroughHistogram(borough);
+    },
+
+    closeBoroughSidebar: function() {
+      $("#detail").hide();
+      $("#scattergraph").show()
+      _this.selectedBorough = null;
     },
 
     updateBoroughHistogram: function(borough) {
-      getBoroughHist(borough, _this.closedStations, function(error, bins)  {
+      _this.blockUI();
+      Data.getBoroughHist(borough, _this.closedStations, function(bins)  {
+        _this.unblockUI();
         if(!_this.histogram) {
           _this.initializeBoroughHistogram(bins);
         } else {
@@ -261,20 +413,20 @@ Map = (function() {
         .attr("width", w * data.length - 1)
         .attr("height", h + 60)
 
-      chart.selectAll("rect")
+        chart.selectAll("rect")
         .data(data)
         .enter().append("rect")
         .attr("x", function(d, i) { return x(i) - .5; })
         .attr("y", function(d) { return h - y(d.incidents) - .5; })
         .attr("fill", function(d) {
-          return _this.getColor(d.timeMax);
+          return _this.getColor(d.timeMax, "responseTime");
         })
-        .attr("width", w)
+      .attr("width", w)
         .attr("height", function(d) { return y(d.incidents); })
 
-      chart.append("g")
+        chart.append("g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + h + ")")
+        .attr("transform", "translate(6," + h + ")")
         .style("font-size", "70%")
         .attr("fill", "#eee")
         .call(xAxis);
@@ -304,7 +456,7 @@ Map = (function() {
         });
 
       chart.append("svg:text")
-        .attr("x",70)
+        .attr("x",w*20-62)
         .attr("y",h+25)
         .attr("fill", "#eee")
         .style("font-size", "80%")
@@ -328,10 +480,6 @@ Map = (function() {
         .attr("height", function(d) { return _this.histogramScale(d.incidents); });
     },
 
-    zoomToIncident: function(event) {
-	    _this.map.fitBounds(event.target.getBounds());
-    },
-
     toggleStation: function(event) {
       var name = event.target.options.name;
       if(_this.stationClosed(name)) {
@@ -347,7 +495,7 @@ Map = (function() {
 
 
     closeCandidateStations: function() {
-      _this.closeStations(STATIONS_FACING_CLOSURE_NAMES);
+      _this.closeStations(Data.stations_facing_closure);
     },
 
     closeStation: function(name) {
@@ -360,6 +508,7 @@ Map = (function() {
         _this.stationMarkers[name].setIcon(_this.stationIconClosing);
       });
       _this.updateImpactedBoroughs(names);
+      if (!_this.selectedBorough) _this.redrawScattergraph();
     },
 
     openAllClosedStations: function() {
@@ -376,57 +525,38 @@ Map = (function() {
         _this.stationMarkers[name].setIcon(_this.stationIcon);
       });
       _this.updateImpactedBoroughs(names);
+      if (!_this.selectedBorough) _this.redrawScattergraph();
     },
 
     updateImpactedBoroughs: function(closedStations) {
-      impactedBoroughs(closedStations, function(boroughs) {
+      _this.blockUI();
+      Data.impactedBoroughs(closedStations, function(boroughs) {
+        _this.unblockUI();
         _.each(boroughs, function (borough) {
           _this.updateBoroughDisplay(borough);
         });
       })
     },
 
-    updateBoroughDisplay: function(borough) {
-      if(_this.incidentLayerActive(borough))  {
-        _this.updateBoroughIncidentDisplay(borough);
-      } else {
-        _this.updateBoroughOverviewDisplay(borough);
-      }
+    refreshAllBoroughs: function() {
+      _.each(Data.boroughs, function (borough) {
+        _this.updateBoroughDisplay(borough);
+      });
     },
-
-    updateBoroughOverviewDisplay: function(borough) {
-      getBoroughResponseTime(borough, _this.closedStations, function(err, resp) {
+    updateBoroughDisplay: function(borough) {
+      _this.blockUI();
+      Data.getBoroughMetric(_this.currentMetric, borough, _this.closedStations, function(resp) {
+        _this.unblockUI();
         _this.boroughScores[borough] = resp;
         var layerGroup = _this.mapLayerGroups["boroughs"][borough]
         _.each(layerGroup.getLayers(), function(layer) {
           layer.setStyle({"fillColor": _this.getColor(resp) });
         });
 
-        if(_this.selectedBorough == borough) {
-          _this.updateBoroughSidebar(borough);
-          _this.updateBoroughHistogram(borough);
-        }
-        _this.setScore();
-      });
-    },
-
-    showBoroughIncidentData: function(borough) {
-      _this.showIncidentLayer(borough, function(lg, cont) {
-        getBoroughDetailedResponse(borough, _this.closedStations, function (_, data) {
-          var incidentGeoJSON = L.geoJson(data, {
-            style: _this.incidentStyle,
-            onEachFeature: function(feature, layer) {
-              lg.addLayer(layer);
-              layer.on({
-                mouseover:  _this.highlightFeature,
-                mouseout:   _this.resetHighlight,
-                click:      _this.zoomToIncident,
-              });
-            }
-          });
-          cont();
-          _this.updateBoroughsSelected();
-        });
+      if(_this.selectedBorough == borough) {
+        _this.updateBoroughSidebar(borough);
+      }
+      _this.setScore();
       });
     },
 
@@ -434,10 +564,10 @@ Map = (function() {
       var boroughs = _.map(_this.activeIncidentLayers, function(borough) {
         return {
           name:       borough,
-          id: "sel_" + borough.toLowerCase().replace("", "_")
+      id: "sel_" + borough.toLowerCase().replace("", "_")
         }
       });
-      var inputs = _this.template("boroughs-selected", {"boroughs": boroughs});
+      var inputs = Util.template("boroughs-selected", {"boroughs": boroughs});
       $('#boroughs div').html(inputs);
       $("#boroughs input").click(_this.handleBoroughCheckboxClick)
     },
@@ -448,13 +578,13 @@ Map = (function() {
       _this.toggleIncidentLayer(borough);
     },
 
-    getColor: function(score) {
-      var p = _this.logistic((score - _this.scoreLowerScale) / (_this.scoreUpperScale - _this.scoreLowerScale));
+    getColor: function(score, metric) {
+      var p = Util.logistic((score - _this.currentMetricLowerScale(metric)) / (_this.currentMetricUpperScale(metric) - _this.currentMetricLowerScale(metric)));
 
       var h = _this.overlayHueMin + p * (_this.overlayHueMax - _this.overlayHueMin);
       var s = _this.overlaySatMin + p * (_this.overlaySatMax - _this.overlaySatMin);
       var v = _this.overlayValMin + p * (_this.overlayValMax - _this.overlayValMin);
-      var rgb = _this.hsvToRgb(h, s, v);
+      var rgb = Util.hsvToRgb(h, s, v);
       var str = "#" + _.map(rgb, function(n) {
         hex = Math.floor(n).toString(16);
         return Math.floor(n) < 16 ? "0" + hex : hex;
@@ -462,9 +592,22 @@ Map = (function() {
       return str;
     },
 
-    template: function(name, data) {
-     var template_string = $("#template-"+name).html();
-     return _.template(template_string, data);
+    currentMetricLowerScale: function(metric) {
+      if(!metric) metric = _this.currentMetric;
+      if(metric == "responseTime")  {
+        return _this.responseTimeLowerScale;
+      } else if(metric == "score")  {
+        return _this.scoreLowerScale;
+      }
+    },
+
+    currentMetricUpperScale: function(metric) {
+      if(!metric) metric = _this.currentMetric;
+      if(metric == "responseTime")  {
+        return _this.responseTimeUpperScale;
+      } else if(metric == "score")  {
+        return _this.scoreUpperScale;
+      }
     },
 
     showBoroughLayer: function(borough, callback) {
@@ -475,58 +618,17 @@ Map = (function() {
       _this.hideLayer("boroughs", borough);
     },
 
-    showIncidentLayer: function(borough, callback) {
-      _this.showLayer("incidents", borough, callback);
-      _this.hideBoroughLayer(borough);
-      if (!_.contains(_this.activeIncidentLayers, borough)) {
-        _this.activeIncidentLayers.push(borough);
-      }
-    },
-
-    toggleIncidentLayer: function(borough, callback) {
-      if(_this.incidentLAyerActive(borough))  {
-        _this.hideIncidentLayer(borough);
-      } else {
-        _this.showIncidentLayer(borough, callback);
-      }
-    },
-
-    hideIncidentLayer: function(borough) {
-      _this.activeIncidentLayers = removeArrayItem(borough, _this.activeIncidentLayers);
-      _this.hideLayer("incidents", borough);
-      _this.showBoroughLayer(borough);
-    },
-
-    incidentLayerActive: function(borough) {
-      return _.contains(_this.activeIncidentLayers, borough);
-    },
-
     boroughStyle: function(feature) {
-      var response = feature.properties.response;
+      var name = feature.properties.borough;
+      var resp = _this.boroughScores[name] ? _this.boroughScores[name] : feature.properties.response;
       return {
         weight:       _this.boroughOutlineWeight,
-        color:        _this.boroughOutlineColor,
-        dashArray:    _this.hoverBoroughDashArray,
-        fillOpacity:  _this.boroughFillOpacity,
-        fillColor:    _this.getColor(response),
-        opacity:      _this.boroughOutlineOpacity,
+          color:        _this.boroughOutlineColor,
+          dashArray:    _this.hoverBoroughDashArray,
+          fillOpacity:  _this.boroughFillOpacity,
+          fillColor:    _this.getColor(resp),
+          opacity:      _this.boroughOutlineOpacity,
       };
-    },
-
-    incidentStyle: function(feature) {
-      var response = feature.properties.response;
-      return {
-        weight:       _this.incidentOutlineWeight,
-        opacity:      _this.incidentOutlineOpacity,
-        color:        _this.incidentOutlineColor,
-        dashArray:    _this.incidentOutlineDashArray,
-        fillOpacity:  _this.incidentFillOpacity,
-        fillColor:    _this.getColor(response)
-	    };
-    },
-
-    boroughDataUrl: function(name) {
-      return _this.boroughDataUrlString.replace("{borough}", name)
     },
 
     showLayer: function(type, key, callback) {
@@ -547,45 +649,16 @@ Map = (function() {
       }
     },
 
-    minutesAndSeconds: function(secs) {
-      var minutes = Math.floor(secs / 60);
-      var seconds = Math.floor(secs % 60);
-      return [minutes, seconds]
+    blockUI: function() {
+      if(_this.blockingProcessesCount == 0) $.blockUI({message : "<img src='img/loading.gif' alt='Loading' />", css: {backgroundColor: "transparent", border: "none"}});
+      _this.blockingProcessesCount++;
     },
 
-
-    gaussian: function(mu, sigma) {
-      var sigma2 = Math.pow(sigma, 2);
-      return function(x) {
-       return 1/Math.sqrt(2 * Math.PI * sigma2) * Math.exp(0- (Math.pow(x - mu, 2)/(2 * sigma2)));
-      }
+    unblockUI: function() {
+      if(_this.blockingProcessesCount > 0) _this.blockingProcessesCount--;
+      if(_this.blockingProcessesCount == 0) $.unblockUI();
     },
 
-
-    logistic: function(x) {
-      return 1 / (1 + Math.pow(Math.E, 0-x));
-    },
-
-    hsvToRgb: function(h, s, v){
-      var r, g, b;
-
-      var i = Math.floor(h * 6);
-      var f = h * 6 - i;
-      var p = v * (1 - s);
-      var q = v * (1 - f * s);
-      var t = v * (1 - (1 - f) * s);
-
-      switch(i % 6){
-        case 0: r = v, g = t, b = p; break;
-        case 1: r = q, g = v, b = p; break;
-        case 2: r = p, g = v, b = t; break;
-        case 3: r = p, g = q, b = v; break;
-        case 4: r = t, g = p, b = v; break;
-        case 5: r = v, g = p, b = q; break;
-      }
-
-      return [r * 255, g * 255, b * 255];
-    },
   };
   return _this;
 }());

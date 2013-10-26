@@ -1,11 +1,11 @@
 // DAVETAZ TODO: Resize icons based upon zoom level
 var stationIconClosing = L.icon({
-	iconUrl: 'img/icon_firetruck_closing.png',
+	iconUrl: 'images/icon_firetruck_closing.png',
 	iconSize: [20, 20]
 });
 
 var stationIcon = L.icon({
-	iconUrl: 'img/icon_firetruck_ok.png',
+	iconUrl: 'images/icon_firetruck_ok.png',
 	iconSize: [20, 20]
 });
 
