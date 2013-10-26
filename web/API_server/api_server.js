@@ -96,7 +96,7 @@ var loadAllIncidents = function (callback) {
 		        	censusData.push(row);
 		        })
 		        .on('end', function (count) {
-					forceColumnsToFloat([ 'Total Population (Thousands)', 'Area (Square km)', 'Population per Sq/Km' ], censusData);
+					forceColumnsToFloat([ 'totalPopulation', 'areaSqKm', 'populationDensity' ], censusData);
 					censusData = _.reduce(censusData, function (memo, row) { 
 						memo[row.borough] = {
 							totalPopulation: row.populationThousands * 1000,
