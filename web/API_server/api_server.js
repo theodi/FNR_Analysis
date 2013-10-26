@@ -85,6 +85,7 @@ var loadAllIncidents = function (callback) {
         })
         .on('end', function (count) {
 			forceColumnsToFloat([ 'firstPumpTime', 'simplifiedLatitude', 'simplifiedLongitude', 'footfall' ], incidentsData);
+			log("Completed loading incidents data.");
         	log("Loading census data...");
 			censusData = [ ];
 		    csv()
@@ -345,7 +346,6 @@ server.get('/getBoroughHist', function (req, res, next) {
 });
 
 var cacheAll = function (callback) {
-	log("Loading the incidents data...");
 	loadAllIncidents(function () {
 		log("Caching getBoroughsByFirstResponderM()...");
 		getBoroughsByFirstResponderM()	
