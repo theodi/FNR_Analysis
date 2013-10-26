@@ -73,49 +73,64 @@ var median = function (values) {
 }
 
 
-var getBoroughResponseTimes = async.memoize(function (borough, closedStations, callback) {
-
-	// Estimates the response time of a generic incident in a square; it expects
-	// incidentsNotImpacted to be an array of incidents not impacted from the
-	// stations closure, hence relevant for calculation
-	var estimateSquareResponseTime = _.memoize(function (longitude, latitude) {
-		var MIN_NO_OF_INCIDENTS = 1;
-		var results = [ ];
-		var foundEnough = false;
-		for (var m = 0; !foundEnough; m++) {
-			results = _.filter(incidentsNotImpacted, function (i) {
-				return (i.simplifiedLongitude >= longitude - m * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) &&
-				(i.simplifiedLongitude < longitude + (m + 1) * SIMPLIFIED_SQUARE_LONGITUDE_SIZE) &&
-				(i.simplifiedLatitude <= latitude + m * SIMPLIFIED_SQUARE_LATITUDE_SIZE) &&
-				(i.simplifiedLatitude > latitude - (m + 1) * SIMPLIFIED_SQUARE_LATITUDE_SIZE);
-			});
-			foundEnough = results.length >= MIN_NO_OF_INCIDENTS;
+// Estimates the response time of a generic incident in a square; it expects
+// incidentsNotImpacted to be an array of incidents not impacted from the
+// stations closure, hence relevant for calculation
+var estimateSquareResponseTime = async.memoize(function (longitude, latitude, closedStations, callback) {
+	var MIN_NO_OF_INCIDENTS = 1,
+		results = [ ],
+		foundEnough = false,
+		m = 0;
+	async.whilst(
+		function () { return !foundEnough; }, 
+		function (whilstCallback) {
+			mongo.collection('incidentsData')
+				.find({ $and: [
+							{ simplifiedLongitude: { $gte: longitude - m * SIMPLIFIED_SQUARE_LONGITUDE_SIZE } },
+							{ simplifiedLongitude: { $lt: longitude + (m + 1) * SIMPLIFIED_SQUARE_LONGITUDE_SIZE } },
+							{ simplifiedLatitude: { $lte: latitude + m * SIMPLIFIED_SQUARE_LATITUDE_SIZE } },
+							{ simplifiedLatitude: { $gt: latitude - (m + 1) * SIMPLIFIED_SQUARE_LATITUDE_SIZE } },
+							{ firstPumpStation: { $nin: closedStations } }, 
+						] }, 
+					{ firstPumpTime: 1 })
+				.toArray(function (err, queryResults) {
+					results = queryResults;
+					foundEnough = results.length >= MIN_NO_OF_INCIDENTS;
+					m++;
+					whilstCallback(null);
+				});
+		}, 
+		function (err) {
+			console.log("found with m = " + --m);
+			callback(null, mean(_.map(results, function (i) { return i.firstPumpTime; })));
 		}
-		return mean(_.map(results, function (i) { return i.firstPumpTime; }));
-	}, function (longitude, latitude) {
-		return longitude + '_' + latitude;
-	});
+	);
+}, function (longitude, latitude, closedStations) {
+	return longitude + '_' + latitude + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
+});
 
+
+var getBoroughResponseTimes = async.memoize(function (borough, closedStations, callback) {
 	log("Calculating for the first time getBoroughResponseTimes for " + borough + " with closed stations: " + closedStations.join(", "));
-	var incidentsNotImpacted = [ ],
-		incidentsImpacted = [ ];
 	mongo.collection('incidentsData')
 		.find({ $and: [ { borough: borough } , { firstPumpStation: { $nin: closedStations } } ]}, { firstPumpTime: 1 , simplifiedLongitude: 1, simplifiedLatitude: 1 })
-		.toArray(function (err, items) {
-			incidentsNotImpacted = items;
+		.toArray(function (err, incidentsNotImpacted) {
 			mongo.collection('incidentsData')
 				.find({ $and: [ { borough: borough } , { firstPumpStation: { $in: closedStations } } ]}, { simplifiedLongitude: 1, simplifiedLatitude: 1 })
-				.toArray(function (err, items) {
-					incidentsImpacted = items;
-					oldTimings = _.map(incidentsNotImpacted, function (i) { return i.firstPumpTime; }),
-					newTimings = _.reduce(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })), 
-						function (memo, incidentsInSameSquare) {
-							var newResponseTime = estimateSquareResponseTime(incidentsInSameSquare[0].simplifiedLongitude, incidentsInSameSquare[0].simplifiedLatitude, closedStations);
-							// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
-							return memo.concat(_.map(Array(incidentsInSameSquare.length + 1).join(1).split(''), function() { return newResponseTime; }));
+				.toArray(function (err, incidentsImpacted) {
+					var oldTimings = _.map(incidentsNotImpacted, function (i) { return i.firstPumpTime; });
+					async.reduce(
+						_.map(_.values(_.groupBy(incidentsImpacted, function (i) { return i.simplifiedLongitude + '_' + i.simplifiedLatitude; })), function (incidents) { return { noOfIncidents: incidents.length, longitude: incidents[0].simplifiedLongitude, latitude: incidents[0].simplifiedLatitude }; }),
+						[ ],
+						function (memo, coordinates, callback) {
+							estimateSquareResponseTime(coordinates.longitude, coordinates.latitude, closedStations, function (err, newResponseTime) {
+								callback(null, memo.concat(_.map(Array(coordinates.noOfIncidents + 1).join(1).split(''), function() { return newResponseTime; })));
+							});
 						},
-						[ ]);
-					callback(null, oldTimings.concat(newTimings));
+						function (err, newTimings) {
+							callback(null, oldTimings.concat(newTimings));
+						}
+					);
 			});	
 	});
 }, function (borough, closedStations) {
@@ -340,6 +355,17 @@ var port = argv.port || process.env.PORT || 8080;
 server.listen(port);
 log("The server is listening on port " + port + ".");
 cacheAll();
+
+/*
+mongo.collection("incidentsData").find({ }, { limit: 1 }).toArray(function (err, items) {
+	var i = items[0];
+	console.log(i);
+	estimateSquareResponseTime(i.simplifiedLongitude, i.simplifiedLatitude, [ ], function (err, result) {
+		console.log("The new response time is: " + result);		
+	});
+});
+*/
+
 // getBoroughResponseTime("Harrow", [ "Harrow" ], function (err, result) { console.log(result); });
 
 // http://localhost:8080/getAllBoroughsScores?close=Harrow

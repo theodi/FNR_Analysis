@@ -2,5 +2,5 @@ mongoimport -d fnranalysis -c incidentsData --type csv --file data.csv --headerl
 mongoimport -d fnranalysis -c censusData --type csv --file census.csv --headerline
 
 db.incidentsData.ensureIndex({ "borough": 1});
-> db.incidentsData.ensureIndex({ "firstPumpStation": 1});
-> db.incidentsData.ensureIndex({ "borough": 1, "firstPumpStation": 1});
+db.incidentsData.ensureIndex({ "firstPumpStation": 1});
+db.incidentsData.ensureIndex({ "borough": 1, "firstPumpStation": 1});
