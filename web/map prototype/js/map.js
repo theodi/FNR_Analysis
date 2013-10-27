@@ -215,7 +215,7 @@ Map = (function() {
         .attr("x", width)
         .attr("y", height - 6)
         .attr("fill", "#eee")
-        .text("Response Time / Footfall Score");
+        .text("Risk Score");
 
       svg.append("text")
         .attr("class", "y label")
@@ -225,7 +225,7 @@ Map = (function() {
         .attr("dy", ".75em")
         .attr("transform", "rotate(-90)")
         .attr("fill", "#eee")
-        .text("Response Time (s)");
+        .text("Attendance Time (s)");
 
       Data.getAllBoroughsScores(_this.closedStations, function(data) {
         var dot = svg.append("g")
