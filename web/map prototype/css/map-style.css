@@ -135,7 +135,7 @@ dd {
 #borough h2 {
   font-size: 1.8em;
   line-height: 1.2em;
-  margin-bottom: 0.5em;
+  margin-bottom: 0;
 }
 
 #histogram {
@@ -147,6 +147,30 @@ dd {
 
 #score {
   margin-bottom: 1em;
+}
+
+#score h2 {
+  font-size: 1.8em;
+  margin-bottom: 0;
+}
+#score h3 {
+  font-size: 0.8em;
+  margin-bottom: 2em;
+  font-weight: normal;
+}
+#borough dt {
+  font-size: 0.8em;
+  margin-bottom: 2em;
+  font-weight: normal;
+}
+#borough dd {
+  float: right;
+  position: relative;
+  bottom: 10px;
+  right: 10px;
+}
+#borough .number {
+  font-size: 2.5em;
 }
 
 #map {

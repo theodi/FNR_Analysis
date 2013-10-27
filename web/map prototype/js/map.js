@@ -66,6 +66,7 @@ Map = (function() {
       _this.activeIncidentLayers = [];
       _this.boroughsGeoJson = null;
       _this.boroughScores = {};
+      _this.boroughResponseTimes = {};
       _this.closedStations = [];
       _this.stationMarkers = [];
       _this.currentMetric = "responseTime",
@@ -146,6 +147,7 @@ Map = (function() {
             style: _this.boroughStyle,
             onEachFeature: function (feature, layer) {
               _this.boroughScores[feature.properties.borough] = feature.properties.response
+	      _this.boroughResponseTimes[feature.properties.borough] = feature.properties.response
               _this.setScore();
               lg.addLayer(layer);
               layer.on({
@@ -310,7 +312,7 @@ Map = (function() {
     },
 
     setScore: function() {
-      var score = Util.mean(_.values(_this.boroughScores));
+      var score = Util.mean(_.values(_this.boroughResponseTimes));
       var mands = Util.minutesAndSeconds(score);
       $("#score .minutes").html(mands[0]);
       $("#score .seconds").html(mands[1]);
@@ -357,7 +359,7 @@ Map = (function() {
 
     showBoroughDetail: function(event) {
       var target = event.target
-        var props = target.feature.properties;
+      var props = target.feature.properties;
       var borough = props.borough;
       if(_this.selectedBoroughLayer) _this.boroughsGeoJson.resetStyle(_this.selectedBoroughLayer);
       _this.selectedBoroughLayer = target
@@ -366,15 +368,17 @@ Map = (function() {
     },
 
     updateBoroughSidebar: function(borough) {
-      $("#scattergraph").hide()
-      $("#detail").show()
-      var mands = Util.minutesAndSeconds(_this.boroughScores[borough]);
-      var text = Util.template("borough-sidebar", {
-        'borough': borough,
-          'response': (mands[0] + " minutes, " + mands[1] + " seconds.")
-      });
-      $("#borough").html(text);
-      _this.updateBoroughHistogram(borough);
+      Data.getBoroughMetric("responseTime", borough, _this.closedStations, function(resp) {
+	$("#scattergraph").hide()
+      	$("#detail").show()
+      	var mands = Util.minutesAndSeconds(resp);
+      	var text = Util.template("borough-sidebar", {
+        	'borough': borough,
+          	'response': ("<span class='minutes number'>" + mands[0] + "</span>m<span class='seconds number'>" + mands[1] + "</span>s")
+      	});
+      	$("#borough").html(text);
+      	_this.updateBoroughHistogram(borough);
+      });		
     },
 
     closeBoroughSidebar: function() {
@@ -519,7 +523,7 @@ Map = (function() {
         _this.stationMarkers[name].setIcon(_this.stationIconClosing);
       });
       _this.updateImpactedBoroughs(names);
-      if (!_this.selectedBorough) _this.redrawScattergraph();
+      _this.redrawScattergraph();
     },
 
     openAllClosedStations: function() {
@@ -536,7 +540,7 @@ Map = (function() {
         _this.stationMarkers[name].setIcon(_this.stationIcon);
       });
       _this.updateImpactedBoroughs(names);
-      if (!_this.selectedBorough) _this.redrawScattergraph();
+      _this.redrawScattergraph();
     },
 
     updateImpactedBoroughs: function(closedStations) {
@@ -556,6 +560,9 @@ Map = (function() {
     },
     updateBoroughDisplay: function(borough) {
       _this.blockUI();
+      Data.getBoroughMetric("responseTime", borough, _this.closedStations, function(resp) {
+        _this.boroughResponseTimes[borough] = resp;
+      });
       Data.getBoroughMetric(_this.currentMetric, borough, _this.closedStations, function(resp) {
         _this.unblockUI();
         _this.boroughScores[borough] = resp;
