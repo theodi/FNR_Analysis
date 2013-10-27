@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>FNR Analysis</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="css/map-style.css" />
+  <link rel="stylesheet" media="screen" href="http://openfontlibrary.org/face/freeuniversal" rel="stylesheet" type="text/css"/>
+	<link rel="stylesheet" href="js/lib/leaflet-0.6.4.css" />
+	<!--[if lte IE 8]>
+    	<link rel="stylesheet" href="js/lib/leaflet.ie-0.6.4.css" />
+	<![endif]-->
+</head>
+<body>
+  <div id="container">
+    <ul id="switches">
+      <li>
+      <input type="checkbox" name="closures-switch" id="closures-switch" />
+      <label for="closures-switch"><span>Close proposed stations</span></label>
+      </li>
+      <li>
+      <input type="checkbox" name="metric-switch" id="metric-switch" />
+      <label for="metric-switch"><span>Weight by footfall</span></label>
+      </li>
+      <li id="analysis-switch-element">
+      <input type="checkbox" name="analysis-switch" id="analysis-switch" />
+      <label for="analysis-switch"><span>Enable analysis mode</span></label>
+      </li>
+    </ul>
+    <div id="sidebar">
+      <div id="score">
+        <h2>London</h2><h3>Average attendance time:</h3>
+        <span class="score">
+          <span class="minutes number">2</span>m<span class="seconds number">30</span>s
+        </span>
+      </div>
+      <div id="scattergraph">
+      </div>
+      <div id="detail" style="display:none;">
+        <div id="borough">
+
+        </div>
+        <div id="histogram">
+        </div>
+        <a href="#" class="close">Back to overview</a>
+        </div>
+	<div id="logo">
+		<img class="logoimg" src="img/logo.png" alt="The Open Data Institute"></img>
+	</div>
+    </div>
+  </div>
+  <div id="map">
+    <p>Loading, please wait...</p>
+  </div>
+  <script type="text/html" id="template-borough-sidebar">
+    <h2><%= borough %></h2>
+    <dl>
+      <dt>Average attendance time</dt>
+      <dd><%= response %></dd>
+      <div class="clear left"></div>
+    </dl>
+  </script>
+
+  <script type="text/html" id="template-info-borough">
+    <dl>
+      <dt>Borough</dt>
+      <dd><%= borough %></dd>
+    </dl>
+  </script>
+
+  <script type="text/html" id="template-info-station">
+    <dl>
+      <dt>Station</dt>
+      <dd><%= name %></dd>
+    </dl>
+  </script>
+
+  <script type="text/html" id="template-legend">
+	<div id="station_legend">
+      	  <img class="station_icon" src="img/station_open_green.png">
+          Station Open
+      	  <img class="station_icon" src="img/station_closed_black.png">
+          Station Closed
+        </div>
+        <div id="risk_key">
+	<% _.each(grades, function(grade) { %>
+          <i style="background-color: <%= grade.color %>;"></i>
+      <% }); %>
+        </div>
+	<span class="fast">
+	<%= fast %>
+	</span>
+	<span class="slow">
+	<%= slow %>
+	</span>
+  </script>
+
+  <script type="text/html" id="template-boroughs-selected">
+    <ul>
+      <% _.each(boroughs, function(borough) { %>
+        <li>
+          <input id="<%= borough.id %>" type="checkbox", checked="checked", data-borough-name="<%= borough.name %>" />
+          <label for="<%= borough.id %>">
+            <%= borough.name %>
+          </label>
+        </li>
+      <% }); %>
+    </ul>
+  </script>
+
+  <script>
+	var params = window.location.search.replace( "?", "" );
+	if (params == "sidebar=no") {
+		window.document.getElementById("sidebar").style.display = "none";
+		window.document.getElementById("map").style.left = 0;
+		window.document.getElementById("switches").style.left = 0;
+		window.document.getElementById("analysis-switch-element").style.display = "none";
+	}
+  </script>
+	<script src="js/lib/underscore-1.5.2.js"></script>
+	<script src="js/lib/d3-v3.js"></script>
+	<script src="js/lib/leaflet-0.6.4.js"></script>
+	<script src="js/lib/jquery-1.10.2.js"></script>
+	<script src="js/lib/jquery.blockUI.js"></script>
+	<script src="js/util.js"></script>
+	<script src="js/data.js"></script>
+	<script src="js/map.js"></script>
+	<script src="js/main.js"></script>
+	</script>
+</body>
+</html>

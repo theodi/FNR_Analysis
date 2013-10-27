@@ -1,0 +1,80 @@
+---
+layout: default
+title: Methodology
+link: methodology/
+menu: top
+weight: 3
+---
+
+<h2>Summary</h2>
+<ul>
+<li>We created <b>two performance scores</b> with the objective of building a policy tool to</li>
+<ul>
+<li><b>measure</b> the <b>efficiency</b> of every borough in London dealing with fire emergencies and </li>
+<li>estimate the <b>impact of change</b> as one or more stations are closed.</li>
+</ul>
+<li>The <b>first score</b> is the <b>expected attendance time</b> (how many seconds it takes for the first pump to reach the incident) of an incident following the closure of one or more stations.</li>
+<ul>
+<li>We presumed that attendance time won’t change for those areas that are served by stations that are not going to be closed. </li>
+<li>For affected areas we calculated the new attendance time as the average of the attendance times of neighbouring incidents in the same borough by stations that remain open.</li>
+</ul>
+<li>The <b>second score combines attendance time</b> (from the first score) <b>with the number of people</b> potentially impacted by the incidents. We assume, given the same attendance time, that incidents are more critical for highly populated areas in London compared to sparsely populated ones.</li>
+<li>We visualise a borough’s performance and the two scores with an <b>interactive map</b> of London. The users can explore the impact of closing one or more stations of their choice.</li>
+</ul>
+<h2>Data</h2>
+<h3>London Fire Brigade incidents records</h3>
+<p>The London Fire Brigade publishes the incident records at the “<a href="http://data.london.gov.uk/datastore/package/london-fire-brigade-incident-records">London Datastore</a>” of the Greater London Authority. We use the data between 01/04/2007 - 31/03/2013; earlier dates are also available but not within the scope of this research.</p>
+<p>The records document <b>three possible kinds of incidents</b>: fires, “special services” and false alarms. For each incident we have date, time, and the attendance time and source stations of the first and second pumps that attended the case. It is common practice for more than one stations to support the same incidents.</p>
+<h3>Telefónica Dynamic Insights mobile phone activity</h3>
+<p>The data provided by Telefónica is the network operator’s estimated projection of the number of people who were present at a specified location at a certain date and time. They infer the ‘real’ number from mobile network users, where their devices are registered at local masts. This is also commonly called <b>‘footfall’</b>.</p>
+<p>Although the data is produced by only one network operator, it accounts for all other networks as well as people who did not use mobile phones at that time. We can assume that network operators have reliable ways to infer these figures from the number of their own devices.</p>
+<p>The data we received from Telefónica included:
+<ul>
+<li>the list of the network’s ‘output areas’ serving the metropolitan area, including their location and radio coverage in sqkm</li>
+<li>for each of the output areas above, the estimated footfall per day and per hour for the periods of:</li>
+<ul>
+<li>9-15 December 2012</li>
+<li>20-23 December 2012</li>
+<li>30 December 2012 - 6 January 2013</li>
+<li>13-19 May 2013</li>
+</ul>
+</ul>
+<p>As our objective was to create a representative ‘average week in London’ of footfall data, we selected only two of those four time windows: 9-15 December and 13-19 May. We omitted the weeks including Christmas and New Year’s Day because they are unsuitable to represent an average week in London.</p>
+<p>The data sets were harmonised before merging for the following reasons:
+<ul>
+<li>the sets used different formats for some of the data, e.g. date and time of footfall, </li>
+<li>there were gaps in the footfall caused by one or more stations being occasionally out of service because of maintenance or faults (the nearest output areas whose data is complete was used as reference instead in those cases), and </li>
+<li>we found duplicate rows and removed them.</li>
+</ul>
+</p>
+<p>We aggregated the data by weekday by averaging the respective footfall values from both sources.</p>
+<p>We also used other sources to visualise the data, e.g. the Office for National Statistics’ key statistics for London as of August 2012, available <a href="http://www.ons.gov.uk/ons/rel/regional-trends/region-and-country-profiles/key-statistics-and-profiles---august-2012/key-statistics---london--august-2012.html">here</a>.
+<h2>Process</h2>
+<p>Our work can be divided in two stages: (1) pre-processing the data and (2) the actual visualisation of the results using an interactive map. The objective of the first stage is to consolidate the data and pre-calculate as much as possible of the results for use in the second stage.</p>
+<h3>Pre-processing</h3>
+<p>Together with the data harmonisation described above, several steps were necessary to take us from the raw data to the interactive map. The diagram below describes the workflow for all required needed operations.</p>
+<p>
+<a href="https://github.com/theodi/FNR_Analysis/raw/master/docs/Preprocessing%20data%20workflow%20diagram.pdf"><img src="../img/preprocessing.png" alt="Preprocessing diagram" width="670px"></img></a>
+</p>
+<p>All of the code referenced in the diagram is available in the GitHub repository in the <a href="https://github.com/theodi/FNR_Analysis/tree/master/preprocessing">preprocessing directory</a>.</p>
+<h3>Visualisation</h3>
+<p>The map starts from the pre-processed data described above and just displays it according to the user selection. Minimum calculation takes place at this stage.</p>
+<h3>Scoring</h3>
+<p>Combining attendance time with footfall data requires an implicit judgement of how many seconds you are willing to trade off to reduce an incident’s exposure to people.</p>
+<p>For example, we consider an incident that was served in 4 minutes and concerned 100 people to be roughly comparable to an incident that took 5 minutes but only concerned 10 people. Note that this relationship is not linear. More examples are in the table below.</p>
+<p>
+<img src="../img/risk_table.png" alt="Example Risks Scores Table"></img>
+</p>
+<p>We have tried and tested various functions and found that a <b>Cobb–Douglas type utility function</b> allows for the most elegant specification. It has various desirable properties. We calculate the “<i>risk factor</i>” (lower is better) as shown below, where attendance time is in minutes and footfall is the log10 of footfall, the estimated number of people.</p>
+<p><i>risk factor = attendance time<sup>&alpha;</sup> * footfall<sup>(1 - &alpha;)</sup></i></p>
+<p>The parameter &alpha; specifies the relative weight for attendance time and footfall and is set, after consultation with the team, at 0.75. An &alpha; of 0 would only use footfall (and be nonsensical), whereas an &alpha; of 1 only takes into account attendance time.</p>
+<h2>Solution architecture</h2>
+<p>The map has two components: what the user actually sees in the web browser and an API server.</p>
+<h3>API server</h3>
+<p>The API server exposes the minimum set of computational functionality that the client requires to avoid downloading the data locally. The <i>/getBoroughResponseTime</i> API, for example, estimates the average response time in a borough after closing none or a few stations (e.g. <i>/getBoroughResponseTime?borough=Westminster&amp;close=Southwark&amp;close=Westminster</i> ).</p>
+<p>The server component is made necessary to reduce the footprint of the web client application, as it is not always convenient to download the entire &gt;100Mb uncompressed dataset to the client on slow connections. This is particularly necessary when not running the tool locally.</p>
+<p>The server is written in <a href="http://nodejs.org">Node.js</a> (an open source JavaScript extension and interpreter) and iis currently hosted on a virtual machine offered by our partner Rackspace.</p>
+<h3>Web browser-based interactive map</h3>
+<p>The web browser-based interactive map is designed to be used stand-alone or embedded in third parties’ websites.</p>
+<p>The map services are provided by <a href="http://www.openstreetmap.org/">Open Street Map</a>.</p>
+<p>Among the other componets being used, the map’s code is built on top of two mainstream open source data visualisation libraries: “Leaflet” (<a href="http://leafletjs.com/">http://leafletjs.com/</a>) and “D3” (<a href="http://d3js.org/">http://d3js.org/</a>). The “Interactive Choropleth Map” from the Leaflet documentation in particular was of inspiration for the final tool (<a href="http://leafletjs.com/examples/choropleth.html#interactive-choropleth-map">link</a>). All client-side code is written in JavaScript and expected to be compatible with most modern mainstream web browsers.</p>
