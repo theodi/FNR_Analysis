@@ -45,7 +45,7 @@ Map = (function() {
     cloudMadeUrlString:
       'http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png',
     mapAttribution:
-      'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+      'Map data &copy; 2011 OpenStreetMap, Imagery &copy; 2011 CloudMade',
     infoDefault:
       'Hover or click an area',
 

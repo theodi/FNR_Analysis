@@ -109,15 +109,6 @@ dd {
   font-size: 3em;
 }
 
-#legend {
-  height: 20px;
-  position: absolute;
-  bottom: 0;
-  left: 320px;
-  right: 0;
-  padding: 5px 0 5px 15px;
-}
-
 #sidebar {
   position: absolute;
   top: 40px;
@@ -190,14 +181,53 @@ dd {
   bottom: 0px;
 }
 
-#legend i {
-	width: 15px;
-	height: 15px;
+#legend {
+  padding: 6px 8px;
+  background: rgba(64,64,64,0.8);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+  border-radius: 5px;
   float: left;
-	margin-right: 8px;
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  margin: 0px 10px 0 0;
+  width: 22em;
+  height: 5em;
+}
+
+#legend i {
+	width: 12px;
+	height: 12px;
+  	float: left;
 	opacity: 1;
 }
 
+#legend h3 {
+	font-weight: normal;
+	font-size: 1.4em;
+}
+#legend #station_legend {
+	text-align: center;
+	margin-bottom: 0.5em;
+}
+#legend #risk_key {
+	position: relative;
+	height: 15px;
+	left: 20px;
+}
+#legend .fast {
+	position: relative;
+}
+#legend .slow {
+	position: relative;
+	float: right;
+}
+#legend .station_icon {
+	width: 17px;
+	height: 17px;
+	position: relative;
+	top: 4px;
+}
 #legend ol {
   list-style-type: none;
   float: left;

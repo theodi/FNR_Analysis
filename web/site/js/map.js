@@ -18,7 +18,8 @@ Map = (function() {
     scoreLowerScale: 4.05,
     scoreUpperScale: 3.80,
 
-    gradeMinValues: [0, 180, 360, 540],
+    gradeMinValues: [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450, 480, 510, 540],
+//    gradeMinValues: [0, 60, 120, 180, 240, 300, 360, 420, 480, 540],
 
     boroughOutlineWeight:     1,
     boroughOutlineColor:      '#2D0D01',
@@ -44,7 +45,7 @@ Map = (function() {
     cloudMadeUrlString:
       'http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png',
     mapAttribution:
-      'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade',
+      'Map data &copy; 2011 OpenStreetMap, Imagery &copy; 2011 CloudMade',
     infoDefault:
       'Hover or click an area',
 
@@ -70,10 +71,11 @@ Map = (function() {
       _this.closedStations = [];
       _this.stationMarkers = [];
       _this.currentMetric = "responseTime",
+      _this.grades = {};
       _this.initMap();
       _this.initTileLayer();
       _this.initInfo();
-      //_this.initLegend();
+      _this.initLegend();
       _this.initBoroughBoundaries();
       _this.initStations();
       _this.initScattergraph();
@@ -103,15 +105,19 @@ Map = (function() {
     initLegend: function() {
       var gradeMaxValues = _.rest(_this.gradeMinValues);
       var gradeBounds = _.zip(_this.gradeMinValues, gradeMaxValues);
-      var grades = _.map(gradeBounds, function(grade) {
+      _this.grades = _.map(gradeBounds, function(grade) {
         return {
           from: grade[0] / 60,
           to: grade[1] / 60,
           color: _this.getColor(grade[0])
         }
       });
-
-      $("#legend").html(Util.template("legend", {"grades": grades}));
+      
+      var legendbox = document.createElement("div");
+      legendbox.setAttribute("id","legend");
+      legendbox.innerHTML = Util.template("legend", {"grades": _this.grades, "fast": "Fast Attendance Time", "slow": "Slow Attendance Time"});
+      document.getElementById("map").appendChild(legendbox);
+      //$("#legend").html(Util.template("legend", {"grades": grades}));
     },
 
     initBoroughBoundaries: function() {
@@ -283,8 +289,10 @@ Map = (function() {
       $("#metric-switch").click(function(event)  {
         if(!$(this).is(":checked")){
           _this.setResponseTimeMetric();
+	  _this.updateLegend("responseTime");
         } else {
           _this.setScoreMetric();
+	  _this.updateLegend("score");
         }
       });
       $("#analysis-switch").click(function(event)  {
@@ -327,6 +335,16 @@ Map = (function() {
         info = _this.infoDefault;
       }
       $("#info").html(info);
+    },
+
+    updateLegend: function(metric) {
+    	var legend;
+	if(metric == "responseTime") {
+		legend = Util.template("legend", {"grades": _this.grades, "fast": "Fast Attendance Time", "slow": "Slow Attendance Time"});
+	} else {
+		legend = Util.template("legend", {"grades": _this.grades, "fast": "Low Risk", "slow": "High Risk"});
+	}
+	$("#legend").html(legend);
     },
 
     hoverStation: function(event) {
