@@ -52,7 +52,6 @@
   <div id="map">
     <p>Loading, please wait...</p>
   </div>
-  <div id="legend"></div>
   <script type="text/html" id="template-borough-sidebar">
     <h2><%= borough %></h2>
     <dl>
@@ -77,15 +76,23 @@
   </script>
 
   <script type="text/html" id="template-legend">
-    <ol class="legend">
-      <% _.each(grades, function(grade) { %>
-        <li>
+	<div id="station_legend">
+      	  <img class="station_icon" src="img/station_open_green.png">
+          Station Open
+      	  <img class="station_icon" src="img/station_closed_black.png">
+          Station Closed
+        </div>
+        <div id="risk_key">
+	<% _.each(grades, function(grade) { %>
           <i style="background-color: <%= grade.color %>;"></i>
-          <%= grade.from == 0 ? "Up" : grade.from %>
-          <%= (grade.to ? " to " + grade.to : "+") +  " minutes" %>
-        </li>
       <% }); %>
-    </ol>
+        </div>
+	<span class="fast">
+	<%= fast %>
+	</span>
+	<span class="slow">
+	<%= slow %>
+	</span>
   </script>
 
   <script type="text/html" id="template-boroughs-selected">
