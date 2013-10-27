@@ -60,6 +60,7 @@ Map = (function() {
 
     initialize: function(container) {
       _this.blockingProcessesCount = 0;
+      _this.analysisEnabled = false;
       _this.container = container;
       _this.mapLayerGroups = {};
       _this.activeIncidentLayers = [];
@@ -284,6 +285,14 @@ Map = (function() {
           _this.setScoreMetric();
         }
       });
+      $("#analysis-switch").click(function(event)  {
+        if(!$(this).is(":checked")){
+	  _this.analysisEnabled = false;
+        } else {
+	  alert("You are enabling analysis mode which allows you to chose your own options for closing firestations. Calculations in this mode may take some time and you will need to be patient!");
+          _this.analysisEnabled = true;
+        }
+      });
       $("#detail .close").click(function(event) {
         event.preventDefault();
         _this.closeBoroughSidebar();
@@ -499,7 +508,9 @@ Map = (function() {
     },
 
     closeStation: function(name) {
-      _this.closeStations([name]);
+      if (_this.analysisEnabled) {
+	      _this.closeStations([name]);
+      }
     },
 
     closeStations: function(names) {

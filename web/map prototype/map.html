@@ -22,6 +22,10 @@
       <input type="checkbox" name="metric-switch" id="metric-switch" />
       <label for="metric-switch"><span>Weight by footfall</span></label>
       </li>
+      <li id="analysis-switch-element">
+      <input type="checkbox" name="analysis-switch" id="analysis-switch" />
+      <label for="analysis-switch"><span>Enable analysis mode</span></label>
+      </li>
     </ul>
     <div id="sidebar">
       <div id="score">
@@ -99,8 +103,8 @@
 	if (params == "sidebar=no") {
 		window.document.getElementById("sidebar").style.display = "none";
 		window.document.getElementById("map").style.left = 0;
-		window.document.getElementById("legend").style.left = 0;
 		window.document.getElementById("switches").style.left = 0;
+		window.document.getElementById("analysis-switch-element").style.display = "none";
 	}
   </script>
 	<script src="js/lib/underscore-1.5.2.js"></script>
