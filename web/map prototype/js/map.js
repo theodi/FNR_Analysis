@@ -49,13 +49,13 @@ Map = (function() {
       'Hover or click an area',
 
     stationIconClosing: L.icon({
-      iconUrl: 'img/icon_firetruck_closing.png',
-      iconSize: [20, 20]
+      iconUrl: 'img/station_closed_black.png',
+      iconSize: [17, 17]
     }),
 
     stationIcon: L.icon({
-      iconUrl: 'img/icon_firetruck_ok.png',
-      iconSize: [20, 20]
+      iconUrl: 'img/station_open_green.png',
+      iconSize: [17, 17]
     }),
 
     initialize: function(container) {

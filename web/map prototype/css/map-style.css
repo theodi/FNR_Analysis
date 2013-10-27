@@ -172,6 +172,15 @@ dd {
 #borough .number {
   font-size: 2.5em;
 }
+#logo {
+	position: absolute;
+	top: 490px;
+	width: inherit;
+	text-align: center;
+}
+.logoimg {
+	width: 200px;
+}
 
 #map {
   position: absolute;
