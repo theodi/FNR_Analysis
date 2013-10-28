@@ -298,7 +298,8 @@ Map = (function() {
       });
       $("#analysis-switch").click(function(event)  {
         if(!$(this).is(":checked")){
-	  _this.analysisEnabled = false;
+          _this.openAllClosedStations();
+      	  _this.analysisEnabled = false;
         } else {
 	  alert("You are enabling analysis mode which allows you to chose your own options for closing firestations. Calculations in this mode may take some time and you will need to be patient!");
           _this.analysisEnabled = true;
