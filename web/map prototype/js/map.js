@@ -688,8 +688,8 @@ Map = (function() {
     },
 
     blockUI: function() {
-      if(_this.blockingProcessesCount == 0) $.blockUI({message : "<img src='img/loading.gif' alt='Loading' />", css: {backgroundColor: "transparent", border: "none"}});
-      _this.blockingProcessesCount++;
+      if(_this.blockingProcessesCount == 0) setTimeout(function () { if(_this.blockingProcessesCount > 1) $.blockUI({message : "<img src='img/loading.gif' alt='Loading' />", css: {backgroundColor: "transparent", border: "none"}}); }, 1000);
+      _this.blockingProcessesCount++; 
     },
 
     unblockUI: function() {
