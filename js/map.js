@@ -283,6 +283,7 @@ Map = (function() {
         if(!$(this).is(":checked")){
           _this.openAllClosedStations();
         } else {
+          _this.openAllClosedStations();
           _this.closeCandidateStations();
         }
       });
@@ -297,7 +298,8 @@ Map = (function() {
       });
       $("#analysis-switch").click(function(event)  {
         if(!$(this).is(":checked")){
-	  _this.analysisEnabled = false;
+          _this.openAllClosedStations();
+      	  _this.analysisEnabled = false;
         } else {
 	  alert("You are enabling analysis mode which allows you to chose your own options for closing firestations. Calculations in this mode may take some time and you will need to be patient!");
           _this.analysisEnabled = true;
@@ -686,8 +688,8 @@ Map = (function() {
     },
 
     blockUI: function() {
-      if(_this.blockingProcessesCount == 0) $.blockUI({message : "<img src='img/loading.gif' alt='Loading' />", css: {backgroundColor: "transparent", border: "none"}});
-      _this.blockingProcessesCount++;
+      if(_this.blockingProcessesCount == 0) setTimeout(function () { if(_this.blockingProcessesCount > 1) $.blockUI({message : "<img src='img/loading.gif' alt='Loading' />", css: {backgroundColor: "transparent", border: "none"}}); }, 1000);
+      _this.blockingProcessesCount++; 
     },
 
     unblockUI: function() {
