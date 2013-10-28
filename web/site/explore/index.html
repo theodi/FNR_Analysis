@@ -5,6 +5,40 @@ link: explore/
 menu: top
 weight: 3
 ---
+<p>
+Below in this page is an interactive map of London for each borough visualising the degree of risk from fire incidents as described in the <a href="/methodology/">Methodology section</a> of this website. 
+</p>
+
+<p align="center"><img src="img/image00.png"></p>
+
+<p>
+The fire stations are shown as green dots if simulated as open or black if closed. Hovering with the mouse pointer over one station borough shows their name in a legend box in the top right corner of the map.
+The user can quickly switch from London’s current fire stations configuration to the simulation of the closure of the ten designated stations by clicking on <img src="img/image05.png">. 
+</p>
+
+<p>
+It is possible to arbitrarily simulate the closure of any other station by selecting <img src="img/image04.png"> and then clicking on the chosen stations to alternatively close or open them. Calculations in this mode may take some time and you will need to be patient. Disabling analysis mode will reset the configuration of the stations to the default.
+</p>
+
+<p>
+The <img src="img/image03.png"> checkbox switches between the visualisation of the scores based on the stations’ attendance time only to the scores that are also weighted by the volume of people potentially impacted by the incidents.
+</p>
+
+<p>
+On the left of the map you can see a bubble chart that positions each borough vs its risk factor scoring: response time only on the y-axis and response time and volume of people on the x-axis. The size of the bubbles is proportional to the boroughs’ respective population. The closer you are to the top right corner of the diagram the higher is the risk score relative to other boroughs. Hovering on the bubbles show which borough they correspond to. 
+</p>
+
+<p align="center"><img src="img/image02.png"></p>
+
+<p>
+Alternatively, by clicking in the map on one borough in particular, you can see its expected response times distribution vs the set of stations currently being simulated as closed. You go back to the previous view by clicking on the “Back to overview” text.
+</p>
+
+<p align="center"><img src="img/image01.png"></p>
+
+<p>&nbsp;</p>
+
+
 <iframe src="../map.html" frameborder="0" scrolling="yes" width="100%" height="640px"></iframe>
 
 <style>
