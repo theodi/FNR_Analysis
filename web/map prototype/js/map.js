@@ -283,6 +283,7 @@ Map = (function() {
         if(!$(this).is(":checked")){
           _this.openAllClosedStations();
         } else {
+          _this.openAllClosedStations();
           _this.closeCandidateStations();
         }
       });
