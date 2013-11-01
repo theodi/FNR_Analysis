@@ -19,7 +19,7 @@ For instructions on how to run Node.js see [here](https://github.com/joyent/node
 ###Preprocessing
 Before the server can be run, all pre-processing activities must be completed according to the data workdflow diagram at [this url](preprocessing/preprocessing%20data%20workflow%20diagram.pdf?raw=true) (PDF).
 
-All source data but for the Telefónica Dynamic Insights files are in this repository at [data/sources](tree/master/data/sources). For convenience, [data/preprocessed](tree/master/data/preprocessed) instead has copies of all the files expected as the output of the preprocessing stage.
+All source data but for the Telefónica Dynamic Insights files are in this repository at [data/sources](/theodi/FNR_Analysis/tree/master/data/sources). For convenience, [data/preprocessed](/theodi/FNR_Analysis/tree/master/data/preprocessed) instead has copies of all the files expected as the output of the preprocessing stage.
 
 Data must be processed in the same order as indicated by the arrows in the diagrams. The arrows are labelled with the name of the function to be run, e.g. _incidents.preprocess. readAndClean_ corresponds to the function of the same name in the _incidents.preprocess.R_ file in the _preprocessing_ folder. 
 
