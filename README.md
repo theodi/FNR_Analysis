@@ -1,6 +1,18 @@
-#Setup instructions
+#ODI Summit 2013 - London fire stations project
+This is the repository for the [Open Data Institute](http://theodi.org/) "London fire stations project" presented during the ODI summit on 29 October 2013. It includes two branches:
+- the [_master_](https://github.com/theodi/FNR_Analysis/tree/master) branch includes the data  preprocessing scripts and the API server 
+- the [_gh-pages_](https://github.com/theodi/FNR_Analysis/tree/gh-pages) branch is the website that you can visit at [http://london-fire.labs.theodi.org/](http://london-fire.labs.theodi.org/), including the client-side code for the interactive map.
 
-##Preprocessing
+##Setup instructions
+
+###Dependencies
+All software distributed in this repositury is written in either R or Node.js. 
+
+For instructions on how to run R see [here](http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Obtaining-R). After installing R, you will have to install packages _sp_ and _data.table_.
+
+For instructions on how to run Node.js see [here](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager). Node.js's package manager _npm_ can be used to install any dependencies.
+
+###Preprocessing
 Before the server can be run, all pre-processing activities must be completed according to the data workdflow diagram at [this url](preprocessing/preprocessing%20data%20workflow%20diagram.pdf?raw=true) (PDF).
 
 All the source data but for the Telefónica Dynamic Insights files are in this repository at [data/sources](tree/master/data/sources). [data/preprocessed](tree/master/data/preprocessed) instead has copies of the output of the preprocessing stage.
@@ -20,7 +32,36 @@ The output of the preprocessing stage is the list of files below:
   - An _incidents.csv_ file with all pre-processed incident records
   - A _census.csv_ file with the Office for National Statistics' key census information for the boroughs
 
-[TO BE COMPLETED with the description of how _boroughs\_by\_first\_responders.json_ is generated]
+###Server
+The server is a Node.js script, requiring a MongoDB database to read the incidents data from. Before execution, all dependencies must be installed by running _npm install_ in the same folder where _api\_server.js_ and _package.json_ are.
 
-##Server
-[TO BE COMPLETED]
+Assuming that we have console access to the database server, we can use the _mongoimport_ utility to load the data in the database, as follows:
+
+    mongoimport -d databaseName -c incidentsData --type csv --file incidents.csv --headerline
+    mongoimport -d databaseName -c censusData --type csv --file census.csv --headerline
+
+To optimise the speed of execution, it is necessary to create a few dedicated indexes in the database. Start a MongoDB console session by running:
+
+    mongo databaseName
+
+and then execute the statements listed below:
+
+    db.incidentsData.ensureIndex({ "borough": 1});
+    db.incidentsData.ensureIndex({ "firstPumpStation": 1});
+    db.incidentsData.ensureIndex({ "borough": 1, "firstPumpStation": 1});
+    db.censusData.ensureIndex({ borough: 1});
+
+Then, we can start the server by doing:
+
+    node api_server.js --dbname databaseName
+
+You will see that the server starts caching a series of calculations that are the most common, to speedup execution. The server will be available for use at completion of this process.
+
+    2013/11/01 19:20:44 - The server is listening on port 8080.
+    2013/11/01 19:20:44 - Caching getBoroughResponseTime(borough)...
+    2013/11/01 19:20:44 - Calculating for the first time getBoroughResponseTime for Barking and Dagenham with closed stations: 
+    2013/11/01 19:20:44 - Calculating for the first time getBoroughResponseTimes for Barking and Dagenham with closed stations: 
+    (...)
+    2013/11/01 19:22:11 - Caching completed.
+
+You can then test that the server is up and running by calling any of the APIs from a web browser, for example _http://serverName:port/getAllBoroughsScores_ .
