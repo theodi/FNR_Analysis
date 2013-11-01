@@ -1,11 +1,12 @@
 var _ = require('underscore'),
 	argv = require('optimist') 
-		.usage('Usage: $0 [--port portNumber]')
-		// .demand([ 'port' ])
-		.alias('port', 'p')
+		.usage('Usage: $0 [--dbserver serverName] [--dbname databaseName] [--port portNumber]\nNote that the environment variable PORT will override any port specified on the command line.')
+		.demand([ 'dbname' ])
+		.default('dbserver', 'localhost')
+		.default('port', 8080)
 		.argv,
 	async = require('async'),
-	mongo = require('mongoskin').db('mongodb://localhost', { database: 'fnranalysis', safe: true, strict: false }),
+	mongo = require('mongoskin').db('mongodb://' + argv.dbserver, { database: argv.dbname, safe: true, strict: false }),
 	restify = require('restify'),
 	zlib = require('zlib'),
 
@@ -359,7 +360,7 @@ server.get('/getAllBoroughsScores', function (req, res, next) {
 });
 
 
-var port = argv.port || process.env.PORT || 8080;
+var port = process.env.PORT || argv.port;
 server.listen(port);
 log("The server is listening on port " + port + ".");
 cacheAll();
