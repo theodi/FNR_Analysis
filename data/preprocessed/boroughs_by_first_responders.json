@@ -1,0 +1,869 @@
+{
+    "Acton": [
+        "Hounslow",
+        "Kensington and Chelsea",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Richmond upon Thames",
+        "Ealing",
+        "Brent"
+    ],
+    "Addington": [
+        "Croydon",
+        "Merton",
+        "Bromley"
+    ],
+    "Barking": [
+        "Greenwich",
+        "Redbridge",
+        "Havering",
+        "Newham",
+        "Waltham Forest",
+        "Barking and Dagenham"
+    ],
+    "Barnet": [
+        "Enfield",
+        "Haringey",
+        "Hackney",
+        "Barnet"
+    ],
+    "Battersea": [
+        "Lambeth",
+        "Kensington and Chelsea",
+        "Merton",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Wandsworth"
+    ],
+    "Beckenham": [
+        "Bromley",
+        "Lewisham",
+        "Southwark",
+        "Sutton",
+        "Croydon"
+    ],
+    "Belsize": [
+        "Islington",
+        "Barnet",
+        "Westminster",
+        "Camden",
+        "Enfield",
+        "Haringey",
+        "Brent"
+    ],
+    "Bethnal Green": [
+        "Tower Hamlets",
+        "Newham",
+        "City of London",
+        "Islington",
+        "Hackney"
+    ],
+    "Bexley": [
+        "Bromley",
+        "Lewisham",
+        "Greenwich",
+        "Bexley"
+    ],
+    "Biggin Hill": [
+        "Bromley",
+        "Lewisham",
+        "Croydon"
+    ],
+    "Bow": [
+        "Tower Hamlets",
+        "Newham",
+        "Hackney",
+        "Waltham Forest"
+    ],
+    "Brixton": [
+        "Lambeth",
+        "Southwark",
+        "Croydon",
+        "Westminster",
+        "Wandsworth",
+        "Richmond upon Thames"
+    ],
+    "Bromley": [
+        "Bromley",
+        "Lewisham",
+        "Croydon",
+        "Bexley"
+    ],
+    "Chelsea": [
+        "Lambeth",
+        "Kensington and Chelsea",
+        "Greenwich",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Wandsworth",
+        "Richmond upon Thames",
+        "Brent"
+    ],
+    "Chingford": [
+        "Enfield",
+        "Haringey",
+        "Redbridge",
+        "Waltham Forest"
+    ],
+    "Chiswick": [
+        "Hounslow",
+        "Hammersmith and Fulham",
+        "Wandsworth",
+        "Richmond upon Thames",
+        "Haringey",
+        "Ealing"
+    ],
+    "Clapham": [
+        "Lambeth",
+        "Southwark",
+        "Kensington and Chelsea",
+        "Greenwich",
+        "Croydon",
+        "Merton",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Wandsworth",
+        "Richmond upon Thames",
+        "Waltham Forest"
+    ],
+    "Clerkenwell": [
+        "Islington",
+        "Southwark",
+        "Lambeth",
+        "Westminster",
+        "Tower Hamlets",
+        "Camden",
+        "Haringey",
+        "City of London",
+        "Hackney"
+    ],
+    "Croydon": [
+        "Bromley",
+        "Lambeth",
+        "Sutton",
+        "Merton",
+        "Croydon",
+        "Brent"
+    ],
+    "Dagenham": [
+        "Barking and Dagenham",
+        "Redbridge",
+        "Havering",
+        "Newham"
+    ],
+    "Deptford": [
+        "Tower Hamlets",
+        "Lewisham",
+        "Southwark",
+        "Greenwich"
+    ],
+    "Dockhead": [
+        "Islington",
+        "Southwark",
+        "Lewisham",
+        "Lambeth",
+        "Tower Hamlets",
+        "Newham",
+        "City of London"
+    ],
+    "Dowgate": [
+        "Islington",
+        "Southwark",
+        "Lambeth",
+        "Westminster",
+        "Tower Hamlets",
+        "Camden",
+        "City of London",
+        "Hackney"
+    ],
+    "Downham": [
+        "Bromley",
+        "Lewisham",
+        "Greenwich",
+        "Bexley"
+    ],
+    "Ealing": [
+        "Hounslow",
+        "Kensington and Chelsea",
+        "Hammersmith and Fulham",
+        "Hillingdon",
+        "Ealing",
+        "Harrow",
+        "Brent"
+    ],
+    "East Greenwich": [
+        "Tower Hamlets",
+        "Lewisham",
+        "Southwark",
+        "Greenwich",
+        "Bexley"
+    ],
+    "East Ham": [
+        "Southwark",
+        "Barking and Dagenham",
+        "Redbridge",
+        "Havering",
+        "Newham"
+    ],
+    "Edmonton": [
+        "Barnet",
+        "Waltham Forest",
+        "Wandsworth",
+        "Enfield",
+        "Haringey",
+        "City of London",
+        "Hackney"
+    ],
+    "Eltham": [
+        "Bromley",
+        "Lewisham",
+        "Greenwich",
+        "Bexley"
+    ],
+    "Enfield": [
+        "Enfield",
+        "Haringey",
+        "Barnet",
+        "Brent",
+        "Waltham Forest"
+    ],
+    "Erith": [
+        "Greenwich",
+        "Bexley"
+    ],
+    "Euston": [
+        "Islington",
+        "Kensington and Chelsea",
+        "Newham",
+        "Barnet",
+        "Westminster",
+        "Tower Hamlets",
+        "Camden",
+        "Enfield",
+        "Haringey",
+        "City of London",
+        "Hackney"
+    ],
+    "Feltham": [
+        "Hillingdon",
+        "Hounslow",
+        "Ealing",
+        "Richmond upon Thames"
+    ],
+    "Finchley": [
+        "Islington",
+        "Barnet",
+        "Camden",
+        "Enfield",
+        "Haringey",
+        "Brent"
+    ],
+    "Forest Hill": [
+        "Bromley",
+        "Lambeth",
+        "Southwark",
+        "Greenwich",
+        "Lewisham",
+        "Croydon"
+    ],
+    "Fulham": [
+        "Wandsworth",
+        "Hounslow",
+        "Kensington and Chelsea",
+        "Richmond upon Thames",
+        "Hammersmith and Fulham"
+    ],
+    "Greenwich": [
+        "Southwark",
+        "Greenwich",
+        "Lewisham",
+        "Croydon",
+        "Tower Hamlets",
+        "Bexley"
+    ],
+    "Hainault": [
+        "Barking and Dagenham",
+        "Redbridge",
+        "Havering",
+        "Tower Hamlets",
+        "Waltham Forest"
+    ],
+    "Hammersmith": [
+        "Hounslow",
+        "Kensington and Chelsea",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Wandsworth",
+        "Richmond upon Thames",
+        "Ealing",
+        "Brent"
+    ],
+    "Harold Hill": [
+        "Barking and Dagenham",
+        "Havering"
+    ],
+    "Harrow": [
+        "Hillingdon",
+        "Brent",
+        "Ealing",
+        "Harrow",
+        "Barnet"
+    ],
+    "Hayes": [
+        "Hillingdon",
+        "Hounslow",
+        "Ealing",
+        "Brent"
+    ],
+    "Heathrow": [
+        "Hillingdon",
+        "Hounslow",
+        "Ealing",
+        "Richmond upon Thames"
+    ],
+    "Hendon": [
+        "Brent",
+        "Camden",
+        "Harrow",
+        "Barnet",
+        "Haringey"
+    ],
+    "Heston": [
+        "Hillingdon",
+        "Hounslow",
+        "Ealing",
+        "Richmond upon Thames",
+        "Kingston upon Thames"
+    ],
+    "Hillingdon": [
+        "Hillingdon",
+        "Hounslow",
+        "Ealing",
+        "Harrow"
+    ],
+    "Holloway": [
+        "Islington",
+        "Barnet",
+        "Westminster",
+        "Camden",
+        "Hackney",
+        "Enfield",
+        "Haringey",
+        "Brent"
+    ],
+    "Homerton": [
+        "Islington",
+        "Newham",
+        "Redbridge",
+        "Merton",
+        "Waltham Forest",
+        "Tower Hamlets",
+        "Haringey",
+        "Hackney"
+    ],
+    "Hornchurch": [
+        "Barking and Dagenham",
+        "Havering"
+    ],
+    "Hornsey": [
+        "Islington",
+        "Redbridge",
+        "Barnet",
+        "Waltham Forest",
+        "Camden",
+        "Brent",
+        "Enfield",
+        "Haringey",
+        "Hackney"
+    ],
+    "Ilford": [
+        "Barking and Dagenham",
+        "Redbridge",
+        "Havering",
+        "Newham"
+    ],
+    "Islington": [
+        "Islington",
+        "Southwark",
+        "Lambeth",
+        "Barnet",
+        "Waltham Forest",
+        "Westminster",
+        "Tower Hamlets",
+        "Camden",
+        "Haringey",
+        "City of London",
+        "Hackney"
+    ],
+    "Kensington": [
+        "Hounslow",
+        "Kensington and Chelsea",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Richmond upon Thames",
+        "Ealing"
+    ],
+    "Kentish Town": [
+        "Islington",
+        "Barnet",
+        "Waltham Forest",
+        "Westminster",
+        "Camden",
+        "Brent",
+        "Haringey",
+        "Hammersmith and Fulham",
+        "Hackney"
+    ],
+    "Kingsland": [
+        "Islington",
+        "Southwark",
+        "Tower Hamlets",
+        "Camden",
+        "Haringey",
+        "City of London",
+        "Hackney"
+    ],
+    "Kingston": [
+        "Kingston upon Thames",
+        "Hounslow",
+        "Merton",
+        "Westminster",
+        "Wandsworth",
+        "Richmond upon Thames"
+    ],
+    "Knightsbridge": [
+        "Lambeth",
+        "Kensington and Chelsea",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Wandsworth",
+        "Camden",
+        "Brent"
+    ],
+    "Lambeth": [
+        "Lambeth",
+        "Southwark",
+        "Kensington and Chelsea",
+        "Greenwich",
+        "Lewisham",
+        "Westminster",
+        "Wandsworth",
+        "Camden",
+        "City of London"
+    ],
+    "Lee Green": [
+        "Bromley",
+        "Lewisham",
+        "Greenwich",
+        "Bexley"
+    ],
+    "Lewisham": [
+        "Bromley",
+        "Lewisham",
+        "Southwark",
+        "Greenwich"
+    ],
+    "Leyton": [
+        "Redbridge",
+        "Tower Hamlets",
+        "Waltham Forest",
+        "Newham",
+        "Brent",
+        "Enfield",
+        "Haringey",
+        "Ealing",
+        "Hackney"
+    ],
+    "Leytonstone": [
+        "Newham",
+        "Redbridge",
+        "Barking and Dagenham",
+        "Hackney",
+        "Waltham Forest"
+    ],
+    "Mill Hill": [
+        "Westminster",
+        "Brent",
+        "Harrow",
+        "Barnet"
+    ],
+    "Millwall": [
+        "Tower Hamlets",
+        "Newham",
+        "Greenwich"
+    ],
+    "Mitcham": [
+        "Sutton",
+        "Lambeth",
+        "Wandsworth",
+        "Merton",
+        "Croydon",
+        "Ealing"
+    ],
+    "New Cross": [
+        "Lambeth",
+        "Southwark",
+        "Greenwich",
+        "Lewisham",
+        "Westminster",
+        "Ealing",
+        "Hackney"
+    ],
+    "New Malden": [
+        "Kingston upon Thames",
+        "Sutton",
+        "Lewisham",
+        "Merton",
+        "Wandsworth",
+        "Richmond upon Thames"
+    ],
+    "Norbury": [
+        "Sutton",
+        "Lambeth",
+        "Southwark",
+        "Croydon",
+        "Merton",
+        "Barnet",
+        "Hammersmith and Fulham",
+        "Wandsworth",
+        "Bromley"
+    ],
+    "North Kensington": [
+        "Kensington and Chelsea",
+        "Barnet",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Camden",
+        "Ealing",
+        "Brent"
+    ],
+    "Northolt": [
+        "Hillingdon",
+        "Hounslow",
+        "Ealing",
+        "Harrow",
+        "Brent"
+    ],
+    "Old Kent Road": [
+        "Tower Hamlets",
+        "Lambeth",
+        "Southwark",
+        "Lewisham",
+        "Islington"
+    ],
+    "Orpington": [
+        "Bromley",
+        "Bexley"
+    ],
+    "Paddington": [
+        "Kensington and Chelsea",
+        "Barnet",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Tower Hamlets",
+        "Camden",
+        "Ealing",
+        "Brent"
+    ],
+    "Park Royal": [
+        "Kensington and Chelsea",
+        "Barnet",
+        "Hammersmith and Fulham",
+        "Wandsworth",
+        "Ealing",
+        "Brent"
+    ],
+    "Peckham": [
+        "Lambeth",
+        "Southwark",
+        "Kensington and Chelsea",
+        "Lewisham"
+    ],
+    "Plaistow": [
+        "Barking and Dagenham",
+        "Redbridge",
+        "Havering",
+        "Newham",
+        "Waltham Forest",
+        "Tower Hamlets"
+    ],
+    "Plumstead": [
+        "Lambeth",
+        "Ealing",
+        "Greenwich",
+        "Bexley"
+    ],
+    "Poplar": [
+        "Southwark",
+        "Greenwich",
+        "Newham",
+        "Waltham Forest",
+        "Tower Hamlets",
+        "Hackney"
+    ],
+    "Purley": [
+        "Croydon",
+        "Bromley",
+        "Sutton"
+    ],
+    "Richmond": [
+        "Kingston upon Thames",
+        "Hounslow",
+        "Hammersmith and Fulham",
+        "Wandsworth",
+        "Richmond upon Thames",
+        "Ealing"
+    ],
+    "Romford": [
+        "Barking and Dagenham",
+        "Redbridge",
+        "Havering"
+    ],
+    "Ruislip": [
+        "Hillingdon",
+        "Ealing",
+        "Harrow"
+    ],
+    "Shadwell": [
+        "Islington",
+        "Southwark",
+        "Lewisham",
+        "Tower Hamlets",
+        "Westminster",
+        "Newham",
+        "City of London"
+    ],
+    "Shoreditch": [
+        "Islington",
+        "Barnet",
+        "Westminster",
+        "Tower Hamlets",
+        "Camden",
+        "Brent",
+        "City of London",
+        "Hackney"
+    ],
+    "Sidcup": [
+        "Wandsworth",
+        "Bromley",
+        "Greenwich",
+        "Bexley"
+    ],
+    "Silvertown": [
+        "Barking and Dagenham",
+        "Newham",
+        "Camden",
+        "Tower Hamlets",
+        "Greenwich"
+    ],
+    "Soho": [
+        "Hounslow",
+        "Lambeth",
+        "Southwark",
+        "Kensington and Chelsea",
+        "Westminster",
+        "Camden",
+        "City of London"
+    ],
+    "Southall": [
+        "Hillingdon",
+        "Hounslow",
+        "Westminster",
+        "Ealing",
+        "Harrow"
+    ],
+    "Southgate": [
+        "Enfield",
+        "Haringey",
+        "Hackney",
+        "Barnet",
+        "Bromley"
+    ],
+    "Southwark": [
+        "Lambeth",
+        "Southwark",
+        "Islington",
+        "Merton",
+        "Westminster",
+        "Wandsworth",
+        "Camden",
+        "City of London"
+    ],
+    "Stanmore": [
+        "Hillingdon",
+        "Barnet",
+        "Ealing",
+        "Harrow",
+        "Brent"
+    ],
+    "Stoke Newington": [
+        "Islington",
+        "Barnet",
+        "Waltham Forest",
+        "Tower Hamlets",
+        "Camden",
+        "Enfield",
+        "Haringey",
+        "Hackney"
+    ],
+    "Stratford": [
+        "Tower Hamlets",
+        "Islington",
+        "Redbridge",
+        "Newham",
+        "Waltham Forest",
+        "Barking and Dagenham",
+        "Hackney"
+    ],
+    "Surbiton": [
+        "Kingston upon Thames",
+        "Merton",
+        "Richmond upon Thames"
+    ],
+    "Sutton": [
+        "Sutton",
+        "Croydon",
+        "Merton",
+        "Kingston upon Thames"
+    ],
+    "Tooting": [
+        "Sutton",
+        "Lambeth",
+        "Croydon",
+        "Redbridge",
+        "Merton",
+        "Hammersmith and Fulham",
+        "Wandsworth",
+        "Haringey"
+    ],
+    "Tottenham": [
+        "Islington",
+        "Waltham Forest",
+        "Tower Hamlets",
+        "Enfield",
+        "Haringey",
+        "Hackney"
+    ],
+    "Twickenham": [
+        "Hillingdon",
+        "Hounslow",
+        "Hammersmith and Fulham",
+        "Richmond upon Thames",
+        "Kingston upon Thames"
+    ],
+    "Wallington": [
+        "Sutton",
+        "Merton",
+        "Croydon"
+    ],
+    "Walthamstow": [
+        "Enfield",
+        "Haringey",
+        "Redbridge",
+        "Hackney",
+        "Waltham Forest"
+    ],
+    "Wandsworth": [
+        "Kingston upon Thames",
+        "Lambeth",
+        "Kensington and Chelsea",
+        "Sutton",
+        "Merton",
+        "Hammersmith and Fulham",
+        "Wandsworth",
+        "Richmond upon Thames"
+    ],
+    "Wembley": [
+        "Westminster",
+        "Barnet",
+        "Hammersmith and Fulham",
+        "Hillingdon",
+        "Ealing",
+        "Harrow",
+        "Brent"
+    ],
+    "Wennington": [
+        "Barking and Dagenham",
+        "Havering"
+    ],
+    "West Hampstead": [
+        "Islington",
+        "Kensington and Chelsea",
+        "Redbridge",
+        "Barnet",
+        "Westminster",
+        "Camden",
+        "Haringey",
+        "Ealing",
+        "Brent"
+    ],
+    "West Norwood": [
+        "Bromley",
+        "Lambeth",
+        "Southwark",
+        "Croydon",
+        "Lewisham",
+        "Merton",
+        "Wandsworth",
+        "Sutton"
+    ],
+    "Westminster": [
+        "Lambeth",
+        "Southwark",
+        "Kensington and Chelsea",
+        "Greenwich",
+        "Merton",
+        "Westminster",
+        "Wandsworth",
+        "Camden"
+    ],
+    "Whitechapel": [
+        "Islington",
+        "Southwark",
+        "Barking and Dagenham",
+        "Newham",
+        "Waltham Forest",
+        "Westminster",
+        "Tower Hamlets",
+        "Camden",
+        "City of London",
+        "Hackney"
+    ],
+    "Willesden": [
+        "Hillingdon",
+        "Kensington and Chelsea",
+        "Barnet",
+        "Hammersmith and Fulham",
+        "Westminster",
+        "Camden",
+        "Ealing",
+        "Harrow",
+        "Brent"
+    ],
+    "Wimbledon": [
+        "Kingston upon Thames",
+        "Southwark",
+        "Merton",
+        "Sutton",
+        "Wandsworth"
+    ],
+    "Woodford": [
+        "Enfield",
+        "Redbridge",
+        "Waltham Forest"
+    ],
+    "Woodside": [
+        "Croydon",
+        "Lambeth",
+        "Sutton",
+        "Bromley"
+    ],
+    "Woolwich": [
+        "Lambeth",
+        "Southwark",
+        "Greenwich",
+        "Westminster",
+        "Tower Hamlets",
+        "Bexley"
+    ]
+}

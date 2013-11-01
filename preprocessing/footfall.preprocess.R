@@ -70,7 +70,7 @@ footfall.preprocess.fixMissingFootfall <- function (footfall) {
 footfall.preprocess.consolidate <- function (footfall) {
 	library(data.table)
 	footfall <- data.table(footfall)
-	footfall[, list(footfall = mean(footfall)), by = 'telefonicaGridId,day,time']
+	footfall[, list(footfallDensity = mean(footfall)), by = 'telefonicaGridId,day,time']
 	data.frame(footfall)
 }
 

@@ -53,10 +53,8 @@ incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.R
     data
 }
 
-incidents.preprocess.saveByBorough <- function (incidents, filenamePrefix = "byBorough/") {
-    for (b in unique(incidents$borough)) {
-        write.table(subset(incidents, borough == b), file = paste(filenamePrefix, b, ".csv", sep = ""), row.names = FALSE, sep = ',', na = 'NULL')
-    }
+incidents.preprocess.save <- function (incidents, filename) {
+    write.table(incidents, file = filename, row.names = FALSE, sep = ',', na = 'NULL')
 }
 
 
@@ -64,7 +62,7 @@ incidents.preprocess.saveByBorough <- function (incidents, filenamePrefix = "byB
 # Telefonica 'output area' using the non-approximated longitude and latitude. 
 # Returns the enhanced incidents data frame and removes the non-approximated
 # longitude and latitude.
-incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = data.frame(), telefonicaOutputAreasCSVFile = "../footfall/outputAreas.csv") {
+incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas) {
 
     # returns the Telefonica grid id of the output areas that is closest 
     # to the given incident
@@ -77,23 +75,15 @@ incidents.preprocess.addTelefonicaGrid <- function (incidents, outputAreas = dat
 
     library(sp)
     library(data.table)
-    if (nrow(outputAreas) == 0) {
-        outputAreas <- read.csv(telefonicaOutputAreasCSVFile, header = TRUE, colClasses = structure(c("factor", "numeric", "numeric", "numeric")))
-    }
     incidents <- data.table(incidents)
-    incidents <- incidents[, list(date, time, incidentGroup, borough, ward, firstPumpTime, firstPumpStation, telefonicaGridId = findClosestOutputArea(simplifiedLongitude, simplifiedLatitude)), by = 'simplifiedLongitude,simplifiedLatitude' ]
+    incidents <- incidents[, list(date, time, borough, ward, firstPumpTime, firstPumpStation, telefonicaGridId = findClosestOutputArea(simplifiedLongitude, simplifiedLatitude)), by = 'simplifiedLongitude,simplifiedLatitude' ]
     data.frame(incidents)
 }
 
 
 # adds footfall information and removes the Telefonica grid id
-incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame(), telefonicaFootfallCSVFile = "../footfall/footfall.csv", showProgress = FALSE) {
+incidents.preprocess.addFootfall <- function (incidents, footfall, showProgress = FALSE) {
 
-    # I read the reference footfall data, if no data frame is specified
-    if (nrow(footfall) == 0) {
-        footfall <- read.csv(telefonicaFootfallCSVFile, header = TRUE, colClasses = structure(c("factor", "factor", "factor", "numeric")))
-    }
-    results <- data.frame()
     # I drop all footfall I am not going to use
     footfall <- footfall[ footfall$telefonicaGridId %in% incidents$telefonicaGridId, ]
     # I round it to the closest integer
@@ -102,6 +92,7 @@ incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame()
         noOfTelefonicaGridIds <- length(unique(incidents$telefonicaGridId))
         counter <- 0
     }
+    results <- data.frame()
     for (f in unique(incidents$telefonicaGridId)) {
         if (showProgress) {
             counter <- counter + 1
@@ -120,47 +111,7 @@ incidents.preprocess.addFootfall <- function (incidents, footfall = data.frame()
 }
 
 
-# Ulrich's scoring formula before the move to the 'utility function'
-scoring.run1021 <- function (incidents, closedStationsNames = c( )) {
-    library(data.table)
-    incidents <- data.table(incidents)
-    incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime)
-    incidents$footfall <- as.numeric(incidents$footfall)
-    boroughs <- incidents[ !(firstPumpStation %in% closedStationsNames), list(firstPumpTime = median(firstPumpTime), footfall = median(footfall)), by="borough"]
-    boroughs$ZFootfall <- scale(log(boroughs$footfall + 1), center=TRUE, scale=TRUE)
-    boroughs$ZFirstPumpTime <- scale(boroughs$firstPumpTime, center=TRUE, scale=TRUE)
-    if (length(closedStationsNames) == 0) {
-        boroughs$score <- .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime 
-        boroughs$scoreTime <- boroughs$ZFirstPumpTime 
-    } else {
-        boroughs$score <- pmax(scoring.run(incidents)$score, .5 * boroughs$ZFootfall + .5 * boroughs$ZFirstPumpTime) 
-        boroughs$scoreTime <- pmax(scoring.run(incidents)$scoreTime, boroughs$ZFirstPumpTime)
-    }
-    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score', 'scoreTime') ]
-}
-
-
-# Ulrich's first scoring formula based on the 'utility function'
-scoring.run1022 <- function (incidents, closedStationsNames = c( )) {
-    library(data.table)
-    incidents <- data.table(incidents)
-    incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime) / 60
-    incidents$footfall <- as.numeric(incidents$footfall)
-    boroughs <- incidents[ !(firstPumpStation %in% closedStationsNames), list(firstPumpTime = median(firstPumpTime), footfall = median(footfall)), by="borough"]
-    a <- 0.75 # response time's weight on the score
-    x <- boroughs$firstPumpTime ^ a * log10(boroughs$footfall) ^ (1 - a)
-    if ((length(closedStationsNames) == 0) ) {
-        boroughs$score <- x 
-    } else {
-        # aberration fix
-        boroughs$score <- pmax(scoring.run1022(incidents)$score, x) 
-    }
-    data.frame(boroughs)[ , names(boroughs) %in% c('borough', 'score') ]
-}
-
-
-# Ulrich's second scoring formula based on the 'utility function'
-scoring.run1023 <- function (incidents, closedStationsNames = c( ), aberrationFix = TRUE) {
+scoring.run <- function (incidents, closedStationsNames = c( ), aberrationFix = TRUE) {
     library(data.table)
     incidents <- data.table(incidents)
     incidents$firstPumpTime <- as.numeric(incidents$firstPumpTime) / 60

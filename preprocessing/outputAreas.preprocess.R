@@ -6,7 +6,10 @@ outputAreas.preprocess.save <- function (outputAreas, filename = "outputAreas.cs
 }
 
 
-outputAreas.preprocess.readAndClean <- function (relevantGridIDs) {
+# relevantGridIDs is the list of Telefonica grid ids we see from the available
+# consolidated footfall, so that we drop all output areas data we wouldn't have 
+# footfall data of anyway.
+outputAreas.preprocess.readAndClean <- function (filename = paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/output-areas.csv.gz", sep = ""), relevantGridIDs) {
 
     # Below is the size in latitude and longitude of the simplified map squares
     # we experimentally identified as relevant for visualisation
@@ -21,7 +24,7 @@ outputAreas.preprocess.readAndClean <- function (relevantGridIDs) {
 	LENGTH_OF_A_DEGREE_OF_LATITUDE <- 111.25826132219737 # km
 	LENGTH_OF_A_DEGREE_OF_LONGITUDE <- 69.4032968251825 # km
 
-	outputAreas <- read.csv(paste(footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER, "/output-areas.csv.gz", sep = ""))
+	outputAreas <- read.csv(filename)
 	colnames(outputAreas) <- c("telefonicaGridId", "longitudeCentre", "latitudeCentre", "areaSqKm")
 
 	# I remove from the areas the rows referring to grid ids that are not listed
@@ -41,12 +44,12 @@ outputAreas.preprocess.readAndClean <- function (relevantGridIDs) {
 	outputAreas$width <- temp / LENGTH_OF_A_DEGREE_OF_LONGITUDE
 	outputAreas$heigth <- temp / LENGTH_OF_A_DEGREE_OF_LATITUDE
 
-	# I calculate the volume of each output areas in 'Davetaz squares': this is 
-	# necessarily to later easily calculate the 'footfall density' of a point in
-	# the map. 
-	# TODO: the calculation below is not completely correct because of the 
+	# I calculate the volume of each output areas in our simplified map squares: 
+	# this is necessary to later easily calculate the 'footfall density' of a 
+	# point in the map. 
+	# Note that the calculation below is not completely correct because of the 
 	# Earth's curvature, but as we need this to calculate an 'index' rather than
-	# the actual area, we can tolerate the issue
+	# the actual area, and the error affects all areas, we can tolerate it.
     outputAreas$area <- outputAreas$width * outputAreas$heigth / SIMPLIFIED_SQUARE_LONGITUDE_SIZE /SIMPLIFIED_SQUARE_LATITUDE_SIZE
 
 	# I force the class of the columns and fix the formats if necessary

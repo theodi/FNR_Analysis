@@ -11,4 +11,9 @@ All R scripts have been tested vs version 3.0.2 of the interpreter on MacOS 10.8
 
 All Node.js scripts have been tested vs version 0.10.21 of the interpreter on MacOS 10.8.5. Before execution, all dependencies must be installed by running _npm install_ in the _preprocessing_ folder. By running the scripts without parameters, e.g. _node stations.preprocess.js_, any required instructions are provided on screen.
 
+The output of the preprocessing stage is the list of files below:
+- A set of [borough name].json "GeoJSON" files, each of which defines the boroughs' boundaries on the map and stores their default scoring, that is when all stations are open
+- A .csv file with all pre-processed incident records, to be loaded onto the MongoDB instance used by the server
+- stations.csv, with all stations' addresses and coordinates, for displaying on the map 
+
 ##Server
