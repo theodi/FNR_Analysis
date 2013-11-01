@@ -1,4 +1,4 @@
-incidents.preprocess.REFERENCE_DATA <- "../../reference data/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
+incidents.preprocess.REFERENCE_DATA <- "../data/sources/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
 
 incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.REFERENCE_DATA) {
 
@@ -14,28 +14,24 @@ incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.R
     # Analysis" (23/9/2013), "Reading and Writing Data" unit, slide 7
     classes <- structure(c("integer", "character", "character", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "factor", "integer", "integer", "integer", "integer", "factor", "factor", "integer", "factor", "integer", "factor", "integer", "integer"), .Names = c("IncidentNumber", "DateOfCall", "TimeOfCall", "IncidentGroup", "StopCodeDescription", "SpecialServiceType", "PropertyCategory", "PropertyType", "AddressQualifier", "Postcode_full", "Postcode_district", "WardCode", "WardName", "BoroughCode", "BoroughName", "Easting_m", "Northing_m", "Easting_rounded", "Northing_rounded", "FRS", "IncidentStationGround", "FirstPumpArriving_AttendanceTime", "FirstPumpArriving_DeployedFromStation", "SecondPumpArriving_AttendanceTime", "SecondPumpArriving_DeployedFromStation", "NumStationsWithPumpsAttending", "NumPumpsAttending"))
     
-    # I read the original data (no need for Google Refine, as for the Javascript 
-    # version)
+    # I read the original data
     data <- read.csv(filename, header = TRUE, sep = ',', colClasses = classes, na.strings = 'NULL')
     
     # I drop a) the rows that have NULL values in columns I need (not all rows 
     # with NULL values!), and b) the columns I don't need
-    data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'IncidentGroup', 'WardName', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation'))
+    data <- subset(data, !is.na(FirstPumpArriving_AttendanceTime) & !is.na(Easting_rounded) & !is.na(Northing_rounded), c('DateOfCall', 'TimeOfCall', 'WardName', 'Easting_rounded', 'Northing_rounded', 'IncidentStationGround', 'FirstPumpArriving_AttendanceTime', 'FirstPumpArriving_DeployedFromStation'))
  
     # I drop all rows that have ' Not geo-coded' as the borough the incident 
     # happened in
     data <- subset(data, WardName != ' Not geo-coded')
 
     # I rename the columns
-    colnames(data) <- c('date', 'time', 'incidentGroup', 'borough', 'eastingRounded', 'northingRounded', 'ward', 'firstPumpTime', 'firstPumpStation')
+    colnames(data) <- c('date', 'time', 'borough', 'eastingRounded', 'northingRounded', 'ward', 'firstPumpTime', 'firstPumpStation')
     
     # I convert dates to R's format, thanks to instructions at 
     # http://www.ats.ucla.edu/stat/r/faq/string_dates.htm
     data$date <- as.Date(data$date, "%d-%b-%y")
     
-    # I filter out everything is not from 2012
-#    data <- subset(data, (date >= '2012-01-01') & (date <= '2012-12-31'))
-
     # I drop minutes and seconds from the time column, as there is
     # more granularity that I can use, including what I have in the footfall
     # data
@@ -46,8 +42,8 @@ incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.R
     data[, c("latitude", "longitude")] <- OSGridToGeodesic(data.frame(easting = data$eastingRounded, northing = data$northingRounded))
     data <- data[, !(names(data) %in% c('northingRounded', 'eastingRounded'))]
 
-    # I calculate the coordinates of Davetaz's square the incident belongs to
-    # and drop the original coordinates
+    # I calculate the coordinates of the simplified map square the incident 
+    # belongs to and drop the original coordinates
     data[, c("simplifiedLatitude", "simplifiedLongitude") ] <- cbind(
         data$latitude %/% SIMPLIFIED_SQUARE_LATITUDE_SIZE * SIMPLIFIED_SQUARE_LATITUDE_SIZE,
         data$longitude %/% SIMPLIFIED_SQUARE_LONGITUDE_SIZE * SIMPLIFIED_SQUARE_LONGITUDE_SIZE
