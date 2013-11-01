@@ -18,7 +18,7 @@ The output of the preprocessing stage is the list of files below:
   - _boroughs\_by\_first\_responders.json_, with the list of stations that supported each of the boroughs' incidents, grouped by borough 
 - For the server
   - An _incidents.csv_ file with all pre-processed incident records
-  - A _census.csv_ file with the boroughs' Office for National Statistics' key census information
+  - A _census.csv_ file with the Office for National Statistics' key census information for the boroughs
 
 [TO BE COMPLETED with the description of how _boroughs\_by\_first\_responders.json_ is generated]
 
