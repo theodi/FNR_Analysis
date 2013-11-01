@@ -17,7 +17,8 @@ The output of the preprocessing stage is the list of files below:
   - _stations.csv_, with all stations' addresses and coordinates, for displaying on the map 
   - _boroughs\_by\_first\_responders.json_, with the list of stations that supported each of the boroughs' incidents, grouped by borough 
 - For the server
-  - An _incidents.csv_ file with all pre-processed incident records, to be loaded onto the MongoDB instance used by the server
+  - An _incidents.csv_ file with all pre-processed incident records
+  - A _census.csv_ file with the boroughs' Office for National Statistics' key census information
 
 [TO BE COMPLETED with the description of how _boroughs\_by\_first\_responders.json_ is generated]
 
