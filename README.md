@@ -23,12 +23,12 @@ All source data but for the Telefónica Dynamic Insights files are in this repos
 
 Data must be processed in the same order as indicated by the arrows in the diagrams. The arrows are labelled with the name of the function to be run, e.g. _incidents.preprocess. readAndClean_ corresponds to the function of the same name in the _incidents.preprocess.R_ file in the _preprocessing_ folder. 
 
-The output of the preprocessing stage is the list of files below:
-- For the web client
+The entire preprocessing stage can take several hours to complete due to the volume of the data being processed. The output of the stage is the list of files below:
+- To be used by the web client
   - A set of _[borough name].json_ "GeoJSON" files, each of which defines the boroughs' boundaries on the map and stores their default scoring, that is when all stations are open
   - _stations.csv_, with all stations' addresses and coordinates, for displaying on the map 
-  - _boroughs\_by\_first\_responders.json_, with the list of stations that supported each of the boroughs' incidents, grouped by borough 
-- For the server
+  - _boroughs_by_first_responders.json_, with the list of stations that supported each of the boroughs' incidents, grouped by borough 
+- To be used by the server
   - An _incidents.csv_ file with all pre-processed incident records
   - A _census.csv_ file with the Office for National Statistics' key census information for the boroughs
 
