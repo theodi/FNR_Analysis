@@ -1,1 +1,2 @@
-Placeholder
+#Setup instructions
+Before the server can be run, all pre-processing activities must be completed according to the diagram at [this url](preprocessing/preprocessing%20data%20workflow%20diagram.pdf) (PDF).
