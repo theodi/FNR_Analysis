@@ -1,1 +1,1 @@
-Please note that _stations.csv_ in this folder has been produced by stations.preprocess.js but then manually amended to address [issue #16](https://github.com/theodi/FNR_Analysis/issues/16).
+Please note that _stations.csv_ in this folder has been produced by _stations.preprocess.js_ but then manually amended to address [issue #16](https://github.com/theodi/FNR_Analysis/issues/16).
