@@ -1,4 +1,4 @@
-incidents.preprocess.REFERENCE_DATA <- "../data/sources/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
+incidents.preprocess.REFERENCE_DATA <- "../data/raw/LFB/LFB data 1 Jan 2009 to 31 Mar 2013.csv.gz"
 
 incidents.preprocess.readAndClean <- function (filename = incidents.preprocess.REFERENCE_DATA) {
 

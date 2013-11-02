@@ -1,4 +1,4 @@
-outputAreas.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER <- "../data/sources/Telefonica"
+outputAreas.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER <- "../data/raw/Telefonica"
 
 
 outputAreas.preprocess.save <- function (outputAreas, filename = "outputAreas.csv") {

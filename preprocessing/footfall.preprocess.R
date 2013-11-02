@@ -1,4 +1,4 @@
-footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER <- "../data/sources/Telefonica"
+footfall.preprocess.TELEFONICA_REFERENCE_DATA_FOLDER <- "../data/raw/Telefonica"
 
 
 # Note that the December 2012 and May 2015 datasets require different 
