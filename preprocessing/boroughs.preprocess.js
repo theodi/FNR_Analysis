@@ -2,8 +2,10 @@ var fs = require('fs'),
     _ = require('underscore'),
     csv = require('csv'), // http://www.adaltas.com/projects/node-csv/
     argv = require('optimist') // https://github.com/substack/node-optimist
-      .usage('Usage: $0 --kml [filename] --incidents [incidents .csv folder] --out [folder]')
-        .demand([ 'kml', 'incidents', 'out' ])
+        .usage('Usage: $0 --kml filename --incidents incidentsCsvFile --out folderWithBoroughsDefinitions')
+        .demand([ 'out' ])
+        .default('kml', '../data/raw/London boroughs KML definition.kml')
+        .default('incidents', '../data/preprocessed/incidents.csv')
         .alias('in', 'i')
         .alias('out', 'o')
         .argv, 
@@ -21,10 +23,6 @@ var median = function (values) {
     return (values.length % 2 == 0) ? values[half] : (values[half - 1] + values[half]) / 2.0;
 }
 
-// TODO
-// This is a simplified version of getBoroughScoreM of 'data.js', this function
-// should be manually kept in line with the other, until a better solution is
-// implemented.
 var getBoroughScore = function (responseTimesSeries, footfallSeries) {
     var A = 0.75,
         medianResponseTimes = median(_.map(responseTimesSeries, function (x) { return x / 60; })),
@@ -35,24 +33,26 @@ var getBoroughScore = function (responseTimesSeries, footfallSeries) {
 
 var result = fs.readFileSync(argv.kml);
 parseString(result, function (err, result) {
-    var id = 0;
-    _.each(result.kml.Document[0].Placemark, function (d) {
-        var performance = [ ];
-        var footfall = [ ];
-        csv()
-            .from.stream(fs.createReadStream(__dirname + '/' + argv.incidents + '/' + d.name[0] + '.csv'), {
-                columns: true
-            })
-            .on('record', function (row, index) {
-                performance.push(parseFloat(row.firstPumpTime));
-                footfall.push(parseFloat(row.footfall));
-            })
-            .on('error', function (error) {
-              console.log(error.message);
-            })
-            .on('end', function (count) {
-                score = parseFloat(getBoroughScore(performance, footfall));
-                performance = Math.round(mean(performance));
+    var performance = { },
+        footfall = { };
+    csv()
+        .from.stream(fs.createReadStream(__dirname + '/' + argv.incidents), {
+            columns: true
+        })
+        .on('record', function (row, index) {
+            performance[row.borough] = performance[row.borough] || [ ];
+            performance[row.borough].push(parseFloat(row.firstPumpTime));
+            footfall[row.borough] = footfall[row.borough] || [ ];
+            footfall[row.borough].push(parseFloat(row.footfall));
+        })
+        .on('error', function (error) {
+          console.log(error.message);
+        })
+        .on('end', function (count) {
+            var id = 0;
+            _.each(result.kml.Document[0].Placemark, function (d) {
+                boroughResponseTime = Math.round(mean(performance[d.name[0]]));
+                boroughScore = parseFloat(getBoroughScore(performance[d.name[0]], footfall[d.name[0]]));
                 var polygon = _.map(d.Polygon[0].outerBoundaryIs[0].LinearRing[0].coordinates[0].split(" "), function (point) {
                     return [ parseFloat(point.split(",")[0]), parseFloat(point.split(",")[1]) ];
                 });
@@ -63,8 +63,8 @@ parseString(result, function (err, result) {
                     id: ++id,
                     properties: {
                         "borough": d.name[0],
-                        "response": performance,
-                        "score": score
+                        "response": boroughResponseTime,
+                        "score": boroughScore
                     },
                     geometry: {
                         type: "Polygon",
@@ -73,5 +73,5 @@ parseString(result, function (err, result) {
                 });
                 fs.writeFileSync(argv.out + "/" + d.name + ".json", JSON.stringify(borough));
             });
-    });
+        });
 });
