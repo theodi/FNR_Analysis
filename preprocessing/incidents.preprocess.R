@@ -114,6 +114,7 @@ incidents.preprocess.addFootfall <- function (incidents, footfall, showProgress 
 # creates a static 'cache'  for the use of the website of which boroughs are 
 # impacted by the closure of a station 
 incidents.preprocess.boroughsByFirstResponders <- function (incidents, filename) {
+    library(rjson)
     dependencies <- data.frame(station = unique(incidents$firstPumpStation))
     dependencies$boroughs <- sapply(dependencies$station, function (s) { unique(subset(incidents, s == firstPumpStation)$borough) })
     sink(filename)

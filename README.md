@@ -10,7 +10,7 @@ All software distributed in this repository is written in either R or Node.js.
 
 All R scripts have been tested vs version 3.0.2 of the interpreter on MacOS 10.8.5. The comments in the source code for each of the functions explain how to use them. The function signatures often include working default values, e.g. the relative position of the input files they have to be applied to.
 
-For instructions on how to run R see [here](http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Obtaining-R). After installing R, you will have to install packages _sp_ and _data.table_.
+For instructions on how to run R see [here](http://cran.r-project.org/doc/manuals/r-release/R-admin.html#Obtaining-R). After installing R, you will have to install packages _rjson_, _sp_ and _data.table_.
 
 All Node.js scripts have been tested vs version 0.10.21 of the interpreter on MacOS 10.8.5. Before execution, all dependencies must be installed by running _npm install_ in the same folder of the scripts. By running the scripts without parameters, e.g. _node stations.preprocess.js_, any required instructions are provided on screen.
 
