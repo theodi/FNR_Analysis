@@ -43,9 +43,12 @@ Map = (function() {
     mapStyleId:   22677, //111403,
 
     cloudMadeUrlString:
-      'http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png',
+      // CloudMade tiles replaced as described at https://github.com/theodi/FNR_Analysis/issues/20
+      // 'http://{s}.tile.cloudmade.com/{key}/{styleId}/256/{z}/{x}/{y}.png',
+      'http://{s}.tile.osm.org/{z}/{x}/{y}.png',
     mapAttribution:
-      'Map data &copy; 2011 OpenStreetMap, Imagery &copy; 2011 CloudMade',
+      // 'Map data &copy; 2011 OpenStreetMap, Imagery &copy; 2011 CloudMade',
+      'Map data and imagery &copy; 2014 OpenStreetMap',
     infoDefault:
       'Hover or click an area',
 
