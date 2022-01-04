@@ -76,6 +76,9 @@ var median = function (values) {
 
 
 var getBoroughResponseTimes = async.memoize(function (borough, closedStations, callback) {
+	mongoClient.connect(mongoUrl, function(err, client) {
+		if (err) throw err;
+		var db = client.db(mongoDB);
 
 	// Estimates the response time of a generic incident in a square; it expects
 	// boroughIncidentsNotImpacted to be an array of incidents not impacted from 
@@ -100,9 +103,6 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 
 	var boroughIncidentsNotImpacted = [ ];
 	log("Calculating for the first time getBoroughResponseTimes for " + borough + " with closed stations: " + closedStations.join(", "));
-	mongoClient.connect(mongoUrl, function(err, client) {
-		if (err) throw err;
-		var db = client.db(mongoDB);
 		db.collection('incidentsData')
 			.find({ $and: [ { borough: borough }, { firstPumpStation: { $nin: closedStations }} ] }, { firstPumpTime: 1 , simplifiedLongitude: 1, simplifiedLatitude: 1 })
 			.toArray(function (err, items) {
@@ -136,12 +136,13 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 										[ ]);
 						callback(null, oldTimings.concat(newTimings));
 				});				
-			client.close();
 		});
 	});
+	
 }, function (borough, closedStations) {
 	closedStations = closedStations.sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
+client.close();
 });
 
 
