@@ -1,6 +1,6 @@
 {
   "name": "FNRServicesServer",
-  "version": "0.0.1",
+  "version": "1.0.16",
   "author": "Gianfranco Cecconi <gianfranco.cecconi@digitalcontraptionsimaginarium.co.uk>",
   "description": "Server version of the original data.js .",
   "contributors": [ 
@@ -37,6 +37,6 @@
   },
   "license": "MIT",
   "engines": {
-    "node": ">=0.10.20"
+    "node": ">=16.13.0"
   }
 }
