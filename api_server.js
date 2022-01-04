@@ -135,7 +135,8 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 										},
 										[ ]);
 						callback(null, oldTimings.concat(newTimings));
-				});
+				});				
+			client.close();
 		});
 	});
 }, function (borough, closedStations) {
