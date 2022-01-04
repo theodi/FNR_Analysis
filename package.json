@@ -30,7 +30,7 @@
   ],
   "dependencies" : {
     "async": ">=0.2.9",
-    "mongoskin": ">=0.6.0",
+    "mongodb": ">=4.0.0",
     "optimist": ">=0.6.0",
     "restify": ">=2.6.0",    
     "underscore": ">=1.5.2"

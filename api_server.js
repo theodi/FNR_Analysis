@@ -6,7 +6,9 @@ var _ = require('underscore'),
 		.default('port', 8080)
 		.argv,
 	async = require('async'),
-	mongo = require('mongoskin').db('mongodb://' + argv.dbserver, { database: argv.dbname, safe: true, strict: false }),
+	mongoClient = require('mongodb').MongoClient,
+	mongoUrl = 'mongodb://' + argv.dbserver,
+	mongoDB = argv.dbname;
 	restify = require('restify'),
 	zlib = require('zlib'),
 
@@ -60,7 +62,6 @@ var _ = require('underscore'),
 
 	serverReady = false;
 
-
 var mean = function (values) {
 	return _.reduce(values, function (memo, num) { return memo + num; }, 0.0) / values.length;
 }
@@ -99,39 +100,43 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 
 	var boroughIncidentsNotImpacted = [ ];
 	log("Calculating for the first time getBoroughResponseTimes for " + borough + " with closed stations: " + closedStations.join(", "));
-	mongo.collection('incidentsData')
-		.find({ $and: [ { borough: borough }, { firstPumpStation: { $nin: closedStations }} ] }, { firstPumpTime: 1 , simplifiedLongitude: 1, simplifiedLatitude: 1 })
-		.toArray(function (err, items) {
-			boroughIncidentsNotImpacted = items;
-			mongo.collection('incidentsData')
-				.find({ $and: [ { borough: borough }, { firstPumpStation: { $in: closedStations } } ]}, { simplifiedLongitude: 1, simplifiedLatitude: 1 })
-				.toArray(function (err, boroughIncidentsImpacted) {
-					oldTimings = _.map(boroughIncidentsNotImpacted, function (i) { return i.firstPumpTime; }),
-					newTimings = _.reduce(
-									_.map(
-										_.values(
-											_.groupBy(
-												boroughIncidentsImpacted, 
-												function (i) { 
-													return i.simplifiedLongitude + '_' + i.simplifiedLatitude; 
-												}
-									  		)
-										), 
-										function (incidentsInSameSquare) { 
-											return { 
-												noOfIncidents: incidentsInSameSquare.length, 
-												longitude: incidentsInSameSquare[0].simplifiedLongitude, 
-												latitude: incidentsInSameSquare[0].simplifiedLatitude 
-											}; 
-										}), 
-									function (memo, coordinates) {
-										var newResponseTime = estimateSquareResponseTime(coordinates.longitude, coordinates.latitude);
-										// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
-										return memo.concat(_.map(Array(coordinates.noOfIncidents + 1).join(1).split(''), function() { return newResponseTime; }));
-									},
-									[ ]);
-					callback(null, oldTimings.concat(newTimings));
-			});	
+	mongoClient.connect(mongoUrl, function(err, client) {
+		if (err) throw err;
+		var db = client.db(mongoDB);
+		db.collection('incidentsData')
+			.find({ $and: [ { borough: borough }, { firstPumpStation: { $nin: closedStations }} ] }, { firstPumpTime: 1 , simplifiedLongitude: 1, simplifiedLatitude: 1 })
+			.toArray(function (err, items) {
+				boroughIncidentsNotImpacted = items;
+				db.collection('incidentsData')
+					.find({ $and: [ { borough: borough }, { firstPumpStation: { $in: closedStations } } ]}, { simplifiedLongitude: 1, simplifiedLatitude: 1 })
+					.toArray(function (err, boroughIncidentsImpacted) {
+						oldTimings = _.map(boroughIncidentsNotImpacted, function (i) { return i.firstPumpTime; }),
+						newTimings = _.reduce(
+										_.map(
+											_.values(
+												_.groupBy(
+													boroughIncidentsImpacted, 
+													function (i) { 
+														return i.simplifiedLongitude + '_' + i.simplifiedLatitude; 
+													}
+										  		)
+											), 
+											function (incidentsInSameSquare) { 
+												return { 
+													noOfIncidents: incidentsInSameSquare.length, 
+													longitude: incidentsInSameSquare[0].simplifiedLongitude, 
+													latitude: incidentsInSameSquare[0].simplifiedLatitude 
+												}; 
+											}), 
+										function (memo, coordinates) {
+											var newResponseTime = estimateSquareResponseTime(coordinates.longitude, coordinates.latitude);
+											// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
+											return memo.concat(_.map(Array(coordinates.noOfIncidents + 1).join(1).split(''), function() { return newResponseTime; }));
+										},
+										[ ]);
+						callback(null, oldTimings.concat(newTimings));
+				});
+		});
 	});
 }, function (borough, closedStations) {
 	closedStations = closedStations.sort();
@@ -173,8 +178,12 @@ var getBoroughResponseTime = async.memoize(function (borough, closedStations, ca
 
 
 var getFootfallMedian = async.memoize(function (borough, callback) {
-	mongo.collection('incidentsData').find({ borough: borough }, { footfall: 1 }).toArray(function (err, items) {
-		callback(null, median(_.map(items, function (i) { return i.footfall; })));
+	mongoClient.connect(mongoUrl, function(err, client) {
+		if (err) throw err;
+		var db = client.db(mongoDB);
+		db.collection('incidentsData').find({ borough: borough }, { footfall: 1 }).toArray(function (err, items) {
+			callback(null, median(_.map(items, function (i) { return i.footfall; })));
+		});
 	});
 });
 
@@ -214,9 +223,15 @@ var getAllBoroughsScores = async.memoize(function (closedStations, callback) {
 				})
 			},
 			function (callback) {
-				mongo.collection('censusData').find({ borough: borough }).toArray(function (err, items) {
-					census = items[0];
-					callback(null);
+				mongoClient.connect(mongoUrl, function(err, client) {
+					if (err) throw err;
+					var db = client.db(mongoDB);
+					db.collection('censusData').find({ borough: borough }).toArray(function (err, items) {
+						if (err) throw err;
+						census = items[0];
+						callback(null);
+					});
+
 				});
 			},
 			function (callback) {
@@ -302,8 +317,8 @@ var cacheAll = function (callback) {
 var server = restify.createServer({
   name: 'ODI - FNR Analysis server',
 });
-server.use(restify.queryParser());
-server.use(restify.jsonp());
+server.use(restify.plugins.queryParser());
+server.use(restify.plugins.jsonp());
 
 
 server.get('/getBoroughResponseTime', function (req, res, next) {
@@ -315,8 +330,8 @@ server.get('/getBoroughResponseTime', function (req, res, next) {
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	getBoroughResponseTime(req.query.borough, req.query.close, function (err, result) {
 		res.send(200, { response: result });
+		return next();
 	});
-	return next();
 });
 
 
@@ -329,8 +344,8 @@ server.get('/getBoroughScore', function (req, res, next) {
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	getBoroughScore(req.query.borough, req.query.close, function (err, result) {
 		res.send(200, { response: result });
+		return next();
 	});
-	return next();
 });
 
 
@@ -343,10 +358,9 @@ server.get('/getBoroughHist', function (req, res, next) {
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	getBoroughHist(req.query.borough, req.query.close, function (err, result) {
 		res.send(200, { response: result });
+		return next();
 	});
-	return next();
 });
-
 
 server.get('/getAllBoroughsScores', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
@@ -355,8 +369,8 @@ server.get('/getAllBoroughsScores', function (req, res, next) {
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
 	getAllBoroughsScores(req.query.close, function (err, result) {
 		res.send(200, { response: result });
+		return next();
 	});
-	return next();
 });
 
 
