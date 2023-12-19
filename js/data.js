@@ -1,5 +1,5 @@
 Data = (function() {
-  var  host = "http://api.london-fire.labs.theodi.org"
+  var  host = "https://london-fire-api.theodi.org"
   var _this = {
 
     histogramUrl:           host + "/getBoroughHist",

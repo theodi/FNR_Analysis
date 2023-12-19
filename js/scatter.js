@@ -60,7 +60,7 @@ initializeScatter = function() {
 		.attr("transform", "rotate(-90)")
 		.text("Response Time (s)");
 
-	d3.json("http://api.london-fire.labs.theodi.org:8080/getAllBoroughScores", function(data) {
+	d3.json("https://london-fire-api.theodi.org/getAllBoroughScores", function(data) {
 		// Add a dot per nation. Initialize the data at 1800, and set the colors.
 		var dot = svg.append("g")
 			.attr("class", "dots")
