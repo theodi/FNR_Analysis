@@ -3,23 +3,23 @@
   "version": "1.0.16",
   "author": "Gianfranco Cecconi <gianfranco.cecconi@digitalcontraptionsimaginarium.co.uk>",
   "description": "Server version of the original data.js .",
-  "contributors": [ 
+  "contributors": [
     {
       "name": "David Tarrant",
       "email": "davetaz@theodi.org"
-    }, 
+    },
     {
       "name": "Gianfranco Cecconi",
       "email": "gianfranco.cecconi@digitalcontraptionsimaginarium.co.uk"
-    }, 
+    },
     {
       "name": "Tim Cowlishaw",
       "email": "tim@timcowlishaw.co.uk"
-    }, 
+    },
     {
       "name": "Ulrich Atz",
       "email": "ulrich.atz@theodi.org"
-    } 
+    }
   ],
   "keywords": [
     "London Fire Brigade",
@@ -28,11 +28,11 @@
     "Open Data",
     "Telefonica"
   ],
-  "dependencies" : {
+  "dependencies": {
     "async": ">=0.2.9",
-    "mongodb": ">=4.0.0",
-    "optimist": ">=0.6.0",
-    "restify": ">=2.6.0",    
+    "mongodb": "^3.6.6",
+    "optimist": "^0.5.2",
+    "restify": ">=2.6.0",
     "underscore": ">=1.5.2"
   },
   "license": "MIT",
