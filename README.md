@@ -46,10 +46,10 @@ To optimise the speed of execution, it is necessary to create a few dedicated in
 
 and then execute the statements listed below:
 
-    db.incidentsData.ensureIndex({ "borough": 1});
-    db.incidentsData.ensureIndex({ "firstPumpStation": 1});
-    db.incidentsData.ensureIndex({ "borough": 1, "firstPumpStation": 1});
-    db.censusData.ensureIndex({ borough: 1});
+    db.incidentsData.createIndex({ "borough": 1});
+    db.incidentsData.createIndex({ "firstPumpStation": 1});
+    db.incidentsData.createIndex({ "borough": 1, "firstPumpStation": 1});
+    db.censusData.createIndex({ borough: 1});
 
 Next copy config.env.example to config.env and update this to point to your database and set the port you want to run the server on.
 
