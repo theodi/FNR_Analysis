@@ -51,9 +51,11 @@ and then execute the statements listed below:
     db.incidentsData.ensureIndex({ "borough": 1, "firstPumpStation": 1});
     db.censusData.ensureIndex({ borough: 1});
 
+Next copy config.env.example to config.env and update this to point to your database and set the port you want to run the server on.
+
 Then, we can start the server by doing:
 
-    node api_server.js --dbname databaseName
+    node api_server.js
 
 You will see that the server starts caching a series of calculations that are the most common, to speedup execution. The server will be available for use at completion of this process.
 

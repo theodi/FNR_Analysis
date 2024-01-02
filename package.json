@@ -30,6 +30,7 @@
   ],
   "dependencies": {
     "async": ">=0.2.9",
+    "dotenv": "^16.3.1",
     "mongodb": "^3.6.6",
     "optimist": "^0.5.2",
     "restify": ">=2.6.0",

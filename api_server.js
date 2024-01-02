@@ -1,14 +1,11 @@
+require("dotenv").config({ path: "./config.env" });
 var _ = require('underscore'),
-	argv = require('optimist') 
-		.usage('Usage: $0 [--dbserver serverName] [--dbname databaseName] [--port portNumber]\nNote that the environment variable PORT will override any port specified on the command line.')
-		.demand([ 'dbname' ])
-		.default('dbserver', 'localhost')
-		.default('port', 8080)
-		.argv,
 	async = require('async'),
 	mongoClient = require('mongodb').MongoClient,
-	mongoUrl = 'mongodb://' + argv.dbserver,
-	mongoDB = argv.dbname;
+	mongoUrl = process.env.MONGO_URI,
+	mongoDB = process.env.MONGO_DB,
+	port = process.env.PORT,
+
 	restify = require('restify'),
 	zlib = require('zlib'),
 
@@ -21,7 +18,7 @@ var _ = require('underscore'),
 		"Sutton", "Tower Hamlets", "Waltham Forest", "Wandsworth",
 		"Westminster" ],
 
-	STATIONS_NAMES = [ 'Acton', 'Addington', 'Barking', 'Barnet', 'Battersea', 
+	STATIONS_NAMES = [ 'Acton', 'Addington', 'Barking', 'Barnet', 'Battersea',
 		'Beckenham', 'Belsize', 'Bethnal Green', 'Bexley', 'Biggin Hill',
 		'Bow', 'Brixton', 'Bromley', 'Chelsea', 'Chingford', 'Chiswick',
   		'Clapham', 'Clerkenwell', 'Croydon', 'Dagenham', 'Deptford',
@@ -40,7 +37,7 @@ var _ = require('underscore'),
   		'Soho', 'Southall', 'Southgate', 'Southwark', 'Stanmore',
   		'Stoke Newington', 'Stratford', 'Surbiton', 'Sutton', 'Tooting',
   		'Tottenham', 'Twickenham', 'Wallington', 'Walthamstow', 'Wandsworth',
-  		'Wembley', 'Wennington', 'West Hampstead', 'West Norwood', 
+  		'Wembley', 'Wennington', 'West Hampstead', 'West Norwood',
   		'Westminster', 'Whitechapel', 'Willesden', 'Wimbledon', 'Woodford',
  		'Woodside', 'Woolwich' ],
 
@@ -55,9 +52,9 @@ var _ = require('underscore'),
     SIMPLIFIED_SQUARE_LONGITUDE_SIZE = 0.0015,
     LENGTH_OF_A_DEGREE_OF_LATITUDE = 111.25826132219737, // km
 	LENGTH_OF_A_DEGREE_OF_LONGITUDE = 69.4032968251825, //km
-	AREA_OF_ONE_SIMPLIFIED_SQUARE = SIMPLIFIED_SQUARE_LATITUDE_SIZE * 
-		LENGTH_OF_A_DEGREE_OF_LATITUDE * 
-		SIMPLIFIED_SQUARE_LONGITUDE_SIZE * 
+	AREA_OF_ONE_SIMPLIFIED_SQUARE = SIMPLIFIED_SQUARE_LATITUDE_SIZE *
+		LENGTH_OF_A_DEGREE_OF_LATITUDE *
+		SIMPLIFIED_SQUARE_LONGITUDE_SIZE *
 		LENGTH_OF_A_DEGREE_OF_LONGITUDE, // sqkm
 
 	serverReady = false;
@@ -81,7 +78,7 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 		var db = client.db(mongoDB);
 
 	// Estimates the response time of a generic incident in a square; it expects
-	// boroughIncidentsNotImpacted to be an array of incidents not impacted from 
+	// boroughIncidentsNotImpacted to be an array of incidents not impacted from
 	// the stations closure, hence relevant for calculation
 	var estimateSquareResponseTime = _.memoize(function (longitude, latitude) {
 		var MIN_NO_OF_INCIDENTS = 1,
@@ -115,19 +112,19 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 										_.map(
 											_.values(
 												_.groupBy(
-													boroughIncidentsImpacted, 
-													function (i) { 
-														return i.simplifiedLongitude + '_' + i.simplifiedLatitude; 
+													boroughIncidentsImpacted,
+													function (i) {
+														return i.simplifiedLongitude + '_' + i.simplifiedLatitude;
 													}
 										  		)
-											), 
-											function (incidentsInSameSquare) { 
-												return { 
-													noOfIncidents: incidentsInSameSquare.length, 
-													longitude: incidentsInSameSquare[0].simplifiedLongitude, 
-													latitude: incidentsInSameSquare[0].simplifiedLatitude 
-												}; 
-											}), 
+											),
+											function (incidentsInSameSquare) {
+												return {
+													noOfIncidents: incidentsInSameSquare.length,
+													longitude: incidentsInSameSquare[0].simplifiedLongitude,
+													latitude: incidentsInSameSquare[0].simplifiedLatitude
+												};
+											}),
 										function (memo, coordinates) {
 											var newResponseTime = estimateSquareResponseTime(coordinates.longitude, coordinates.latitude);
 											// See http://stackoverflow.com/a/19290390/1218376 for the strange expression below
@@ -135,10 +132,10 @@ var getBoroughResponseTimes = async.memoize(function (borough, closedStations, c
 										},
 										[ ]);
 						callback(null, oldTimings.concat(newTimings));
-				});				
+				});
 		});
 	});
-	
+
 }, function (borough, closedStations) {
 	closedStations = closedStations.sort();
 	return borough + (closedStations.length > 0 ? '-minus-' + closedStations.join('_') : '');
@@ -199,7 +196,7 @@ var getBoroughScore = async.memoize(function (borough, closedStations, callback)
 	getBoroughResponseTimes(borough, closedStations, function (err, responseTimes) {
 		getFootfallMedian(borough, function (err, medianFootfall) {
 			var medianResponseTimes = median(_.map(responseTimes, function (x) { return x / 60; }));
-			callback(null, Math.pow(medianResponseTimes, A) * 
+			callback(null, Math.pow(medianResponseTimes, A) *
 				Math.pow(Math.log(medianFootfall + 2) / Math.log(10), 1 - A));
 		});
 	});
@@ -282,31 +279,31 @@ var cacheAll = function (callback) {
 		},
 		function (seriesCallback) {
 			log("Caching getBoroughResponseTime(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
-			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughResponseTime(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);	
+			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughResponseTime(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);
 		},
 		function (seriesCallback) {
 			log("Caching getBoroughScore(borough) for all boroughs...");
-			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughScore(b, [ ], callback) }, seriesCallback);	
+			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughScore(b, [ ], callback) }, seriesCallback);
 		},
 		function (seriesCallback) {
 			log("Caching getBoroughScore(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
-			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughScore(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);	
+			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughScore(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);
 		},
 		function (seriesCallback) {
 			log("Caching getBoroughHist(borough) for all boroughs...");
-			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughHist(b, [ ], callback) }, seriesCallback);	
+			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughHist(b, [ ], callback) }, seriesCallback);
 		},
 		function (seriesCallback) {
 			log("Caching getBoroughHist(borough, closedStations) for all boroughs and the stations selected by the Mayor...");
-			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughHist(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);	
+			async.eachSeries(BOROUGHS_NAMES, function (b, callback) { getBoroughHist(b, STATIONS_FACING_CLOSURE_NAMES, callback) }, seriesCallback);
 		},
 		function (seriesCallback) {
 			log("Caching getAllBoroughsScores([ ])...");
-			getAllBoroughsScores([ ], seriesCallback);	
+			getAllBoroughsScores([ ], seriesCallback);
 		},
 		function (seriesCallback) {
 			log("Caching getAllBoroughsScores(closedStations) for the stations selected by the Mayor......");
-			getAllBoroughsScores(STATIONS_FACING_CLOSURE_NAMES, seriesCallback);	
+			getAllBoroughsScores(STATIONS_FACING_CLOSURE_NAMES, seriesCallback);
 		},
 	], function (err, results) {
 		log("Caching completed.");
@@ -326,7 +323,7 @@ server.use(restify.plugins.jsonp());
 server.get('/getBoroughResponseTime', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
 	req.query.close = [ ].concat(req.query.close || [ ]);
-	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
+	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough))
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
 	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
@@ -340,7 +337,7 @@ server.get('/getBoroughResponseTime', function (req, res, next) {
 server.get('/getBoroughScore', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
 	req.query.close = [ ].concat(req.query.close || [ ]);
-	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
+	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough))
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
 	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
@@ -354,7 +351,7 @@ server.get('/getBoroughScore', function (req, res, next) {
 server.get('/getBoroughHist', function (req, res, next) {
 	if (!serverReady) return next(new Error("The server is not ready, please try again later."));
 	req.query.close = [ ].concat(req.query.close || [ ]);
-	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough)) 
+	if (!req.query.borough || !_.contains(BOROUGHS_NAMES, req.query.borough))
 		return next(new Error("The borough is either not specified or not recognised. Have you checked the spelling?"));
 	if (req.query.close.length > 0 && _.some(req.query.close, function (s) { return !_.contains(STATIONS_NAMES, s); }))
 		return next(new Error("One or more of the specified stations are not recognised. Have you checked the spelling?"));
@@ -376,7 +373,7 @@ server.get('/getAllBoroughsScores', function (req, res, next) {
 });
 
 
-var port = process.env.PORT || argv.port;
+var port = process.env.PORT;
 server.listen(port);
 log("The server is listening on port " + port + ".");
 cacheAll();
